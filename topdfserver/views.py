@@ -31,8 +31,10 @@ def home_view(request):
 
     converted_dir = request.registry.settings['converted_dir']
     converted_filepath = converters[mimetype](filepath, converted_dir)
+    converted_basename = os.path.basename(converted_filepath)
 
-    return HTTPFound(static_url(converted_filepath, request))
+    return HTTPFound(static_url(converted_filepath, request),
+			content_disposition='attachement; filename=%s' % converted_basename)
 
 
 def download_file(url, target_dir):
