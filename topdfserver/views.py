@@ -6,6 +6,7 @@ from uuid import uuid4
 from pyramid.view import view_config
 from pyramid.url import static_url
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
+from pyramid.response import Response
 from . import odt_to_pdf, svg_to_pdf
 
 converters = {}
@@ -27,7 +28,11 @@ def home_view(request):
         return HTTPBadRequest('Unsupported mimetype %s' % mimetype)
 
     target_dir = request.registry.settings['download_dir']
-    filepath = download_file(url, target_dir)
+    try:
+        filepath = download_file(url, target_dir)
+    except urllib2.HTTPError, e:
+        return Response("Sorry, there was an error fetching the document."
+                        "Reason: %s" % e.reason, status_int=e.getcode())
 
     converted_dir = request.registry.settings['converted_dir']
     converted_filepath = converters[mimetype](filepath, converted_dir)
