@@ -12,6 +12,10 @@ requires = [
     'waitress',
     ]
 
+test_requires = requires + [
+    'webtest',
+    ]
+
 setup(name='topdfserver',
       version='0.0',
       description='topdfserver',
@@ -30,7 +34,7 @@ setup(name='topdfserver',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
-      tests_require=requires,
+      tests_require=test_requires,
       test_suite="topdfserver",
       entry_points = """\
       [paste.app_factory]
