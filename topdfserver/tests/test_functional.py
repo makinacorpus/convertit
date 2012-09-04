@@ -38,8 +38,8 @@ class FunctionalTests(unittest.TestCase):
     def test_with_valid_url(self):
         "Get homepage with valid `url` param"
 
-        url = 'http://example.com/example.odt'
-        odt_data = open(os.path.join(self.data_dir, 'example.odt')).read()
+        url = 'http://example.com/test_document.odt'
+        odt_data = open(os.path.join(self.data_dir, 'test_document.odt')).read()
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
             mock_req = Mock()
             mock_req.read.return_value = odt_data
