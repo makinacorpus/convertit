@@ -2,11 +2,16 @@ import os
 import subprocess
 
 
-def register(converters):
-    unoconv = subprocess.check_output(['which', 'unoconv'])
-    print(unoconv)
+def unoconv_exists():
+    result = subprocess.call(['which', 'unoconv'])
+    if result == 0:
+        return True
+    else:
+        return False
 
-    if unoconv:
+
+def register(converters, unoconv_exists=unoconv_exists):
+    if unoconv_exists():
         converters['application/vnd.oasis.opendocument.text'] = odt_to_pdf
 
 
