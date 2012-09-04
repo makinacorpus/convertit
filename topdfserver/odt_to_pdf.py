@@ -1,4 +1,3 @@
-import os
 import subprocess
 
 
@@ -15,10 +14,6 @@ def register(converters):
         converters['application/vnd.oasis.opendocument.text'] = odt_to_pdf
 
 
-def odt_to_pdf(filepath, target_dir):
-    command = ['unoconv', '-o', target_dir, '--format', 'pdf',
-        filepath]
+def odt_to_pdf(source, target):
+    command = ['unoconv', '-o', target, '--format', 'pdf', source]
     subprocess.call(command)
-    basename = os.path.basename(filepath)
-    filename, ext = os.path.splitext(basename)
-    return os.path.join(target_dir, filename + '.pdf')

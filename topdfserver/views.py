@@ -1,12 +1,14 @@
 import os
 import urllib2
 from mimetypes import guess_type
-from uuid import uuid4
 
 from pyramid.view import view_config
 from pyramid.url import static_url
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
+from pyramid.response import Response
 from . import odt_to_pdf, svg_to_pdf
+from .url_to_filename import url_to_filename
+from .download_file import download_file
 
 converters = {}
 
@@ -16,32 +18,38 @@ svg_to_pdf.register(converters)
 
 @view_config(route_name='home')
 def home_view(request):
+    converted_dir = request.registry.settings['converted_dir']
+    download_dir = request.registry.settings['download_dir']
     url = request.GET.get('url')
 
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
-    mimetype = guess_type(url)[0]
-
-    if mimetype not in converters:
+    try:
+        mimetype, _ = guess_type(url)
+        to_pdf = converters[mimetype]
+    except Exception:
         return HTTPBadRequest('Unsupported mimetype %s' % mimetype)
 
-    target_dir = request.registry.settings['download_dir']
-    filepath = download_file(url, target_dir)
+    base_error_msg = "Sorry, there was an error fetching the document."
+    try:
+        downloaded_filepath = download_file(url, download_dir)
+    except ValueError, e:
+        return HTTPBadRequest(base_error_msg + " Reason: %s" % e.message)
+    except urllib2.HTTPError, e:
+        return Response(base_error_msg + " Reason: %s" % e.reason,
+            status_int=e.getcode())
+    except urllib2.URLError, e:
+        return HTTPBadRequest(base_error_msg + " Reason: %s" % e.reason)
 
-    converted_dir = request.registry.settings['converted_dir']
-    converted_filepath = converters[mimetype](filepath, converted_dir)
-    converted_basename = os.path.basename(converted_filepath)
+    downloaded_basename = os.path.basename(downloaded_filepath)
+    downloaded_filename, _ = os.path.splitext(downloaded_basename)
+
+    converted_filename = url_to_filename(url, downloaded_filename)
+    converted_basename = converted_filename + '.pdf'
+    converted_filepath = os.path.join(converted_dir, converted_basename)
+
+    to_pdf(downloaded_filepath, converted_filepath)
 
     return HTTPFound(static_url(converted_filepath, request),
-			content_disposition='attachement; filename=%s' % converted_basename)
-
-
-def download_file(url, target_dir):
-    _, ext = os.path.splitext(url)
-    data = urllib2.urlopen(url).read()
-    filename = "%s%s" % (uuid4(), ext)
-    target_file = os.path.join(target_dir, filename)
-    with open(target_file, 'w') as f:
-        f.write(data)
-    return target_file
+        content_disposition='attachement; filename=%s' % converted_basename)

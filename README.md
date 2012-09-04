@@ -7,24 +7,26 @@ Development
 ===========
 
 ```
-setup.py develop
+python setup.py develop
 ```
 
 Optional dependencies:
+
   * for OpenDocument support: unoconv
+  * for SVG support: inkscape
 
-Running The Tests For Your Application
---------------------------------------
+Running tests
+-------------
 
 ```
-setup.py test
+python setup.py test
 ```
 
-Running The Project Application
--------------------------------
+Running the application
+-----------------------
 
 ```
 pserve development.ini --reload
 ```
 
-Once your application is running, you may visit http://localhost:6543/ in your browser.
+Once the application is running, you may visit http://localhost:6543/ in your browser.
