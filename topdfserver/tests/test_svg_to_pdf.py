@@ -45,8 +45,8 @@ class OdtToPdfConvertionTests(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
     def test_svg_conversion(self):
-        converted_filepath = svg_to_pdf.svg_to_pdf(self.document_filepath,
-            self.temp_dir)
+        converted_filepath = os.path.join(self.temp_dir, 'test_svg.pdf')
+        svg_to_pdf.svg_to_pdf(self.document_filepath, converted_filepath)
         cmp_result = filecmp.cmp(converted_filepath, self.reference_filepath)
 
         self.assertTrue(cmp_result)
