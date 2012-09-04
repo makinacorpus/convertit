@@ -1,7 +1,8 @@
 import os
 import shutil
 import unittest
-import filecmp
+
+from mock import patch
 
 from .. import odt_to_pdf
 
@@ -9,23 +10,19 @@ from .. import odt_to_pdf
 here = os.path.dirname(os.path.realpath(__file__))
 
 
-def unoconv_exists():
-    return True
-
-
-def unoconv_not_exists():
-    return False
-
-
 class OdtToPdfRegisterTests(unittest.TestCase):
-    def test_registered_when_unoconv_exists(self):
+    @patch('topdfserver.odt_to_pdf.unoconv_exists')
+    def test_registered_when_unoconv_exists(self, unoconv_exists):
+        unoconv_exists.return_value = True
         converters = {}
-        odt_to_pdf.register(converters, unoconv_exists)
+        odt_to_pdf.register(converters)
         self.assertIn('application/vnd.oasis.opendocument.text', converters)
 
-    def test_not_registered_when_unoconv_not_exists(self):
+    @patch('topdfserver.odt_to_pdf.unoconv_exists')
+    def test_not_registered_when_unoconv_not_exists(self, unoconv_exists):
+        unoconv_exists.return_value = False
         converters = {}
-        odt_to_pdf.register(converters, unoconv_not_exists)
+        odt_to_pdf.register(converters)
         self.assertNotIn('application/vnd.oasis.opendocument.text', converters)
 
 

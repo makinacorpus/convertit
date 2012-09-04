@@ -10,7 +10,7 @@ def inkscape_exists():
         return False
 
 
-def register(converters, inkscape_exists=inkscape_exists):
+def register(converters):
     if inkscape_exists():
         converters['image/svg+xml'] = svg_to_pdf
 

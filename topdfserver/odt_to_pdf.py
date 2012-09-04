@@ -10,7 +10,7 @@ def unoconv_exists():
         return False
 
 
-def register(converters, unoconv_exists=unoconv_exists):
+def register(converters):
     if unoconv_exists():
         converters['application/vnd.oasis.opendocument.text'] = odt_to_pdf
 

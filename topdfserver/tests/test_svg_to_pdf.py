@@ -3,29 +3,27 @@ import shutil
 import unittest
 import filecmp
 
+from mock import patch
+
 from .. import svg_to_pdf
 
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
-def inkscape_exists():
-    return True
-
-
-def inkscape_not_exists():
-    return False
-
-
 class OdtToPdfRegisterTests(unittest.TestCase):
-    def test_registered_when_inkscape_exists(self):
+    @patch('topdfserver.svg_to_pdf.inkscape_exists')
+    def test_registered_when_inkscape_exists(self, inkscape_exists):
+        inkscape_exists.return_value = True
         converters = {}
-        svg_to_pdf.register(converters, inkscape_exists)
+        svg_to_pdf.register(converters)
         self.assertIn('image/svg+xml', converters)
 
-    def test_not_registered_when_inkscape_not_exists(self):
+    @patch('topdfserver.svg_to_pdf.inkscape_exists')
+    def test_not_registered_when_inkscape_not_exists(self, inkscape_exists):
+        inkscape_exists.return_value = False
         converters = {}
-        svg_to_pdf.register(converters, inkscape_not_exists)
+        svg_to_pdf.register(converters)
         self.assertNotIn('image/svg+xml', converters)
 
 
