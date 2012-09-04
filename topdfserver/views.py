@@ -32,6 +32,9 @@ def home_view(request):
     base_error_msg = "Sorry, there was an error fetching the document."
     try:
         filepath = download_file(url, target_dir)
+    except ValueError, e:
+        return HTTPBadRequest(base_error_msg +
+                              " Reason: %s" % e.message)
     except urllib2.HTTPError, e:
         return Response(base_error_msg + 
                         " Reason: %s" % e.reason, status_int=e.getcode())

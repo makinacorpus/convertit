@@ -50,6 +50,12 @@ class FunctionalTests(unittest.TestCase):
             filepath = os.path.join(self.settings['converted_dir'], filename)
             self.assertTrue(os.path.exists(filepath))
 
+    def test_invalid_url_type(self):
+        "Get homepage with `url` missing a protocol identifier"
+        url = 'www.example.com/test_document.odt'
+        resp = self.testapp.get('/', params={'url': url}, status=400)
+        self.assertTrue("unknown url type" in resp.body)
+
     def test_invalid_hostname(self):
         "Get homepage with `url` that triggers a DNS resolution error"
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
