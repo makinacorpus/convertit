@@ -28,11 +28,16 @@ def home_view(request):
         return HTTPBadRequest('Unsupported mimetype %s' % mimetype)
 
     target_dir = request.registry.settings['download_dir']
+
+    base_error_msg = "Sorry, there was an error fetching the document."
     try:
         filepath = download_file(url, target_dir)
     except urllib2.HTTPError, e:
-        return Response("Sorry, there was an error fetching the document."
-                        "Reason: %s" % e.reason, status_int=e.getcode())
+        return Response(base_error_msg + 
+                        " Reason: %s" % e.reason, status_int=e.getcode())
+    except urllib2.URLError, e:
+        return HTTPBadRequest(base_error_msg +
+                              " Reason: %s" % e.reason)
 
     converted_dir = request.registry.settings['converted_dir']
     converted_filepath = converters[mimetype](filepath, converted_dir)

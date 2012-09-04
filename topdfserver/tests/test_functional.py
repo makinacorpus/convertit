@@ -50,6 +50,14 @@ class FunctionalTests(unittest.TestCase):
             filepath = os.path.join(self.settings['converted_dir'], filename)
             self.assertTrue(os.path.exists(filepath))
 
+    def test_invalid_hostname(self):
+        "Get homepage with `url` that triggers a DNS resolution error"
+        with patch.object(urllib2, 'urlopen') as mock_urlopen:
+            url = 'http://example.com/test_document.odt'
+            mock_urlopen.side_effect = urllib2.URLError("Name or service not known")
+            resp = self.testapp.get('/', params={'url': url}, status=400)
+            self.assertTrue("Name or service not known" in resp.body)
+
     def test_forbidden_url(self):
         "Get homepage with `url` that is forbidden"
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
