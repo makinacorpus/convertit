@@ -14,6 +14,7 @@ requires = [
 
 test_requires = requires + [
     'webtest',
+    'mock',
     ]
 
 setup(name='topdfserver',
