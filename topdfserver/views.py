@@ -8,7 +8,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
 from pyramid.response import Response
 from . import odt_to_pdf, svg_to_pdf
 from .url_to_filename import url_to_filename
-from .download_file import download_file
+from .helpers import download_file
 
 converters = {}
 

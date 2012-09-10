@@ -1,7 +1,7 @@
 import os
 from urlparse import urlsplit
 
-from .slugify import slugify
+from .helpers import slugify
 
 
 def url_to_filename(url, default_filename):
