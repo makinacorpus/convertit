@@ -4,7 +4,7 @@ from mimetypes import guess_type
 
 from pyramid.view import view_config
 from pyramid.url import static_url
-from pyramid.httpexceptions import HTTPBadRequest, HTTPFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPInternalServerError
 from pyramid.response import Response
 from . import odt_to_pdf, svg_to_pdf
 from .url_to_filename import url_to_filename
@@ -25,10 +25,13 @@ def home_view(request):
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
-    try:
-        mimetype, _ = guess_type(url)
+    mimetype, _ = guess_type(url)
+    if not mimetype:
+        return HTTPInternalServerError('Can not guess mimetype')
+
+    if mimetype in converters:
         to_pdf = converters[mimetype]
-    except Exception:
+    else:
         return HTTPBadRequest('Unsupported mimetype %s' % mimetype)
 
     base_error_msg = "Sorry, there was an error fetching the document."

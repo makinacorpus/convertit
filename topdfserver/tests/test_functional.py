@@ -32,8 +32,8 @@ class FunctionalTests(unittest.TestCase):
     def test_with_invalid_url(self):
         "Get homepage with an invalid `url` param"
 
-        resp = self.testapp.get('/', params={'url': 'http://example.com/foo'},  status=400)
-        self.assertTrue('Unsupported mimetype' in resp.body)
+        resp = self.testapp.get('/', params={'url': 'http://example.com/foo'},  status=500)
+        self.assertIn('Can not guess mimetype', resp.body)
 
     def test_with_valid_url(self):
         "Get homepage with valid `url` param"
