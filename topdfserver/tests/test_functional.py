@@ -27,7 +27,7 @@ class FunctionalTests(unittest.TestCase):
         "Get homepage without any `url` param"
 
         resp = self.testapp.get('/', status=400)
-        self.assertTrue('Missing parameter' in resp.body)
+        self.assertIn('Missing parameter', resp.body)
 
     def test_with_invalid_url(self):
         "Get homepage with an invalid `url` param"
@@ -54,7 +54,7 @@ class FunctionalTests(unittest.TestCase):
         "Get homepage with `url` missing a protocol identifier"
         url = 'www.example.com/test_document.odt'
         resp = self.testapp.get('/', params={'url': url}, status=400)
-        self.assertTrue("unknown url type" in resp.body)
+        self.assertIn("unknown url type", resp.body)
 
     def test_invalid_hostname(self):
         "Get homepage with `url` that triggers a DNS resolution error"
@@ -62,7 +62,7 @@ class FunctionalTests(unittest.TestCase):
             url = 'http://example.com/test_document.odt'
             mock_urlopen.side_effect = urllib2.URLError("Name or service not known")
             resp = self.testapp.get('/', params={'url': url}, status=400)
-            self.assertTrue("Name or service not known" in resp.body)
+            self.assertIn("Name or service not known", resp.body)
 
     def test_forbidden_url(self):
         "Get homepage with `url` that is forbidden"
@@ -71,4 +71,4 @@ class FunctionalTests(unittest.TestCase):
             mock_urlopen.side_effect = urllib2.HTTPError(url, 403,
                     "Forbidden access", [], None)
             resp = self.testapp.get('/', params={'url': url}, status=403)
-            self.assertTrue("Forbidden access" in resp.body)
+            self.assertIn("Forbidden access", resp.body)
