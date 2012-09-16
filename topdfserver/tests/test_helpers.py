@@ -1,6 +1,6 @@
 import unittest
 
-from ..url_to_filename import url_to_filename
+from ..helpers import url_to_filename
 
 
 class UrlToFilenameTests(unittest.TestCase):
