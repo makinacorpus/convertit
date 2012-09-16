@@ -29,17 +29,16 @@ def slugify(text, delim=u'-'):
     return unicode(delim.join(result))
 
 
-def url_to_filename(url, default_filename):
+def url_to_filename(url):
     splited_url = urlsplit(url)
-    basename = os.path.basename(splited_url.path)
-    if basename:
-        path = os.path.dirname(splited_url.path)
-        filename, ext = os.path.splitext(basename)
+
+    parts = [slugify(splited_url.hostname)]
+
+    if splited_url.path[-1] == '/':
+        path = splited_url.path[:-1]
     else:
-        path = splited_url.path
-        filename = default_filename
+        path, ext = os.path.splitext(splited_url.path)
 
-    slugified_hostname = slugify(splited_url.hostname)
-    slugified_path = slugify(path)
+    parts.append(slugify(path))
 
-    return '-'.join([slugified_hostname, slugified_path, filename])
+    return '-'.join(parts)

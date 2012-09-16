@@ -47,7 +47,7 @@ def home_view(request):
     downloaded_basename = os.path.basename(downloaded_filepath)
     downloaded_filename, _ = os.path.splitext(downloaded_basename)
 
-    converted_filename = url_to_filename(url, downloaded_filename)
+    converted_filename = url_to_filename(url)
     converted_basename = converted_filename + '.pdf'
     converted_filepath = os.path.join(converted_dir, converted_basename)
 
