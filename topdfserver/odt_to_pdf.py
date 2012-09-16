@@ -1,3 +1,5 @@
+import os
+import shutil
 import subprocess
 
 
@@ -15,5 +17,9 @@ def register(converters):
 
 
 def odt_to_pdf(source, target):
-    command = ['unoconv', '-o', target, '--format', 'pdf', source]
+    """
+    Some old version of unoconv do not accept the full target path.
+    """
+    command = ['unoconv', '--format', 'pdf', source]
     subprocess.call(command)
+    shutil.move(os.path.splitext(source)[0] + '.pdf', target)

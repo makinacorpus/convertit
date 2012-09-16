@@ -27,6 +27,7 @@ class OdtToPdfRegisterTests(unittest.TestCase):
 
 
 class OdtToPdfConvertionTests(unittest.TestCase):
+    datadir = os.path.join(here, 'data')
     temp_dir = os.path.join(here, 'data/tmp')
     document_filepath = os.path.join(here, 'data/test_document.odt')
     reference_filepath = os.path.join(here, 'data/test_document.pdf')
@@ -44,6 +45,10 @@ class OdtToPdfConvertionTests(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
     def test_odt_conversion(self):
+        downlowded_filepath = os.path.join(self.temp_dir, 'test_document.odt')
         converted_filepath = os.path.join(self.temp_dir, 'test_document.pdf')
-        odt_to_pdf.odt_to_pdf(self.document_filepath, converted_filepath)
+
+        shutil.copy(self.document_filepath, self.temp_dir)
+
+        odt_to_pdf.odt_to_pdf(downlowded_filepath, converted_filepath)
         self.assertTrue(os.path.exists(converted_filepath))
