@@ -1,5 +1,4 @@
 import os
-import shutil
 import subprocess
 
 
@@ -20,6 +19,12 @@ def odt_to_pdf(source, target):
     """
     Some old version of unoconv do not accept the full target path.
     """
-    command = ['unoconv', '--format', 'pdf', source]
+    target_dirname = os.path.dirname(target)
+
+    command = ['unoconv', '-o', target_dirname, '--format', 'pdf', source]
     subprocess.call(command)
-    shutil.move(os.path.splitext(source)[0] + '.pdf', target)
+
+    source_basename = os.path.basename(source)
+    source_filename, ext = os.path.splitext(source_basename)
+    converted_path = os.path.join(target_dirname, source_filename + '.pdf') 
+    os.rename(converted_path, target)
