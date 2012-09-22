@@ -15,6 +15,7 @@ class FunctionalTests(unittest.TestCase):
         self.settings = {
             'converted_dir': os.path.join(self.data_dir, 'converted_dir'),
             'download_dir': os.path.join(self.data_dir, 'download_dir'),
+            'converted_url': 'converted'
         }
         app = main({}, **self.settings)
         self.testapp = TestApp(app)

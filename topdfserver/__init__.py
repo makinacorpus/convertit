@@ -15,7 +15,7 @@ def main(global_config, **settings):
     create_dir(settings['download_dir'])
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_static_view('converted', settings['converted_dir'],
+    config.add_static_view(settings['converted_url'], settings['converted_dir'],
         cache_max_age=3600)
     config.add_route('home', '/')
     config.scan(ignore='topdfserver.tests')
