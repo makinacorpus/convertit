@@ -12,10 +12,10 @@ def unoconv_exists():
 
 def register(converters):
     if unoconv_exists():
-        converters['application/vnd.oasis.opendocument.text'] = odt_to_pdf
+        converters['application/vnd.oasis.opendocument.text'] = to_pdf
 
 
-def odt_to_pdf(source, target):
+def to_pdf(source, target):
     """
     Some old version of unoconv do not accept the full target path.
     """

@@ -11,9 +11,9 @@ def inkscape_exists():
 
 def register(converters):
     if inkscape_exists():
-        converters['image/svg+xml'] = svg_to_pdf
+        converters['image/svg+xml'] = to_pdf
 
 
-def svg_to_pdf(source, target):
+def to_pdf(source, target):
     command = ['inkscape', '-f', source, '-A', target]
     subprocess.call(command)

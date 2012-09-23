@@ -5,35 +5,35 @@ import filecmp
 
 from mock import patch
 
-from .. import svg_to_pdf
+from .. import inkscape
 
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
-class SvgToPdfRegisterTests(unittest.TestCase):
-    @patch('topdfserver.svg_to_pdf.inkscape_exists')
+class InkscapeRegisterTests(unittest.TestCase):
+    @patch('topdfserver.inkscape.inkscape_exists')
     def test_registered_when_inkscape_exists(self, inkscape_exists):
         inkscape_exists.return_value = True
         converters = {}
-        svg_to_pdf.register(converters)
+        inkscape.register(converters)
         self.assertIn('image/svg+xml', converters)
 
-    @patch('topdfserver.svg_to_pdf.inkscape_exists')
+    @patch('topdfserver.inkscape.inkscape_exists')
     def test_not_registered_when_inkscape_not_exists(self, inkscape_exists):
         inkscape_exists.return_value = False
         converters = {}
-        svg_to_pdf.register(converters)
+        inkscape.register(converters)
         self.assertNotIn('image/svg+xml', converters)
 
 
-class SvgToPdfConvertionTests(unittest.TestCase):
+class InkscapeConvertionTests(unittest.TestCase):
     temp_dir = os.path.join(here, 'data/tmp')
     document_filepath = os.path.join(here, 'data/test_svg.svg')
     reference_filepath = os.path.join(here, 'data/test_svg.pdf')
 
     def setUp(self):
-        if not svg_to_pdf.inkscape_exists():
+        if not inkscape.inkscape_exists():
             self.skipTest('inkscape not found')
 
         if os.path.exists(self.temp_dir):
@@ -46,5 +46,5 @@ class SvgToPdfConvertionTests(unittest.TestCase):
 
     def test_svg_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_svg.pdf')
-        svg_to_pdf.svg_to_pdf(self.document_filepath, converted_filepath)
+        inkscape.to_pdf(self.document_filepath, converted_filepath)
         self.assertTrue(os.path.exists(converted_filepath))

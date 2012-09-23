@@ -4,36 +4,36 @@ import unittest
 
 from mock import patch
 
-from .. import odt_to_pdf
+from .. import unoconv
 
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
-class OdtToPdfRegisterTests(unittest.TestCase):
-    @patch('topdfserver.odt_to_pdf.unoconv_exists')
+class UnoconvRegisterTests(unittest.TestCase):
+    @patch('topdfserver.unoconv.unoconv_exists')
     def test_registered_when_unoconv_exists(self, unoconv_exists):
         unoconv_exists.return_value = True
         converters = {}
-        odt_to_pdf.register(converters)
+        unoconv.register(converters)
         self.assertIn('application/vnd.oasis.opendocument.text', converters)
 
-    @patch('topdfserver.odt_to_pdf.unoconv_exists')
+    @patch('topdfserver.unoconv.unoconv_exists')
     def test_not_registered_when_unoconv_not_exists(self, unoconv_exists):
         unoconv_exists.return_value = False
         converters = {}
-        odt_to_pdf.register(converters)
+        unoconv.register(converters)
         self.assertNotIn('application/vnd.oasis.opendocument.text', converters)
 
 
-class OdtToPdfConvertionTests(unittest.TestCase):
+class UnoconvConvertionTests(unittest.TestCase):
     datadir = os.path.join(here, 'data')
     temp_dir = os.path.join(here, 'data/tmp')
     document_filepath = os.path.join(here, 'data/test_document.odt')
     reference_filepath = os.path.join(here, 'data/test_document.pdf')
 
     def setUp(self):
-        if not odt_to_pdf.unoconv_exists():
+        if not unoconv.unoconv_exists():
             self.skipTest('unoconv not found')
 
         if os.path.exists(self.temp_dir):
@@ -50,5 +50,5 @@ class OdtToPdfConvertionTests(unittest.TestCase):
 
         shutil.copy(self.document_filepath, self.temp_dir)
 
-        odt_to_pdf.odt_to_pdf(downlowded_filepath, converted_filepath)
+        unoconv.to_pdf(downlowded_filepath, converted_filepath)
         self.assertTrue(os.path.exists(converted_filepath))

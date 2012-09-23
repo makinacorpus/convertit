@@ -6,13 +6,13 @@ from pyramid.view import view_config
 from pyramid.url import static_url
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPInternalServerError
 from pyramid.response import Response
-from . import odt_to_pdf, svg_to_pdf
+from . import unoconv, inkscape
 from .helpers import download_file, url_to_filename
 
 converters = {}
 
-odt_to_pdf.register(converters)
-svg_to_pdf.register(converters)
+unoconv.register(converters)
+inkscape.register(converters)
 
 
 @view_config(route_name='home')
