@@ -7,18 +7,36 @@ from pyramid.url import static_url
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPInternalServerError
 from pyramid.response import Response
 from .converters import unoconv, inkscape
-from .helpers import download_file, url_to_filename
+from .helpers import download_file, url_to_filename, remove_files_older_than
 
 converters = {}
 
 unoconv.register(converters)
 inkscape.register(converters)
 
+seconds_in_hour = 3600
+
+
+def remove_old_files(request):
+    settings = request.registry.settings
+
+    download_dir = settings['download_dir']
+    converted_dir = settings['converted_dir']
+
+    download_max_age = settings.get('download_max_age', seconds_in_hour)
+    converted_max_age = settings.get('converted_max_age', seconds_in_hour)
+
+    remove_files_older_than(int(download_max_age), download_dir)
+    remove_files_older_than(int(converted_max_age), converted_dir)
+
 
 @view_config(route_name='home')
 def home_view(request):
     converted_dir = request.registry.settings['converted_dir']
     download_dir = request.registry.settings['download_dir']
+
+    remove_old_files(request)
+
     url = request.GET.get('url')
 
     if url is None:

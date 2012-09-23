@@ -4,6 +4,7 @@ import urllib2
 from unicodedata import normalize
 from urlparse import urlsplit
 from uuid import uuid4
+from datetime import datetime
 
 
 def download_file(url, target_dir):
@@ -42,3 +43,14 @@ def url_to_filename(url):
     parts.append(slugify(path))
 
     return '-'.join(parts)
+
+
+def remove_files_older_than(limit, path):
+    for basename in os.listdir(path):
+        target = os.path.join(path, basename)
+        target_mtime = os.path.getmtime(target)
+        target_datetime = datetime.fromtimestamp(target_mtime)
+        now_datetime = datetime.now()
+        time_delta = now_datetime - target_datetime
+        if time_delta.seconds > limit:
+            os.remove(target)
