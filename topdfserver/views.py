@@ -26,7 +26,7 @@ def home_view(request):
 
     mimetype, _ = guess_type(url)
     if not mimetype:
-        return HTTPInternalServerError('Can not guess mimetype')
+        return HTTPBadRequest('Can not guess mimetype')
 
     if mimetype in converters:
         to_pdf = converters[mimetype]
