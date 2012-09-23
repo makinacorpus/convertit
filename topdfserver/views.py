@@ -6,7 +6,7 @@ from pyramid.view import view_config
 from pyramid.url import static_url
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPInternalServerError
 from pyramid.response import Response
-from . import unoconv, inkscape
+from .converters import unoconv, inkscape
 from .helpers import download_file, url_to_filename
 
 converters = {}

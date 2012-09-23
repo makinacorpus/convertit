@@ -4,21 +4,21 @@ import unittest
 
 from mock import patch
 
-from .. import unoconv
+from topdfserver.converters import unoconv
 
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
 class UnoconvRegisterTests(unittest.TestCase):
-    @patch('topdfserver.unoconv.unoconv_exists')
+    @patch('topdfserver.converters.unoconv.unoconv_exists')
     def test_registered_when_unoconv_exists(self, unoconv_exists):
         unoconv_exists.return_value = True
         converters = {}
         unoconv.register(converters)
         self.assertIn('application/vnd.oasis.opendocument.text', converters)
 
-    @patch('topdfserver.unoconv.unoconv_exists')
+    @patch('topdfserver.converters.unoconv.unoconv_exists')
     def test_not_registered_when_unoconv_not_exists(self, unoconv_exists):
         unoconv_exists.return_value = False
         converters = {}
@@ -27,10 +27,9 @@ class UnoconvRegisterTests(unittest.TestCase):
 
 
 class UnoconvConvertionTests(unittest.TestCase):
-    datadir = os.path.join(here, 'data')
-    temp_dir = os.path.join(here, 'data/tmp')
-    document_filepath = os.path.join(here, 'data/test_document.odt')
-    reference_filepath = os.path.join(here, 'data/test_document.pdf')
+    temp_dir = os.path.join(here, '../data/tmp')
+    document_filepath = os.path.join(here, '../data/test_document.odt')
+    reference_filepath = os.path.join(here, '../data/test_document.pdf')
 
     def setUp(self):
         if not unoconv.unoconv_exists():
