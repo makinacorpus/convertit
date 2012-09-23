@@ -1,16 +1,13 @@
 import subprocess
 
 
-def inkscape_exists():
+def exists():
     result = subprocess.call(['which', 'inkscape'])
-    if result == 0:
-        return True
-    else:
-        return False
+    return result == 0
 
 
 def register(converters):
-    if inkscape_exists():
+    if exists():
         converters['image/svg+xml'] = to_pdf
 
 

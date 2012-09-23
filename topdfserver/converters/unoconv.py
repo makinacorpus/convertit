@@ -2,16 +2,13 @@ import os
 import subprocess
 
 
-def unoconv_exists():
+def exists():
     result = subprocess.call(['which', 'unoconv'])
-    if result == 0:
-        return True
-    else:
-        return False
+    return result == 0
 
 
 def register(converters):
-    if unoconv_exists():
+    if exists():
         converters['application/vnd.oasis.opendocument.text'] = to_pdf
 
 

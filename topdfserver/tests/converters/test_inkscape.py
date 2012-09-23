@@ -12,16 +12,16 @@ here = os.path.dirname(os.path.realpath(__file__))
 
 
 class InkscapeRegisterTests(unittest.TestCase):
-    @patch('topdfserver.converters.inkscape.inkscape_exists')
-    def test_registered_when_inkscape_exists(self, inkscape_exists):
-        inkscape_exists.return_value = True
+    @patch('topdfserver.converters.inkscape.exists')
+    def test_registered_when_inkscape_exists(self, exists_mock):
+        exists_mock.return_value = True
         converters = {}
         inkscape.register(converters)
         self.assertIn('image/svg+xml', converters)
 
-    @patch('topdfserver.converters.inkscape.inkscape_exists')
-    def test_not_registered_when_inkscape_not_exists(self, inkscape_exists):
-        inkscape_exists.return_value = False
+    @patch('topdfserver.converters.inkscape.exists')
+    def test_not_registered_when_inkscape_not_exists(self, exists_mock):
+        exists_mock.return_value = False
         converters = {}
         inkscape.register(converters)
         self.assertNotIn('image/svg+xml', converters)
@@ -33,7 +33,7 @@ class InkscapeConvertionTests(unittest.TestCase):
     reference_filepath = os.path.join(here, '../data/test_svg.pdf')
 
     def setUp(self):
-        if not inkscape.inkscape_exists():
+        if not inkscape.exists():
             self.skipTest('inkscape not found')
 
         if os.path.exists(self.temp_dir):
