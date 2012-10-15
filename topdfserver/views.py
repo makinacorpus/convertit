@@ -69,7 +69,10 @@ def home_view(request):
     converted_basename = converted_filename + '.pdf'
     converted_filepath = os.path.join(converted_dir, converted_basename)
 
-    to_pdf(downloaded_filepath, converted_filepath)
+    try:
+        to_pdf(downloaded_filepath, converted_filepath)
+    except Exception, e:
+        return HTTPBadRequest(base_error_msg + " Reason: %s" % e.message)
 
     return HTTPFound(static_url(converted_filepath, request),
         content_disposition='attachement; filename=%s' % converted_basename)
