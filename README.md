@@ -1,7 +1,7 @@
-ToPdfServer
-===========
+Convertit
+=========
 
-A PDF conversion webservice
+A conversion webservice
 
 Development
 ===========

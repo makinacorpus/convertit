@@ -5,7 +5,7 @@ import urllib2
 from webtest import TestApp
 from mock import Mock, patch
 
-from topdfserver import main
+from convertit import main
 
 class FunctionalTests(unittest.TestCase):
 

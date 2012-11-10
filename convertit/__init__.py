@@ -18,5 +18,5 @@ def main(global_config, **settings):
     config.add_static_view(settings['converted_url'], settings['converted_dir'],
         cache_max_age=3600)
     config.add_route('home', '/')
-    config.scan(ignore='topdfserver.tests')
+    config.scan(ignore='convertit.tests')
     return config.make_wsgi_app()

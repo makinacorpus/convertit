@@ -5,21 +5,21 @@ import filecmp
 
 from mock import patch
 
-from topdfserver.converters import inkscape
+from convertit.converters import inkscape
 
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
 class InkscapeRegisterTests(unittest.TestCase):
-    @patch('topdfserver.converters.inkscape.exists')
+    @patch('convertit.converters.inkscape.exists')
     def test_registered_when_inkscape_exists(self, exists_mock):
         exists_mock.return_value = True
         converters = {}
         inkscape.register(converters)
         self.assertIn('image/svg+xml', converters)
 
-    @patch('topdfserver.converters.inkscape.exists')
+    @patch('convertit.converters.inkscape.exists')
     def test_not_registered_when_inkscape_not_exists(self, exists_mock):
         exists_mock.return_value = False
         converters = {}

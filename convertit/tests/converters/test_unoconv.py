@@ -4,21 +4,21 @@ import unittest
 
 from mock import patch
 
-from topdfserver.converters import unoconv
+from convertit.converters import unoconv
 
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
 class UnoconvRegisterTests(unittest.TestCase):
-    @patch('topdfserver.converters.unoconv.exists')
+    @patch('convertit.converters.unoconv.exists')
     def test_registered_when_unoconv_exists(self, exists_mock):
         exists_mock.return_value = True
         converters = {}
         unoconv.register(converters)
         self.assertIn('application/vnd.oasis.opendocument.text', converters)
 
-    @patch('topdfserver.converters.unoconv.exists')
+    @patch('convertit.converters.unoconv.exists')
     def test_not_registered_when_unoconv_not_exists(self, exists_mock):
         exists_mock.return_value = False
         converters = {}

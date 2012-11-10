@@ -18,10 +18,10 @@ test_requires = requires + [
     'coverage',
     ]
 
-setup(name='topdfserver',
+setup(name='convertit',
       version='0.0',
-      description='topdfserver',
-      long_description=README + '\n\n' +  CHANGES,
+      description='convertit',
+      long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Programming Language :: Python",
         "Framework :: Pylons",
@@ -37,10 +37,9 @@ setup(name='topdfserver',
       zip_safe=False,
       install_requires=requires,
       tests_require=test_requires,
-      test_suite="topdfserver",
-      entry_points = """\
+      test_suite="convertit",
+      entry_points="""\
       [paste.app_factory]
-      main = topdfserver:main
+      main = convertit:main
       """,
       )
-
