@@ -4,7 +4,7 @@ Convertit
 A conversion webservice.
 
 Authors
---------
+========
 
   * Antoine Cezar
   * Alex Marandon
