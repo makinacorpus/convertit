@@ -3,29 +3,53 @@ Convertit
 
 A conversion webservice
 
-Development
-===========
+Companies
+---------
 
-```
-python setup.py develop
-```
+  * [Planet Makina Corpus](http://www.makina-corpus.org) [Contact us](mailto:python@makina-corpus.org>)
 
-Optional dependencies:
+Authors
+--------
+
+  * Antoine Cezar
+  * Alex Marandon
+
+Feedback
+========
+
+Open an [Issue](https://github.com/makinacorpus/convertit/issues) to report a bug or request a new feature.
+
+Dependencies
+============
 
   * for OpenDocument support: unoconv
   * for SVG support: inkscape
 
-Running tests
--------------
+Install
+=======
+
+  * Throught regular easy_install / buildout:
+
+      ```
+      easy_install convertit
+      ```
+
+  * The bleeding edge version is hosted on github:
+
+      ```
+      git clone https://github.com/makinacorpus/convertit.git
+      cd convertit
+      python setup.py install
+      ```
+
+Development
+===========
 
 ```
+git clone https://github.com/makinacorpus/convertit.git
+cd convertit
+python setup.py develop
 python setup.py test
-```
-
-Running the application
------------------------
-
-```
 pserve development.ini --reload
 ```
 
