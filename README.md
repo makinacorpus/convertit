@@ -1,12 +1,7 @@
 Convertit
 =========
 
-A conversion webservice
-
-Companies
----------
-
-  * [Planet Makina Corpus](http://www.makina-corpus.org) [Contact us](mailto:python@makina-corpus.org>)
+A conversion webservice.
 
 Authors
 --------
@@ -54,3 +49,11 @@ pserve development.ini --reload
 ```
 
 Once the application is running, you may visit http://localhost:6543/ in your browser.
+
+---
+![Makina Corpus Logo](http://depot.makina-corpus.org/public/logo.gif "Makina Corpus")
+
+Convertit is a [Makina Corpus](http://www.makina-corpus.com) project.
+
+  * [Blog](http://www.makina-corpus.org)
+  * [Contact](mailto:python@makina-corpus.org)
