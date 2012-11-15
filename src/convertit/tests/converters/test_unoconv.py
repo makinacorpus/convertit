@@ -4,26 +4,31 @@ import unittest
 
 from mock import patch
 
+import convertit
 from convertit.converters import unoconv
 
 
 here = os.path.dirname(os.path.realpath(__file__))
 
+def e_test_program(val):
+    def _test_program(transform_tuple, transform_callable, converters):
+        return val
+    return _test_program 
 
 class UnoconvRegisterTests(unittest.TestCase):
-    @patch('convertit.converters.unoconv.exists')
+    @patch('convertit.test_program')
     def test_registered_when_unoconv_exists(self, exists_mock):
         exists_mock.return_value = True
         converters = {}
         unoconv.register(converters)
-        self.assertIn('application/vnd.oasis.opendocument.text', converters)
+        self.assertIn(('application/vnd.oasis.opendocument.text', 'application/pdf'), converters)
 
-    @patch('convertit.converters.unoconv.exists')
+    @patch('convertit.test_program')
     def test_not_registered_when_unoconv_not_exists(self, exists_mock):
         exists_mock.return_value = False
         converters = {}
         unoconv.register(converters)
-        self.assertNotIn('application/vnd.oasis.opendocument.text', converters)
+        self.assertNotIn(('application/vnd.oasis.opendocument.text', 'pdf'), converters)
 
 
 class UnoconvConvertionTests(unittest.TestCase):
@@ -32,7 +37,7 @@ class UnoconvConvertionTests(unittest.TestCase):
     reference_filepath = os.path.join(here, '../data/test_document.pdf')
 
     def setUp(self):
-        if not unoconv.exists():
+        if not convertit.exists('unoconv'):
             self.skipTest('unoconv not found')
 
         if os.path.exists(self.temp_dir):

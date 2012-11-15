@@ -1,16 +1,17 @@
 import subprocess
-
-
-def exists():
-    result = subprocess.call(['which', 'inkscape'])
-    return result == 0
-
-
-def register(converters):
-    if exists():
-        converters['image/svg+xml'] = to_pdf
-
+import  convertit as c
 
 def to_pdf(source, target):
-    command = ['inkscape', '-f', source, '-A', target]
+    command = [
+        'inkscape', '-f', source, '-A', target]
     subprocess.call(command)
+
+
+
+def register(converters=None):
+    c.register(('image/svg+xml','application/pdf'), 'pdf', to_pdf, c.test_program('inkscape'),
+               converters=converters)
+
+register()
+
+

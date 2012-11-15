@@ -4,18 +4,20 @@ from mimetypes import guess_type
 
 from pyramid.view import view_config
 from pyramid.url import static_url
-from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPInternalServerError
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPFound,
+)
 from pyramid.response import Response
-from .converters import unoconv, inkscape
-from .helpers import download_file, url_to_filename, remove_files_older_than
+from convertit.helpers import (
+    download_file,
+    url_to_filename,
+    remove_files_older_than
+)
 
-converters = {}
-
-unoconv.register(converters)
-inkscape.register(converters)
+from convertit import CONVERTERS as converters
 
 seconds_in_hour = 3600
-
 
 def remove_old_files(request):
     settings = request.registry.settings
@@ -38,18 +40,27 @@ def home_view(request):
     remove_old_files(request)
 
     url = request.GET.get('url')
+    output_mt = request.GET.get('output_mt', 'application/pdf')
+
 
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
-    mimetype, _ = guess_type(url)
+    guessed_mimetype, _ = guess_type(url)
+    mimetype = request.GET.get('input_mt', guessed_mimetype)
     if not mimetype:
         return HTTPBadRequest('Can not guess mimetype')
 
-    if mimetype in converters:
-        to_pdf = converters[mimetype]
-    else:
-        return HTTPBadRequest('Unsupported mimetype %s' % mimetype)
+    try:
+        transform = converters.get_transform(mimetype, output_mt)
+    except Exception, e:
+        return HTTPBadRequest(
+            'Unsupported transform: %s for mimetype %s (url: %s)' % (
+                output_mt,
+                mimetype,
+                url,
+            )
+        )
 
     base_error_msg = "Sorry, there was an error fetching the document."
     try:
@@ -66,13 +77,15 @@ def home_view(request):
     downloaded_filename, _ = os.path.splitext(downloaded_basename)
 
     converted_filename = url_to_filename(url)
-    converted_basename = converted_filename + '.pdf'
+    converted_basename = converted_filename + '.%s' % transform['extension']
     converted_filepath = os.path.join(converted_dir, converted_basename)
 
     try:
-        to_pdf(downloaded_filepath, converted_filepath)
+        transform['method'](downloaded_filepath, converted_filepath)
     except Exception, e:
         return HTTPBadRequest(base_error_msg + " Reason: %s" % e.message)
 
     return HTTPFound(static_url(converted_filepath, request),
         content_disposition='attachement; filename=%s' % converted_basename)
+
+

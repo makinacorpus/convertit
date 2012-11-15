@@ -57,6 +57,25 @@ class FunctionalTests(unittest.TestCase):
         resp = self.testapp.get('/', params={'url': url}, status=400)
         self.assertIn("unknown url type", resp.body)
 
+
+    def test_no_such_transform(self):
+        "Get homepage with `url` that triggers a DNS resolution error"
+        url = 'http://example.com/test_document.odt'
+        odt_data = open(os.path.join(self.data_dir, 'test_document.odt')).read()
+        with patch.object(urllib2, 'urlopen') as mock_urlopen:
+            mock_req = Mock()
+            mock_req.read.return_value = odt_data
+            mock_urlopen.return_value = mock_req
+            resp = self.testapp.get('/', params={'url': url, 'output_mimetype': 'application/pdf'}, status=302)
+            self.assertTrue(
+                'Unsupported transform: application/pdfnocontent'
+                in self.testapp.get(
+                    '/', params={
+                        'url': url,
+                        'output_mt': 'application/pdfnocontent'}, status=400).body)
+
+
+
     def test_invalid_hostname(self):
         "Get homepage with `url` that triggers a DNS resolution error"
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
