@@ -42,7 +42,6 @@ def home_view(request):
     url = request.GET.get('url')
     output_mt = request.GET.get('output_mt', 'application/pdf')
 
-
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 

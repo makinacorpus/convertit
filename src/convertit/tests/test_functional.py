@@ -51,12 +51,26 @@ class FunctionalTests(unittest.TestCase):
             filepath = os.path.join(self.settings['converted_dir'], filename)
             self.assertTrue(os.path.exists(filepath))
 
+    def test_with_valid_url_toword(self):
+        "Get homepage with valid `url` param"
+
+        url = 'http://example.com/test_document.odt'
+        odt_data = open(os.path.join(self.data_dir, 'test_document.odt')).read()
+        with patch.object(urllib2, 'urlopen') as mock_urlopen:
+            mock_req = Mock()
+            mock_req.read.return_value = odt_data
+            mock_urlopen.return_value = mock_req
+            resp = self.testapp.get('/', params={'url': url, 'output_mt': 'application/msword'}, status=302)
+            mock_urlopen.assert_called_once_with(url)
+            filename = os.path.basename(resp.location)
+            filepath = os.path.join(self.settings['converted_dir'], filename)
+            self.assertTrue(os.path.exists(filepath))
+
     def test_invalid_url_type(self):
         "Get homepage with `url` missing a protocol identifier"
         url = 'www.example.com/test_document.odt'
         resp = self.testapp.get('/', params={'url': url}, status=400)
         self.assertIn("unknown url type", resp.body)
-
 
     def test_no_such_transform(self):
         "Get homepage with `url` that triggers a DNS resolution error"
@@ -73,8 +87,6 @@ class FunctionalTests(unittest.TestCase):
                     '/', params={
                         'url': url,
                         'output_mt': 'application/pdfnocontent'}, status=400).body)
-
-
 
     def test_invalid_hostname(self):
         "Get homepage with `url` that triggers a DNS resolution error"
