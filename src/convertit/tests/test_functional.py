@@ -60,7 +60,7 @@ class FunctionalTests(unittest.TestCase):
             mock_req = Mock()
             mock_req.read.return_value = odt_data
             mock_urlopen.return_value = mock_req
-            resp = self.testapp.get('/', params={'url': url, 'output_mt': 'application/msword'}, status=302)
+            resp = self.testapp.get('/', params={'url': url, 'to': 'application/msword'}, status=302)
             mock_urlopen.assert_called_once_with(url)
             filename = os.path.basename(resp.location)
             filepath = os.path.join(self.settings['converted_dir'], filename)
@@ -80,13 +80,13 @@ class FunctionalTests(unittest.TestCase):
             mock_req = Mock()
             mock_req.read.return_value = odt_data
             mock_urlopen.return_value = mock_req
-            resp = self.testapp.get('/', params={'url': url, 'output_mimetype': 'application/pdf'}, status=302)
+            resp = self.testapp.get('/', params={'url': url, 'to': 'application/pdf'}, status=302)
             self.assertTrue(
                 'Unsupported transform: application/pdfnocontent'
                 in self.testapp.get(
                     '/', params={
                         'url': url,
-                        'output_mt': 'application/pdfnocontent'}, status=400).body)
+                        'to': 'application/pdfnocontent'}, status=400).body)
 
     def test_invalid_hostname(self):
         "Get homepage with `url` that triggers a DNS resolution error"

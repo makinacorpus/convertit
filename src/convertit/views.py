@@ -40,13 +40,13 @@ def home_view(request):
     remove_old_files(request)
 
     url = request.GET.get('url')
-    output_mt = request.GET.get('output_mt', 'application/pdf')
+    output_mt = request.GET.get('to', 'application/pdf')
 
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
     guessed_mimetype, _ = guess_type(url)
-    mimetype = request.GET.get('input_mt', guessed_mimetype)
+    mimetype = request.GET.get('from', guessed_mimetype)
     if not mimetype:
         return HTTPBadRequest('Can not guess mimetype')
 
