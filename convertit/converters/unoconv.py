@@ -2,9 +2,11 @@ import os
 import subprocess
 import convertit as c
 
+
 def uno_transform(output_fmt='pdf', output_ext=None):
     if not output_ext:
         output_ext = output_fmt
+
     def to_format(source, target):
         """
         Some old version of unoconv do not accept the full target path.
@@ -15,7 +17,7 @@ def uno_transform(output_fmt='pdf', output_ext=None):
         # do not mess pyuno pythonpath !
         if 'PYTHONPATH' in env:
             del env['PYTHONPATH']
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, env = env, stderr=subprocess.PIPE)
+        p = subprocess.Popen(command, stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE)
         p.wait()
         output = '\n'.join([p.stdout.read(), p.stderr.read()])
         source_basename = os.path.basename(source)
@@ -23,7 +25,7 @@ def uno_transform(output_fmt='pdf', output_ext=None):
             source_basename)
         converted_path = os.path.join(
             target_dirname,
-            source_filename + '.'+output_ext)
+            source_filename + '.' + output_ext)
         if not os.path.exists(converted_path):
             raise c.TransformError(output)
         os.rename(converted_path, target)
@@ -42,5 +44,3 @@ def register(converters=None):
                converters=converters)
 
 register()
-
-

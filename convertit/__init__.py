@@ -40,7 +40,7 @@ def which(program):
 
 def exists(program=None):
     try:
-        which(program) # raise on failure
+        which(program)  # raise on failure
         result = True
     except:
         result = False
@@ -88,4 +88,3 @@ def main(global_config, **settings):
     config.add_route('home', '/')
     config.scan(ignore='convertit.tests')
     return config.make_wsgi_app()
-

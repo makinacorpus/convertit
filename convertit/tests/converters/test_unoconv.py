@@ -10,10 +10,12 @@ from convertit.converters import unoconv
 
 here = os.path.dirname(os.path.realpath(__file__))
 
+
 def e_test_program(val):
     def _test_program(transform_tuple, transform_callable, converters):
         return val
-    return _test_program 
+    return _test_program
+
 
 class UnoconvRegisterTests(unittest.TestCase):
     @patch('convertit.test_program')

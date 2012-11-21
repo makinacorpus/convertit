@@ -20,6 +20,7 @@ def download_file(url, target_dir):
 # Credit: http://flask.pocoo.org/snippets/5/
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 
+
 def slugify(text, delim=u'-'):
     """Generates an slightly worse ASCII-only slug."""
     result = []

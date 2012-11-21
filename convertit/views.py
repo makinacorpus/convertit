@@ -17,7 +17,9 @@ from convertit.helpers import (
 
 from convertit import CONVERTERS as converters
 
+
 seconds_in_hour = 3600
+
 
 def remove_old_files(request):
     settings = request.registry.settings
@@ -86,5 +88,3 @@ def home_view(request):
 
     return HTTPFound(static_url(converted_filepath, request),
         content_disposition='attachement; filename=%s' % converted_basename)
-
-

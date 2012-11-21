@@ -37,7 +37,7 @@ class RemoveFilesOlderThanTests(unittest.TestCase):
         datetime_mock.return_value = datetime.fromtimestamp(1348418372.0)
 
         remove_files_older_than(60, 'fake/path')
-        
+
         remove_mock.assert_called_with('fake/path/foo')
 
     @patch('os.remove')
@@ -50,5 +50,5 @@ class RemoveFilesOlderThanTests(unittest.TestCase):
         datetime_mock.return_value = datetime.fromtimestamp(1336858529.0)
 
         remove_files_older_than(60, 'fake/path')
-        
+
         remove_mock.assert_not_called()

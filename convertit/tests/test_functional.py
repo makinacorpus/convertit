@@ -7,6 +7,7 @@ from mock import Mock, patch
 
 from convertit import main
 
+
 class FunctionalTests(unittest.TestCase):
 
     def setUp(self):
