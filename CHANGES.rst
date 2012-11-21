@@ -1,4 +1,7 @@
-0.0
----
+CHANGELOG
+==========
+
+0.0 (unreleased)
+-----------------
 
 -  Initial version
