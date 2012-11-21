@@ -3,8 +3,8 @@ import os
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.md')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+README = open(os.path.join(here, 'README.rst')).read()
+CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
 requires = [
     'pyramid',
@@ -39,6 +39,9 @@ setup(name='convertit',
       zip_safe=False,
       install_requires=requires,
       tests_require=test_requires,
+      extras_require = {
+          'test': test_requires,
+      },
       test_suite="convertit",
       entry_points="""\
       [paste.app_factory]
