@@ -3,6 +3,8 @@
 Retrieve your document in an other format using a dead simple ``GET`` request. 
 Documents are pulled, converted and served back !
 
+.. image:: https://secure.travis-ci.org/leplatrem/convertit.png?branch=master
+
 .. contents::
 
 
