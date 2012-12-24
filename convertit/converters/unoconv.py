@@ -1,13 +1,9 @@
 import os
 import subprocess
 from functools import partial
+from mimetypes import types_map
 
 from convertit import exists
-
-
-odt_mimetype = 'application/vnd.oasis.opendocument.text'
-pdf_mimetype = 'application/pdf'
-doc_mimetype = 'application/msword'
 
 
 def unoconv(output_path, output_format, source):
@@ -51,6 +47,6 @@ def is_available():
 def converters():
 
     return {
-        (odt_mimetype, pdf_mimetype): odt_to_pdf,
-        (odt_mimetype, doc_mimetype): odt_to_doc,
+        (types_map['.odt'], types_map['.pdf']): odt_to_pdf,
+        (types_map['.odt'], types_map['.doc']): odt_to_doc,
     }

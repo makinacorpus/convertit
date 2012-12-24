@@ -1,4 +1,5 @@
 import subprocess
+from mimetypes import types_map
 
 from convertit import exists
 
@@ -19,5 +20,5 @@ def svg_to_pdf(source, target):
 
 def converters():
     return {
-        (svg_mimetype, pdf_mimetype): svg_to_pdf,
+        (types_map['.svg'], types_map['.pdf']): svg_to_pdf,
     }
