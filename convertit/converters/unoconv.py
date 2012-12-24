@@ -36,9 +36,11 @@ def convert(source, target, output_format):
 
     os.rename(converted_path, target)
 
-odt_to_pdf = partial(convert, output_format='pdf')
-odt_to_doc = partial(convert, output_format='doc')
-csv_to_ods = partial(convert, output_format='ods')
+
+to_doc = partial(convert, output_format='doc')
+to_ods = partial(convert, output_format='ods')
+to_pdf = partial(convert, output_format='pdf')
+to_xls = partial(convert, output_format='xls')
 
 
 def is_available():
@@ -48,7 +50,9 @@ def is_available():
 def converters():
 
     return {
-        (types_map['.odt'], types_map['.pdf']): odt_to_pdf,
-        (types_map['.odt'], types_map['.doc']): odt_to_doc,
-        (types_map['.csv'], types_map['.ods']): csv_to_ods,
+        (types_map['.csv'], types_map['.ods']): to_ods,
+        (types_map['.csv'], types_map['.xls']): to_xls,
+        (types_map['.ods'], types_map['.xls']): to_xls,
+        (types_map['.odt'], types_map['.doc']): to_doc,
+        (types_map['.odt'], types_map['.pdf']): to_pdf,
     }
