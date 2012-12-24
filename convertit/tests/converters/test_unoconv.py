@@ -27,5 +27,5 @@ class UnoconvConvertionTests(unittest.TestCase):
 
     def test_odt_to_pdf_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_document.pdf')
-        unoconv.odt_to_pdf(self.odt_filepath, converted_filepath)
+        unoconv.to_pdf(self.odt_filepath, converted_filepath)
         self.assertTrue(os.path.exists(converted_filepath))
