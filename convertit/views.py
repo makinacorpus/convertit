@@ -24,20 +24,22 @@ seconds_in_hour = 3600
 def remove_old_files(request):
     settings = request.registry.settings
 
-    download_dir = settings['download_dir']
-    converted_dir = settings['converted_dir']
+    downloads_path = settings['convertit.downloads_path']
+    converted_path = settings['convertit.converted_path']
 
-    download_max_age = settings.get('download_max_age', seconds_in_hour)
-    converted_max_age = settings.get('converted_max_age', seconds_in_hour)
+    downloads_max_age = settings.get('convertit.downloads_max_age',
+                                     seconds_in_hour)
+    converted_max_age = settings.get('convertit.converted_max_age',
+                                     seconds_in_hour)
 
-    remove_files_older_than(int(download_max_age), download_dir)
-    remove_files_older_than(int(converted_max_age), converted_dir)
+    remove_files_older_than(int(downloads_max_age), downloads_path)
+    remove_files_older_than(int(converted_max_age), converted_path)
 
 
 @view_config(route_name='home')
 def home_view(request):
-    converted_dir = request.registry.settings['converted_dir']
-    download_dir = request.registry.settings['download_dir']
+    converted_path = request.registry.settings['convertit.converted_path']
+    downloads_path = request.registry.settings['convertit.downloads_path']
 
     remove_old_files(request)
 
@@ -54,7 +56,7 @@ def home_view(request):
 
     try:
         transform = converters.get_transform(mimetype, output_mt)
-    except Exception, e:
+    except Exception as e:
         return HTTPBadRequest(
             'Unsupported transform: %s for mimetype %s (url: %s)' % (
                 output_mt,
@@ -65,13 +67,13 @@ def home_view(request):
 
     base_error_msg = "Sorry, there was an error fetching the document."
     try:
-        downloaded_filepath = download_file(url, download_dir)
-    except ValueError, e:
+        downloaded_filepath = download_file(url, downloads_path)
+    except ValueError as e:
         return HTTPBadRequest(base_error_msg + " Reason: %s" % e.message)
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
         return Response(base_error_msg + " Reason: %s" % e.reason,
-            status_int=e.getcode())
-    except urllib2.URLError, e:
+                        status_int=e.getcode())
+    except urllib2.URLError as e:
         return HTTPBadRequest(base_error_msg + " Reason: %s" % e.reason)
 
     downloaded_basename = os.path.basename(downloaded_filepath)
@@ -79,12 +81,13 @@ def home_view(request):
 
     converted_filename = url_to_filename(url)
     converted_basename = converted_filename + '.%s' % transform['extension']
-    converted_filepath = os.path.join(converted_dir, converted_basename)
+    converted_filepath = os.path.join(converted_path, converted_basename)
 
     try:
         transform['method'](downloaded_filepath, converted_filepath)
-    except Exception, e:
+    except Exception as e:
         return HTTPBadRequest(base_error_msg + " Reason: %s" % e.message)
 
     return HTTPFound(static_url(converted_filepath, request),
-        content_disposition='attachement; filename=%s' % converted_basename)
+                     content_disposition='attachement; filename=%s' %
+                     converted_basename)

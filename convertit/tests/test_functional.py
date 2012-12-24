@@ -12,18 +12,24 @@ class FunctionalTests(unittest.TestCase):
 
     def setUp(self):
         here = os.path.dirname(__file__)
-        self.data_dir = os.path.join(here, 'data')
+        self.data_path = os.path.join(here, 'data')
         self.settings = {
-            'converted_dir': os.path.join(self.data_dir, 'converted_dir'),
-            'download_dir': os.path.join(self.data_dir, 'download_dir'),
-            'converted_url': 'converted'
+            'convertit.converted_path': os.path.join(self.data_path,
+                                                     'converted'),
+            'convertit.downloads_path': os.path.join(self.data_path,
+                                                     'downloads'),
+            'convertit.converted_url': 'converted'
         }
         app = main({}, **self.settings)
         self.testapp = TestApp(app)
 
     def tearDown(self):
-        shutil.rmtree(self.settings['converted_dir'])
-        shutil.rmtree(self.settings['download_dir'])
+        shutil.rmtree(self.settings['convertit.converted_path'])
+        shutil.rmtree(self.settings['convertit.downloads_path'])
+
+    def odt_data(self):
+        odt_path = os.path.join(self.data_path, 'test_document.odt')
+        return open(odt_path).read()
 
     def test_no_url(self):
         "Get homepage without any `url` param"
@@ -34,37 +40,39 @@ class FunctionalTests(unittest.TestCase):
     def test_with_invalid_url(self):
         "Get homepage with an invalid `url` param"
 
-        resp = self.testapp.get('/', params={'url': 'http://example.com/foo'},  status=400)
+        request_params = {'url': 'http://example.com/foo'}
+        resp = self.testapp.get('/', params=request_params,  status=400)
         self.assertIn('Can not guess mimetype', resp.body)
 
     def test_with_valid_url(self):
         "Get homepage with valid `url` param"
 
         url = 'http://example.com/test_document.odt'
-        odt_data = open(os.path.join(self.data_dir, 'test_document.odt')).read()
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
             mock_req = Mock()
-            mock_req.read.return_value = odt_data
+            mock_req.read.return_value = self.odt_data()
             mock_urlopen.return_value = mock_req
             resp = self.testapp.get('/', params={'url': url}, status=302)
             mock_urlopen.assert_called_once_with(url)
             filename = os.path.basename(resp.location)
-            filepath = os.path.join(self.settings['converted_dir'], filename)
+            filepath = os.path.join(self.settings['convertit.converted_path'],
+                                    filename)
             self.assertTrue(os.path.exists(filepath))
 
     def test_with_valid_url_toword(self):
         "Get homepage with valid `url` param"
 
         url = 'http://example.com/test_document.odt'
-        odt_data = open(os.path.join(self.data_dir, 'test_document.odt')).read()
+        converted_path = self.settings['convertit.converted_path']
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
             mock_req = Mock()
-            mock_req.read.return_value = odt_data
+            mock_req.read.return_value = self.odt_data()
             mock_urlopen.return_value = mock_req
-            resp = self.testapp.get('/', params={'url': url, 'to': 'application/msword'}, status=302)
+            request_params = {'url': url, 'to': 'application/msword'}
+            resp = self.testapp.get('/', params=request_params, status=302)
             mock_urlopen.assert_called_once_with(url)
             filename = os.path.basename(resp.location)
-            filepath = os.path.join(self.settings['converted_dir'], filename)
+            filepath = os.path.join(converted_path, filename)
             self.assertTrue(os.path.exists(filepath))
 
     def test_invalid_url_type(self):
@@ -76,12 +84,12 @@ class FunctionalTests(unittest.TestCase):
     def test_no_such_transform(self):
         "Get homepage with `url` that triggers a DNS resolution error"
         url = 'http://example.com/test_document.odt'
-        odt_data = open(os.path.join(self.data_dir, 'test_document.odt')).read()
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
             mock_req = Mock()
-            mock_req.read.return_value = odt_data
+            mock_req.read.return_value = self.odt_data()
             mock_urlopen.return_value = mock_req
-            resp = self.testapp.get('/', params={'url': url, 'to': 'application/pdf'}, status=302)
+            request_params = {'url': url, 'to': 'application/pdf'}
+            self.testapp.get('/', params=request_params, status=302)
             self.assertTrue(
                 'Unsupported transform: application/pdfnocontent'
                 in self.testapp.get(
@@ -93,7 +101,8 @@ class FunctionalTests(unittest.TestCase):
         "Get homepage with `url` that triggers a DNS resolution error"
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
             url = 'http://example.com/test_document.odt'
-            mock_urlopen.side_effect = urllib2.URLError("Name or service not known")
+            message = "Name or service not known"
+            mock_urlopen.side_effect = urllib2.URLError(message)
             resp = self.testapp.get('/', params={'url': url}, status=400)
             self.assertIn("Name or service not known", resp.body)
 
@@ -102,6 +111,7 @@ class FunctionalTests(unittest.TestCase):
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
             url = 'http://example.com/test_document.odt'
             mock_urlopen.side_effect = urllib2.HTTPError(url, 403,
-                    "Forbidden access", [], None)
+                                                         "Forbidden access",
+                                                         [], None)
             resp = self.testapp.get('/', params={'url': url}, status=403)
             self.assertIn("Forbidden access", resp.body)

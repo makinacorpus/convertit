@@ -55,6 +55,7 @@ def create_dir(dirname):
 def test_program(program):
     def _test_program(transform_tuple, transform_callable, converters):
         return exists(program)
+
     return _test_program
 
 
@@ -70,21 +71,26 @@ def register(transform_tuple,
         if isinstance(transform_condition, bool):
             test = transform_condition
         else:
-            test = transform_condition(transform_tuple, transform_callable, converters)
+            test = transform_condition(transform_tuple, transform_callable,
+                                       converters)
     if test:
         converters[transform_tuple] = {'method': transform_callable,
                                        'extension': transformed_filename_ext}
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
-    create_dir(settings['converted_dir'])
-    create_dir(settings['download_dir'])
+    """ This function returns a Pyramid WSGI application. """
+    create_dir(settings['convertit.converted_path'])
+    create_dir(settings['convertit.downloads_path'])
+
     config = Configurator(settings=settings)
+
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_static_view(settings['converted_url'], settings['converted_dir'],
-        cache_max_age=3600)
+    config.add_static_view(settings['convertit.converted_url'],
+                           settings['convertit.converted_path'],
+                           cache_max_age=3600)
+
     config.add_route('home', '/')
+
     config.scan(ignore='convertit.tests')
     return config.make_wsgi_app()
