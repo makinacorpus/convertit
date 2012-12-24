@@ -38,6 +38,7 @@ def convert(source, target, output_format):
 
 odt_to_pdf = partial(convert, output_format='pdf')
 odt_to_doc = partial(convert, output_format='doc')
+csv_to_ods = partial(convert, output_format='ods')
 
 
 def is_available():
@@ -49,4 +50,5 @@ def converters():
     return {
         (types_map['.odt'], types_map['.pdf']): odt_to_pdf,
         (types_map['.odt'], types_map['.doc']): odt_to_doc,
+        (types_map['.csv'], types_map['.ods']): csv_to_ods,
     }
