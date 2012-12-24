@@ -1,6 +1,9 @@
 import os
 import urllib2
-from mimetypes import guess_type
+from mimetypes import (
+    guess_type,
+    guess_extension,
+)
 
 from pyramid.view import view_config
 from pyramid.url import static_url
@@ -14,8 +17,6 @@ from convertit.helpers import (
     url_to_filename,
     remove_files_older_than
 )
-
-from convertit import CONVERTERS as converters
 
 
 seconds_in_hour = 3600
@@ -36,57 +37,57 @@ def remove_old_files(request):
     remove_files_older_than(int(converted_max_age), converted_path)
 
 
+def download(request, url):
+    downloads_path = request.registry.settings['convertit.downloads_path']
+
+    message = "Sorry, there was an error fetching the document. Reason: %s"
+    try:
+        downloaded_filepath = download_file(url, downloads_path)
+        return downloaded_filepath
+    except ValueError as e:
+        return HTTPBadRequest(message % e.message)
+    except urllib2.HTTPError as e:
+        return Response(message % e.reason, status_int=e.getcode())
+    except urllib2.URLError as e:
+        return HTTPBadRequest(message % e.reason)
+
+
 @view_config(route_name='home')
 def home_view(request):
     converted_path = request.registry.settings['convertit.converted_path']
-    downloads_path = request.registry.settings['convertit.downloads_path']
+    converters = request.registry.convertit
 
     remove_old_files(request)
 
     url = request.GET.get('url')
-    output_mt = request.GET.get('to', 'application/pdf')
-
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
-    guessed_mimetype, _ = guess_type(url)
-    mimetype = request.GET.get('from', guessed_mimetype)
-    if not mimetype:
+    guessed_mimetype = guess_type(url)[0]
+    input_mimetype = request.GET.get('from', guessed_mimetype)
+    if not input_mimetype:
         return HTTPBadRequest('Can not guess mimetype')
 
-    try:
-        transform = converters.get_transform(mimetype, output_mt)
-    except Exception as e:
-        return HTTPBadRequest(
-            'Unsupported transform: %s for mimetype %s (url: %s)' % (
-                output_mt,
-                mimetype,
-                url,
-            )
-        )
+    output_mimetype = request.GET.get('to', 'application/pdf')
+    if (input_mimetype, output_mimetype) not in converters:
+        message = 'Unsupported transform: from %s to %s (url: %s)'
+        return HTTPBadRequest(message % (input_mimetype, output_mimetype, url))
 
-    base_error_msg = "Sorry, there was an error fetching the document."
-    try:
-        downloaded_filepath = download_file(url, downloads_path)
-    except ValueError as e:
-        return HTTPBadRequest(base_error_msg + " Reason: %s" % e.message)
-    except urllib2.HTTPError as e:
-        return Response(base_error_msg + " Reason: %s" % e.reason,
-                        status_int=e.getcode())
-    except urllib2.URLError as e:
-        return HTTPBadRequest(base_error_msg + " Reason: %s" % e.reason)
+    downloaded_filepath = download(request, url)
+    if isinstance(downloaded_filepath, Response):
+        return downloaded_filepath
 
-    downloaded_basename = os.path.basename(downloaded_filepath)
-    downloaded_filename, _ = os.path.splitext(downloaded_basename)
-
+    converted_extension = guess_extension(output_mimetype) or ''
     converted_filename = url_to_filename(url)
-    converted_basename = converted_filename + '.%s' % transform['extension']
+    converted_basename = converted_filename + converted_extension
     converted_filepath = os.path.join(converted_path, converted_basename)
 
     try:
-        transform['method'](downloaded_filepath, converted_filepath)
+        convert = converters[(input_mimetype, output_mimetype)]
+        convert(downloaded_filepath, converted_filepath)
     except Exception as e:
-        return HTTPBadRequest(base_error_msg + " Reason: %s" % e.message)
+        message = "Sorry, there was an error fetching the document. Reason: %s"
+        return HTTPBadRequest(message % e.message)
 
     return HTTPFound(static_url(converted_filepath, request),
                      content_disposition='attachement; filename=%s' %

@@ -1,46 +1,56 @@
 import os
 import subprocess
-import convertit as c
+from functools import partial
+
+from convertit import exists
 
 
-def uno_transform(output_fmt='pdf', output_ext=None):
-    if not output_ext:
-        output_ext = output_fmt
-
-    def to_format(source, target):
-        """
-        Some old version of unoconv do not accept the full target path.
-        """
-        target_dirname = os.path.dirname(target)
-        command = ['unoconv', '-o', target_dirname, '--format', output_fmt, source]
-        env = os.environ.copy()
-        # do not mess pyuno pythonpath !
-        if 'PYTHONPATH' in env:
-            del env['PYTHONPATH']
-        p = subprocess.Popen(command, stdout=subprocess.PIPE, env=env, stderr=subprocess.PIPE)
-        p.wait()
-        output = '\n'.join([p.stdout.read(), p.stderr.read()])
-        source_basename = os.path.basename(source)
-        source_filename, ext = os.path.splitext(
-            source_basename)
-        converted_path = os.path.join(
-            target_dirname,
-            source_filename + '.' + output_ext)
-        if not os.path.exists(converted_path):
-            raise c.TransformError(output)
-        os.rename(converted_path, target)
-    return to_format
-
-to_pdf = uno_transform('pdf')
-to_doc = uno_transform('doc')
+odt_mimetype = 'application/vnd.oasis.opendocument.text'
+pdf_mimetype = 'application/pdf'
+doc_mimetype = 'application/msword'
 
 
-def register(converters=None):
-    c.register(('application/vnd.oasis.opendocument.text', 'application/pdf'),
-               'pdf', to_pdf, c.test_program('unoconv'),
-               converters=converters)
-    c.register(('application/vnd.oasis.opendocument.text', 'application/msword'),
-               'doc', to_doc, c.test_program('unoconv'),
-               converters=converters)
+def unoconv(output_path, output_format, source):
+    # WARNING: Some old version of unoconv do not accept the full target path.
+    #          So output_path must be a directory.
+    command = ['unoconv', '-o', output_path, '--format', output_format, source]
 
-register()
+    # Do not mess pyuno pythonpath !
+    env = os.environ.copy()
+    if 'PYTHONPATH' in env:
+        del env['PYTHONPATH']
+
+    p = subprocess.Popen(command, env=env,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p.wait()
+    return p
+
+
+def convert(source, target, output_format):
+    output_path = os.path.dirname(target)
+    source_filename = os.path.splitext(os.path.basename(source))[0]
+    converted_basename = source_filename + '.' + output_format
+    converted_path = os.path.join(output_path, converted_basename)
+
+    p = unoconv(output_path, output_format, source)
+    output = '\n'.join([p.stdout.read(), p.stderr.read()])
+
+    if not os.path.exists(converted_path):
+        raise IOError(p.return_code, output)
+
+    os.rename(converted_path, target)
+
+odt_to_pdf = partial(convert, output_format='pdf')
+odt_to_doc = partial(convert, output_format='doc')
+
+
+def is_available():
+    return exists('unoconv')
+
+
+def converters():
+
+    return {
+        (odt_mimetype, pdf_mimetype): odt_to_pdf,
+        (odt_mimetype, doc_mimetype): odt_to_doc,
+    }

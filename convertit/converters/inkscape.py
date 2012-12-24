@@ -1,16 +1,23 @@
 import subprocess
-import  convertit as c
+
+from convertit import exists
 
 
-def to_pdf(source, target):
+pdf_mimetype = 'application/pdf'
+svg_mimetype = 'image/svg+xml'
+
+
+def is_available():
+    return exists('inkscape')
+
+
+def svg_to_pdf(source, target):
     command = [
         'inkscape', '-f', source, '-A', target]
     subprocess.call(command)
 
 
-def register(converters=None):
-    c.register(('image/svg+xml', 'application/pdf'), 'pdf', to_pdf, c.test_program('inkscape'),
-               converters=converters)
-
-
-register()
+def converters():
+    return {
+        (svg_mimetype, pdf_mimetype): svg_to_pdf,
+    }
