@@ -14,8 +14,8 @@ from pyramid.httpexceptions import (
 from pyramid.response import Response
 from convertit.helpers import (
     download_file,
-    url_to_filename,
-    remove_files_older_than
+    remove_files_older_than,
+    render_converted_name,
 )
 
 
@@ -54,7 +54,7 @@ def download(request, url):
 
 @view_config(route_name='home')
 def home_view(request):
-    converted_path = request.registry.settings['convertit.converted_path']
+    settings = request.registry.settings
     converters = request.registry.convertit
 
     remove_old_files(request)
@@ -77,10 +77,14 @@ def home_view(request):
     if isinstance(downloaded_filepath, Response):
         return downloaded_filepath
 
-    converted_extension = guess_extension(output_mimetype) or ''
-    converted_filename = url_to_filename(url)
-    converted_basename = converted_filename + converted_extension
-    converted_filepath = os.path.join(converted_path, converted_basename)
+    converted_basename = render_converted_name(
+        settings['convertit.converted_name'],
+        url,
+        guess_extension(output_mimetype))
+
+    converted_filepath = os.path.join(
+        settings['convertit.converted_path'],
+        converted_basename)
 
     try:
         convert = converters[(input_mimetype, output_mimetype)]

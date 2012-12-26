@@ -1,7 +1,5 @@
 import os
-import re
 import urllib2
-from unicodedata import normalize
 from urlparse import urlsplit
 from uuid import uuid4
 from datetime import datetime
@@ -17,35 +15,6 @@ def download_file(url, target_dir):
     return target_file
 
 
-# Credit: http://flask.pocoo.org/snippets/5/
-_punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
-
-
-def slugify(text, delim=u'-'):
-    """Generates an slightly worse ASCII-only slug."""
-    result = []
-    for word in _punct_re.split(text.lower()):
-        word = normalize('NFKD', word).encode('ascii', 'ignore')
-        if word:
-            result.append(word)
-    return unicode(delim.join(result))
-
-
-def url_to_filename(url):
-    splited_url = urlsplit(url)
-
-    parts = [slugify(splited_url.hostname)]
-
-    if splited_url.path[-1] == '/':
-        path = splited_url.path[:-1]
-    else:
-        path, ext = os.path.splitext(splited_url.path)
-
-    parts.append(slugify(path))
-
-    return '-'.join(parts)
-
-
 def remove_files_older_than(limit, path):
     for basename in os.listdir(path):
         target = os.path.join(path, basename)
@@ -55,3 +24,21 @@ def remove_files_older_than(limit, path):
         time_delta = now_datetime - target_datetime
         if time_delta.seconds > limit:
             os.remove(target)
+
+
+def render_converted_name(template, url, extension):
+    parsed_url = urlsplit(url)
+    url_dirname = os.path.dirname(parsed_url.path)[1:].replace('/', '_')
+    url_basename = os.path.basename(parsed_url.path)
+    url_filename, url_extension = os.path.splitext(url_basename)
+
+    data = {
+        'url_hostname': parsed_url.hostname,
+        'url_port': parsed_url.port,
+        'url_dirname': url_dirname,
+        'url_filename': url_filename,
+        'url_extension': url_extension or '',
+        'extension': extension,
+    }
+
+    return template.format(**data)

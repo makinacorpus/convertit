@@ -8,31 +8,32 @@ from mock import Mock, patch
 from convertit import main
 
 
+here = os.path.dirname(__file__)
+data_path = os.path.join(here, 'data')
+settings = {
+    'convertit.converted_path': os.path.join(data_path, 'converted'),
+    'convertit.downloads_path': os.path.join(data_path, 'downloads'),
+    'convertit.converted_url': 'converted',
+    'convertit.converters': """
+        convertit.converters.unoconv
+        convertit.converters.inkscape
+    """,
+    'convertit.converted_name': '{url_hostname}_{url_port}_{url_dirname}_{url_filename}{extension}',
+}
+
+
 class FunctionalTests(unittest.TestCase):
 
     def setUp(self):
-        here = os.path.dirname(__file__)
-        self.data_path = os.path.join(here, 'data')
-        self.settings = {
-            'convertit.converted_path': os.path.join(self.data_path,
-                                                     'converted'),
-            'convertit.downloads_path': os.path.join(self.data_path,
-                                                     'downloads'),
-            'convertit.converted_url': 'converted',
-            'convertit.converters': """
-                convertit.converters.unoconv
-                convertit.converters.inkscape
-            """
-        }
-        app = main({}, **self.settings)
+        app = main({}, **settings)
         self.testapp = TestApp(app)
 
     def tearDown(self):
-        shutil.rmtree(self.settings['convertit.converted_path'])
-        shutil.rmtree(self.settings['convertit.downloads_path'])
+        shutil.rmtree(settings['convertit.converted_path'])
+        shutil.rmtree(settings['convertit.downloads_path'])
 
     def odt_data(self):
-        odt_path = os.path.join(self.data_path, 'test_document.odt')
+        odt_path = os.path.join(data_path, 'test_document.odt')
         return open(odt_path).read()
 
     def test_no_url(self):
@@ -59,7 +60,7 @@ class FunctionalTests(unittest.TestCase):
             resp = self.testapp.get('/', params={'url': url}, status=302)
             mock_urlopen.assert_called_once_with(url)
             filename = os.path.basename(resp.location)
-            filepath = os.path.join(self.settings['convertit.converted_path'],
+            filepath = os.path.join(settings['convertit.converted_path'],
                                     filename)
             self.assertTrue(os.path.exists(filepath))
 
@@ -67,7 +68,7 @@ class FunctionalTests(unittest.TestCase):
         "Get homepage with valid `url` param"
 
         url = 'http://example.com/test_document.odt'
-        converted_path = self.settings['convertit.converted_path']
+        converted_path = settings['convertit.converted_path']
         with patch.object(urllib2, 'urlopen') as mock_urlopen:
             mock_req = Mock()
             mock_req.read.return_value = self.odt_data()
