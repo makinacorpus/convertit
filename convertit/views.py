@@ -4,10 +4,10 @@ from mimetypes import guess_extension
 
 import magic
 from pyramid.httpexceptions import (
+    HTTPError,
     HTTPBadRequest,
     HTTPFound,
 )
-from pyramid.response import Response
 from pyramid.url import static_url
 from pyramid.view import view_config
 
@@ -44,17 +44,44 @@ def download(request, url):
         downloaded_filepath = download_file(url, downloads_path)
         return downloaded_filepath
     except ValueError as e:
-        return HTTPBadRequest(message % e.message)
+        raise HTTPBadRequest(message % str(e))
     except urllib2.HTTPError as e:
-        return Response(message % str(e), status_int=e.getcode())
+        raise HTTPError(message % str(e), status_int=e.getcode())
     except urllib2.URLError as e:
-        return HTTPBadRequest(message % str(e))
+        raise HTTPBadRequest(message % str(e))
+
+
+def get_input_mimetype(request, input_filepath):
+    guessed_mimetype = magic.from_file(input_filepath, mime=True)
+    input_mimetype = request.GET.get('from', guessed_mimetype)
+
+    if not input_mimetype:
+        raise HTTPBadRequest('Can not guess mimetype')
+
+    return input_mimetype
+
+
+def get_converter(request, input_mimetype, output_mimetype):
+    converters = request.registry.convertit
+
+    if (input_mimetype, output_mimetype) not in converters:
+        message = 'Unsupported transform: from %s to %s'
+        raise HTTPBadRequest(message % (input_mimetype, output_mimetype))
+
+    return converters[(input_mimetype, output_mimetype)]
+
+
+def output_basename_from_url(request, url, mimetype):
+    settings = request.registry.settings
+    name_template = settings['convertit.converted_name']
+    extension = guess_extension(mimetype)
+    return render_converted_name(name_template, url, extension)
 
 
 @view_config(route_name='home')
 def home_view(request):
     settings = request.registry.settings
-    converters = request.registry.convertit
+    converted_path = settings['convertit.converted_path']
 
     remove_old_files(request)
 
@@ -62,36 +89,21 @@ def home_view(request):
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
-    downloaded_filepath = download(request, url)
-    if isinstance(downloaded_filepath, Response):
-        return downloaded_filepath
-
-    guessed_mimetype = magic.from_file(downloaded_filepath, mime=True)
-    input_mimetype = request.GET.get('from', guessed_mimetype)
-    if not input_mimetype:
-        return HTTPBadRequest('Can not guess mimetype')
+    input_filepath = download(request, url)
+    input_mimetype = get_input_mimetype(request, input_filepath)
 
     output_mimetype = request.GET.get('to', 'application/pdf')
-    if (input_mimetype, output_mimetype) not in converters:
-        message = 'Unsupported transform: from %s to %s (url: %s)'
-        return HTTPBadRequest(message % (input_mimetype, output_mimetype, url))
+    output_basename = output_basename_from_url(request, url, output_mimetype)
+    output_filepath = os.path.join(converted_path, output_basename)
 
-    converted_basename = render_converted_name(
-        settings['convertit.converted_name'],
-        url,
-        guess_extension(output_mimetype))
-
-    converted_filepath = os.path.join(
-        settings['convertit.converted_path'],
-        converted_basename)
+    convert = get_converter(request, input_mimetype, output_mimetype)
 
     try:
-        convert = converters[(input_mimetype, output_mimetype)]
-        convert(downloaded_filepath, converted_filepath)
+        convert(input_filepath, output_filepath)
     except Exception as e:
         message = "Sorry, there was an error fetching the document. Reason: %s"
-        return HTTPBadRequest(message % e.message)
+        return HTTPBadRequest(message % str(e))
 
-    return HTTPFound(static_url(converted_filepath, request),
+    return HTTPFound(static_url(output_filepath, request),
                      content_disposition='attachement; filename=%s' %
-                     converted_basename)
+                     output_basename)
