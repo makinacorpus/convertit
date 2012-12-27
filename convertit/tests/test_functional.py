@@ -23,7 +23,6 @@ settings = {
 
 
 class FunctionalTests(unittest.TestCase):
-
     def setUp(self):
         app = main({}, **settings)
         self.testapp = TestApp(app)
@@ -40,7 +39,7 @@ class FunctionalTests(unittest.TestCase):
         "Get homepage without any `url` param"
 
         resp = self.testapp.get('/', status=400)
-        self.assertIn('Missing parameter', resp.body)
+        self.assertTrue('Missing parameter' in resp.body)
 
     def test_with_valid_url(self):
         "Get homepage with valid `url` param"
@@ -77,7 +76,7 @@ class FunctionalTests(unittest.TestCase):
         "Get homepage with `url` missing a protocol identifier"
         url = 'www.example.com/test_document.odt'
         resp = self.testapp.get('/', params={'url': url}, status=400)
-        self.assertIn("unknown url type", resp.body)
+        self.assertTrue("unknown url type" in resp.body)
 
     def test_no_such_transform(self):
         "Get homepage with `url` that triggers a DNS resolution error"
@@ -90,7 +89,7 @@ class FunctionalTests(unittest.TestCase):
             request_params = {'url': url, 'to': 'application/pdfnocontent'}
             resp = self.testapp.get('/', params=request_params, status=400)
 
-            self.assertIn('Unsupported transform', resp.body)
+            self.assertTrue('Unsupported transform' in resp.body)
 
     def test_invalid_hostname(self):
         "Get homepage with `url` that triggers a DNS resolution error"
@@ -99,7 +98,7 @@ class FunctionalTests(unittest.TestCase):
             message = "Name or service not known"
             mock_urlopen.side_effect = urllib2.URLError(message)
             resp = self.testapp.get('/', params={'url': url}, status=400)
-            self.assertIn("Name or service not known", resp.body)
+            self.assertTrue("Name or service not known" in resp.body)
 
     def test_forbidden_url(self):
         "Get homepage with `url` that is forbidden"
@@ -109,4 +108,4 @@ class FunctionalTests(unittest.TestCase):
                                                          "Forbidden access",
                                                          [], None)
             resp = self.testapp.get('/', params={'url': url}, status=403)
-            self.assertIn("Forbidden access", resp.body)
+            self.assertTrue("Forbidden access" in resp.body)
