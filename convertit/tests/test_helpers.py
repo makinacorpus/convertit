@@ -1,8 +1,9 @@
-import unittest
-from mock import patch
 from datetime import datetime
 
-from ..helpers import remove_files_older_than
+from mock import patch
+
+from convertit.helpers import remove_files_older_than
+from convertit.tests.unittest import unittest
 
 
 class RemoveFilesOlderThanTests(unittest.TestCase):

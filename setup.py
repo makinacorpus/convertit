@@ -1,4 +1,5 @@
 import os
+import sys
 
 from setuptools import setup, find_packages
 
@@ -18,6 +19,9 @@ test_requires = requires + [
     'mock',
     'coverage',
 ]
+
+if not sys.version < '2.7':
+    test_requires.append('unittest2')
 
 setup(name='convertit',
       version='0.0',

@@ -1,11 +1,12 @@
 import os
 import shutil
-import unittest
 import urllib2
-from webtest import TestApp
+
 from mock import Mock, patch
+from webtest import TestApp
 
 from convertit import main
+from convertit.tests.unittest import unittest
 
 
 here = os.path.dirname(__file__)
