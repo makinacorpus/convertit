@@ -42,13 +42,6 @@ class FunctionalTests(unittest.TestCase):
         resp = self.testapp.get('/', status=400)
         self.assertIn('Missing parameter', resp.body)
 
-    def test_with_invalid_url(self):
-        "Get homepage with an invalid `url` param"
-
-        request_params = {'url': 'http://foo.bar/bosa'}
-        resp = self.testapp.get('/', params=request_params,  status=404)
-        self.assertIn('Not Found', resp.body)
-
     def test_with_valid_url(self):
         "Get homepage with valid `url` param"
 
