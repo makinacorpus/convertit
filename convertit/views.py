@@ -1,6 +1,7 @@
 import os
 import urllib2
 from mimetypes import guess_extension
+from functools import partial
 
 import magic
 from pyramid.httpexceptions import (
@@ -71,30 +72,36 @@ def get_converter(request, input_mimetype, output_mimetype):
     return converters[(input_mimetype, output_mimetype)]
 
 
-def output_basename_from_url(request, url, mimetype):
+def output_basename_from_url(request, mimetype, url):
     settings = request.registry.settings
     name_template = settings['convertit.converted_name']
     extension = guess_extension(mimetype)
     return render_converted_name(name_template, url, extension)
 
 
-@view_config(route_name='home')
-def home_view(request):
-    settings = request.registry.settings
-    converted_path = settings['convertit.converted_path']
-
-    remove_old_files(request)
-
+@view_config(route_name='home', request_method='GET')
+def home_get_view(request):
     url = request.GET.get('url')
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
     input_filepath = download(request, url)
+    output_basename_generator = partial(output_basename_from_url, url=url)
+
+    return home_view(request, input_filepath, output_basename_generator)
+
+
+def home_view(request, input_filepath, output_basename_generator):
+    settings = request.registry.settings
+    converted_path = settings['convertit.converted_path']
+
     input_mimetype = get_input_mimetype(request, input_filepath)
 
     output_mimetype = request.GET.get('to', 'application/pdf')
-    output_basename = output_basename_from_url(request, url, output_mimetype)
+    output_basename = output_basename_generator(request, output_mimetype)
     output_filepath = os.path.join(converted_path, output_basename)
+
+    remove_old_files(request)
 
     convert = get_converter(request, input_mimetype, output_mimetype)
 
