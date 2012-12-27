@@ -1,9 +1,6 @@
 import os
 import urllib2
-from mimetypes import (
-    guess_type,
-    guess_extension,
-)
+from mimetypes import guess_extension
 
 import magic
 from pyramid.httpexceptions import (
@@ -49,9 +46,9 @@ def download(request, url):
     except ValueError as e:
         return HTTPBadRequest(message % e.message)
     except urllib2.HTTPError as e:
-        return Response(message % e.reason, status_int=e.getcode())
+        return Response(message % str(e), status_int=e.getcode())
     except urllib2.URLError as e:
-        return HTTPBadRequest(message % e.reason)
+        return HTTPBadRequest(message % str(e))
 
 
 @view_config(route_name='home')
