@@ -10,13 +10,14 @@ requires = [
     'pyramid',
     'pyramid_debugtoolbar',
     'waitress',
-    ]
+    'python-magic',
+]
 
 test_requires = requires + [
     'webtest',
     'mock',
     'coverage',
-    ]
+]
 
 setup(name='convertit',
       version='0.0',
@@ -39,7 +40,7 @@ setup(name='convertit',
       zip_safe=False,
       install_requires=requires,
       tests_require=test_requires,
-      extras_require = {
+      extras_require={
           'test': test_requires,
       },
       test_suite="convertit",

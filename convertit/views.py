@@ -5,13 +5,15 @@ from mimetypes import (
     guess_extension,
 )
 
-from pyramid.view import view_config
-from pyramid.url import static_url
+import magic
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPFound,
 )
 from pyramid.response import Response
+from pyramid.url import static_url
+from pyramid.view import view_config
+
 from convertit.helpers import (
     download_file,
     remove_files_older_than,
@@ -63,7 +65,11 @@ def home_view(request):
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
-    guessed_mimetype = guess_type(url)[0]
+    downloaded_filepath = download(request, url)
+    if isinstance(downloaded_filepath, Response):
+        return downloaded_filepath
+
+    guessed_mimetype = magic.from_file(downloaded_filepath, mime=True)
     input_mimetype = request.GET.get('from', guessed_mimetype)
     if not input_mimetype:
         return HTTPBadRequest('Can not guess mimetype')
@@ -72,10 +78,6 @@ def home_view(request):
     if (input_mimetype, output_mimetype) not in converters:
         message = 'Unsupported transform: from %s to %s (url: %s)'
         return HTTPBadRequest(message % (input_mimetype, output_mimetype, url))
-
-    downloaded_filepath = download(request, url)
-    if isinstance(downloaded_filepath, Response):
-        return downloaded_filepath
 
     converted_basename = render_converted_name(
         settings['convertit.converted_name'],
