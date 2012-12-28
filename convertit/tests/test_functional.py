@@ -110,3 +110,12 @@ class FunctionalTests(unittest.TestCase):
                                                          [], None)
             resp = self.testapp.get('/', params={'url': url}, status=403)
             self.assertTrue("Forbidden access" in resp.body)
+
+    def test_post(self):
+        "Get post document"
+        upload_files = [('file', 'test_document.odt', self.odt_data())]
+        converted_path = settings['convertit.converted_path']
+        resp = self.testapp.post('/', upload_files=upload_files, status=302)
+        filename = os.path.basename(resp.location)
+        filepath = os.path.join(converted_path, filename)
+        self.assertTrue(os.path.exists(filepath))

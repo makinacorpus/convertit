@@ -1,7 +1,8 @@
 import os
 import urllib2
-from mimetypes import guess_extension
 from functools import partial
+from mimetypes import guess_extension
+from uuid import uuid4
 
 import magic
 from pyramid.httpexceptions import (
@@ -35,6 +36,14 @@ def remove_old_files(request):
 
     remove_files_older_than(int(downloads_max_age), downloads_path)
     remove_files_older_than(int(converted_max_age), converted_path)
+
+
+def save(request, uploaded_file):
+    downloads_path = request.registry.settings['convertit.downloads_path']
+    target_file = os.path.join(downloads_path, str(uuid4()))
+    with open(target_file, 'w') as f:
+        f.write(uploaded_file.read())
+    return target_file
 
 
 def download(request, url):
@@ -87,6 +96,20 @@ def home_get_view(request):
 
     input_filepath = download(request, url)
     output_basename_generator = partial(output_basename_from_url, url=url)
+
+    return home_view(request, input_filepath, output_basename_generator)
+
+
+@view_config(route_name='home', request_method='POST')
+def home_post_view(request):
+    uploaded = request.POST.get('file')
+    input_filepath = save(request, uploaded.file)
+
+    filename = os.path.splitext(uploaded.filename)[0]
+
+    def output_basename_generator(request, mimetype):
+        extension = guess_extension(mimetype)
+        return '%s%s' % (filename, extension)
 
     return home_view(request, input_filepath, output_basename_generator)
 
