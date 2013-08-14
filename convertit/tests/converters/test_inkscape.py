@@ -29,3 +29,8 @@ class InkscapeConvertionTests(unittest.TestCase):
         converted_filepath = os.path.join(self.temp_dir, 'test_svg.pdf')
         inkscape.svg_to_pdf(self.svg_filepath, converted_filepath)
         self.assertTrue(os.path.exists(converted_filepath))
+
+    def test_svg_to_png_conversion(self):
+        converted_filepath = os.path.join(self.temp_dir, 'test_svg.png')
+        inkscape.svg_to_png(self.svg_filepath, converted_filepath)
+        self.assertTrue(os.path.exists(converted_filepath))

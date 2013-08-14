@@ -18,7 +18,14 @@ def svg_to_pdf(source, target):
     subprocess.call(command)
 
 
+def svg_to_png(source, target):
+    command = [
+        'inkscape', '-f', source, '-e', target]
+    subprocess.call(command)
+
+
 def converters():
     return {
         (types_map['.svg'], types_map['.pdf']): svg_to_pdf,
+        (types_map['.svg'], types_map['.png']): svg_to_png,
     }
