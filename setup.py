@@ -24,7 +24,7 @@ if not sys.version < '2.7':
     test_requires.append('unittest2')
 
 setup(name='convertit',
-      version='1.0',
+      version='1.0.1.dev0',
       description='A file conversion Web API in Pyramid',
       long_description=README + '\n\n' + CHANGES,
       license='AGPLV3',
