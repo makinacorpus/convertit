@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-0.0 (unreleased)
+1.0 (2013-09-03)
 ----------------
 
 -  Initial working version
