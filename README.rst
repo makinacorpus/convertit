@@ -1,14 +1,13 @@
 **Convertit** is a format conversion webservice. 
 
-Retrieve your document in an other format using a dead simple ``GET`` request. 
-Documents are pulled, converted and served back !
+Retrieve your document in an other format ! The input file is converted and served back !
+Using a dead simple ``GET`` request, documents are pulled. Using ``POST`` request, it takes the attachment.
 
 .. image:: https://secure.travis-ci.org/makinacorpus/convertit.png?branch=master
 
-.. contents::
-
 
 Supported conversions:
+
 - odt -> pdf
 - odt -> doc
 - ods -> xls
