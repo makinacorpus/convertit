@@ -25,7 +25,7 @@ if not sys.version < '2.7':
 
 setup(name='convertit',
       version='0.0',
-      description='convertit',
+      description='A file conversion Web API in Pyramid',
       long_description=README + '\n\n' + CHANGES,
       license='AGPLV3',
       classifiers=[

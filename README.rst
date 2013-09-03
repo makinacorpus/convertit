@@ -8,8 +8,24 @@ Documents are pulled, converted and served back !
 .. contents::
 
 
+Supported conversions:
+- odt -> pdf
+- odt -> doc
+- ods -> xls
+- csv -> ods
+- csv -> xls
+- svg -> pdf
+- svg -> png
+
+Previously converted documents are cleaned along the way (on each request).
+
+
+=====
 USAGE
-=======
+=====
+
+Using GET request
+-----------------
 
 Example, convert from *odt* to *pdf* :
 
@@ -20,26 +36,37 @@ Example, convert from *odt* to *pdf* :
     Content-Disposition: attachement; filename=document.pdf
     ...
 
-Supported ``GET`` parameters:
+GET parameters:
 
-- **url**: absolute url of the document to be converted;
+**url**: absolute url of the document to be converted;
+
+
+Using POST request
+------------------
+
+Upload data in POST parameter named ``file``:
+
+::
+
+    curl -F "file=@tiger.svg" http://convertit/?to=image/png
+    HTTP/1.1 302 Found
+    Content-Disposition: attachement; filename=tiger.png
+
+
+
+Query parameters
+----------------
+
 - **to**: output mimetype (optionnal, default to ``application/pdf`` if not provided); 
-- **from**: input mimetype (optionnal, guessed from input url if not provided).
+- **from**: input mimetype (optionnal, guessed from input url or file if not provided).
 
-Supported conversions:
-- odt -> pdf
-- odt -> doc
-- svg -> pdf
 
-Previously converted documents are cleaned along the way (on each request).
-
-(*Note: pushing documents with ``POST`` is planned.*)
-
+=======
 INSTALL
 =======
 
 System dependencies
---------------------
+-------------------
 * for *OpenDocument* support: ``unoconv``
 * for *SVG* support: ``inkscape``
 
@@ -54,7 +81,7 @@ Download
     cd convertit
 
 Development
-------------
+-----------
 
 ::
 
@@ -69,7 +96,7 @@ Run tests: ::
 
 
 Production
------------
+----------
 
 Using *gunicorn* for example :
 
@@ -85,11 +112,12 @@ Open `an issue <https://github.com/makinacorpus/convertit/issues>`_ to report a
 bug or request a new feature.
 
 
+=======
 CREDITS
-========
+=======
 
 Companies
-----------
+---------
 |makinacom|_
 
   * `Planet Makina Corpus <http://www.makina-corpus.org>`_
@@ -99,7 +127,7 @@ Companies
 .. _makinacom:  http://www.makina-corpus.com
 
 Authors
---------
+-------
 * Antoine Cezar
 * Alex Marandon
 
