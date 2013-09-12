@@ -84,14 +84,13 @@ Development
 
 ::
 
-    python setup.py develop
-    pserve --reload development.ini
+    make serve
 
 Once the application is running, you may visit http://localhost:6543/ in your browser.
 
 Run tests: ::
 
-    python setup.py test
+    make tests
 
 
 Production
