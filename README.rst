@@ -102,6 +102,13 @@ Using *gunicorn* for example :
 
     gunicorn_paster --workers=4 production.ini
 
+Using Docker :
+
+::
+
+    sudo docker build -t="convertit" .
+    sudo docker run -p :6543 convertit
+
 
 Feedback
 --------
