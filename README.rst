@@ -38,7 +38,15 @@ Example, convert from *odt* to *pdf* :
 
 GET parameters:
 
-**url**: absolute url of the document to be converted;
+**url**: absolute url of the document to be converted.
+
+"url" also supports a "{X_FORWARDED_FOR}" placeholder for requests not knowing
+their own host. "{X_FORWARDED_FOR}" will be replaced with the corresponding
+"X_FORWARDED_FOR" header if available. Be warned that "X_FORWARDED_FOR" is not
+a safe value since it can be modified by user agents or given false value by
+forward proxies. Use only if really needed. Exemple::
+
+  curl "http://convertit/?url=http://{X_FORWARDED_FOR}/document.odt&to=application/pdf"
 
 
 Using POST request

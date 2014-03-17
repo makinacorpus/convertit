@@ -79,6 +79,24 @@ class FunctionalTests(unittest.TestCase):
         resp = self.testapp.get('/', params={'url': url}, status=400)
         self.assertTrue("unknown url type" in resp.body)
 
+    def test_x_forwarded_for_replacement(self):
+        "Get supports {X_FORWARDED_FOR} placeholder in `url`"
+        url = 'http://{X_FORWARDED_FOR}/test_document.odt'
+        x_forwarded_for = 'domain.tld'
+        expected_url = url.replace('{X_FORWARDED_FOR}', x_forwarded_for)
+
+        with patch.object(urllib2, 'urlopen') as mock_urlopen:
+            mock_req = Mock()
+            mock_req.read.return_value = self.odt_data()
+            mock_urlopen.return_value = mock_req
+            resp = self.testapp.get('/', params={'url': url}, status=302,
+                                    headers={'X_FORWARDED_FOR': x_forwarded_for})
+            mock_urlopen.assert_called_once_with(expected_url)
+            filename = os.path.basename(resp.location)
+            filepath = os.path.join(settings['convertit.converted_path'],
+                                    filename)
+            self.assertTrue(os.path.exists(filepath))
+
     def test_no_such_transform(self):
         "Get homepage with `url` that triggers a DNS resolution error"
         url = 'http://example.com/test_document.odt'

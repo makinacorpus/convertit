@@ -94,6 +94,9 @@ def home_get_view(request):
     if url is None:
         return HTTPBadRequest('Missing parameter: url')
 
+    if '{X_FORWARDED_FOR}' in url:
+        url = url.replace('{X_FORWARDED_FOR}', request.client_addr)
+
     input_filepath = download(request, url)
     output_basename_generator = partial(output_basename_from_url, url=url)
 
