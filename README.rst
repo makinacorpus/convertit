@@ -3,7 +3,8 @@
 Retrieve your document in an other format ! The input file is converted and served back !
 Using a dead simple ``GET`` request, documents are pulled. Using ``POST`` request, it takes the attachment.
 
-.. image:: https://secure.travis-ci.org/makinacorpus/convertit.png?branch=master
+.. image:: https://api.travis-ci.org/makinacorpus/convertit.png
+    :target: https://travis-ci.org/makinacorpus/convertit
 
 
 Supported conversions:
