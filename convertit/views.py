@@ -49,9 +49,11 @@ def save(request, uploaded_file):
 def download(request, url):
     downloads_path = request.registry.settings['convertit.downloads_path']
 
+    lang = request.headers.get('Accept-language')
+
     message = "Sorry, there was an error fetching the document. Reason: %s"
     try:
-        downloaded_filepath = download_file(url, downloads_path)
+        downloaded_filepath = download_file(url, downloads_path, lang)
         return downloaded_filepath
     except ValueError as e:
         raise HTTPBadRequest(message % str(e))

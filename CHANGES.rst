@@ -5,6 +5,8 @@ CHANGELOG
 1.0.1 (unreleased)
 ------------------
 
+- Use original request header ``Accept-language`` to download the URL
+
 - Add {X_FORWARDED_FOR} placeholder in GET url parameter. Replaced by the
   corresponding header if available.
   It avoids the client initiating the request to be aware of its own address.
