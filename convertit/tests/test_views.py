@@ -14,4 +14,4 @@ class DownloadTest(unittest.TestCase):
         download(fakerequest, 'http://geotrek.fr')
         download_file_mock.assert_called_with('http://geotrek.fr',
                                               '/path',
-                                              'fr')
+                                              headers={'Accept-language': 'fr'})

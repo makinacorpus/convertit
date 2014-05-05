@@ -40,6 +40,8 @@ class DownloadUrlTest(unittest.TestCase):
         response = MagicMock()
         response.read.return_value = ''
         urlopen_mock.return_value = response
-        download_file('http://geotrek.fr', '/tmp', lang='fr')
+
+        headers = {'Accept-language': 'fr'}
+        download_file('http://geotrek.fr', '/tmp', headers=headers)
         request = urlopen_mock.call_args_list[0][0][0]
         self.assertEqual(request.headers, {'Accept-language': 'fr'})

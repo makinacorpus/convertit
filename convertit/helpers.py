@@ -5,12 +5,14 @@ from uuid import uuid4
 from datetime import datetime
 
 
-def download_file(url, target_dir, lang=None):
+def download_file(url, target_dir, headers=None):
     _, ext = os.path.splitext(url)
 
-    if lang:
-        headers = {'Accept-language': lang}
-        url = urllib2.Request(url, headers=headers)
+    if headers:
+        selection = ['Accept-language', 'User-Agent']
+        selected = dict((k, v) for k, v in headers.items() if k in selection)
+        if selected:
+            url = urllib2.Request(url, headers=headers)
 
     data = urllib2.urlopen(url).read()
 
