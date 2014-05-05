@@ -5,9 +5,15 @@ from uuid import uuid4
 from datetime import datetime
 
 
-def download_file(url, target_dir):
+def download_file(url, target_dir, lang=None):
     _, ext = os.path.splitext(url)
+
+    if lang:
+        headers = {'Accept-language': lang}
+        url = urllib2.Request(url, headers=headers)
+
     data = urllib2.urlopen(url).read()
+
     filename = "%s%s" % (uuid4(), ext)
     target_file = os.path.join(target_dir, filename)
     with open(target_file, 'w') as f:
