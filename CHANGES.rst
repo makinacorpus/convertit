@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.0.1 (unreleased)
+1.1.0 (2014-05-21)
 ------------------
 
 - Use original request header ``Accept-language`` to download the URL
