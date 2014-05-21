@@ -36,12 +36,25 @@ class RemoveFilesOlderThanTests(unittest.TestCase):
 
 class DownloadUrlTest(unittest.TestCase):
     @patch('urllib2.urlopen')
-    def test_download_can_specify_language_headers(self, urlopen_mock):
+    def test_download_can_specify_headers(self, urlopen_mock):
         response = MagicMock()
         response.read.return_value = ''
         urlopen_mock.return_value = response
 
-        headers = {'Accept-language': 'fr'}
+        headers = {'Accept-Language': 'fr'}
         download_file('http://geotrek.fr', '/tmp', headers=headers)
         request = urlopen_mock.call_args_list[0][0][0]
         self.assertEqual(request.headers, {'Accept-language': 'fr'})
+
+    @patch('urllib2.urlopen')
+    def test_download_headers_are_filtered(self, urlopen_mock):
+        response = MagicMock()
+        response.read.return_value = ''
+        urlopen_mock.return_value = response
+
+        headers = {'Accept-LANGUAGE': 'fr', 'HOST': '127.0.0.1:8001',
+                   'user-agent': 'curl'}
+        download_file('http://geotrek.fr', '/tmp', headers=headers)
+        request = urlopen_mock.call_args_list[0][0][0]
+        self.assertEqual(request.headers, {'Accept-language': 'fr',
+                                           'User-agent': 'curl'})

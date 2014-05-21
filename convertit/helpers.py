@@ -9,13 +9,13 @@ def download_file(url, target_dir, headers=None):
     _, ext = os.path.splitext(url)
 
     if headers:
-        selection = ['Accept-language', 'User-Agent']
-        selected = dict((k, v) for k, v in headers.items() if k in selection)
+        selection = ['accept-language', 'user-agent']
+        selected = dict((k.title(), v) for k, v in headers.items()
+                        if k.lower() in selection)
         if selected:
-            url = urllib2.Request(url, headers=headers)
+            url = urllib2.Request(url, headers=selected)
 
     data = urllib2.urlopen(url).read()
-
     filename = "%s%s" % (uuid4(), ext)
     target_file = os.path.join(target_dir, filename)
     with open(target_file, 'w') as f:
