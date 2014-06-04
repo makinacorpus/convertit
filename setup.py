@@ -20,7 +20,7 @@ test_requires = requires + [
     'coverage',
 ]
 
-if not sys.version < '2.7':
+if sys.version < '2.7':
     test_requires.append('unittest2')
 
 setup(name='convertit',
