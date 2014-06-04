@@ -18,10 +18,9 @@ test_requires = requires + [
     'webtest',
     'mock',
     'coverage',
+    'unittest2'
 ]
 
-if sys.version < '2.7':
-    test_requires.append('unittest2')
 
 setup(name='convertit',
       version='1.1.1.dev0',
