@@ -5,7 +5,7 @@ CHANGELOG
 1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Send HTTP errors as raw strings instead of HTML documents
 
 
 1.1.0 (2014-05-21)

@@ -9,6 +9,7 @@ from pyramid.httpexceptions import (
     HTTPError,
     HTTPBadRequest,
     HTTPFound,
+    HTTPInternalServerError,
 )
 from pyramid.url import static_url
 from pyramid.view import view_config
@@ -56,11 +57,12 @@ def download(request, url):
                                             headers=request.headers)
         return downloaded_filepath
     except ValueError as e:
-        raise HTTPBadRequest(message % str(e))
+        raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
     except urllib2.HTTPError as e:
-        raise HTTPError(message % str(e), status_int=e.getcode())
+        raise HTTPError(body=message % str(e), status_int=e.getcode(),
+                        content_type='text/plain')
     except urllib2.URLError as e:
-        raise HTTPBadRequest(message % str(e))
+        raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
 
 
 def get_input_mimetype(request, input_filepath):
@@ -68,7 +70,8 @@ def get_input_mimetype(request, input_filepath):
     input_mimetype = request.GET.get('from', guessed_mimetype)
 
     if not input_mimetype:
-        raise HTTPBadRequest('Can not guess mimetype')
+        raise HTTPBadRequest(body='Can not guess mimetype',
+                             content_type='text/plain')
 
     return input_mimetype
 
@@ -78,7 +81,8 @@ def get_converter(request, input_mimetype, output_mimetype):
 
     if (input_mimetype, output_mimetype) not in converters:
         message = 'Unsupported transform: from %s to %s'
-        raise HTTPBadRequest(message % (input_mimetype, output_mimetype))
+        raise HTTPBadRequest(body=message % (input_mimetype, output_mimetype),
+                             content_type='text/plain')
 
     return converters[(input_mimetype, output_mimetype)]
 
@@ -94,7 +98,8 @@ def output_basename_from_url(request, mimetype, url):
 def home_get_view(request):
     url = request.GET.get('url')
     if url is None:
-        return HTTPBadRequest('Missing parameter: url')
+        return HTTPBadRequest(body='Missing parameter: url',
+                              content_type='text/plain')
 
     if '{X_FORWARDED_FOR}' in url:
         url = url.replace('{X_FORWARDED_FOR}', request.client_addr)
@@ -136,8 +141,9 @@ def home_view(request, input_filepath, output_basename_generator):
     try:
         convert(input_filepath, output_filepath)
     except Exception as e:
-        message = "Sorry, there was an error fetching the document. Reason: %s"
-        return HTTPBadRequest(message % str(e))
+        message = "Sorry, there was an error converting the document. Reason: %s"
+        return HTTPInternalServerError(body=message % str(e),
+                                       content_type='text/plain')
 
     return HTTPFound(static_url(output_filepath, request),
                      content_disposition='attachement; filename=%s' %
