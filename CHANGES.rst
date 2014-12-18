@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.1.1 (unreleased)
+1.1.1 (2014-12-18)
 ------------------
 
 - Send HTTP errors as raw strings instead of HTML documents
