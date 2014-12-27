@@ -5,7 +5,7 @@ CHANGELOG
 1.1.2 (unreleased)
 ------------------
 
--
+- Fix crash in unoconv error handling
 
 
 1.1.1 (2014-12-18)
