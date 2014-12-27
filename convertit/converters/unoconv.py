@@ -32,7 +32,7 @@ def convert(source, target, output_format):
     output = '\n'.join([p.stdout.read(), p.stderr.read()])
 
     if not os.path.exists(converted_path):
-        raise IOError(p.return_code, output)
+        raise IOError(p.returncode, output)
 
     os.rename(converted_path, target)
 
