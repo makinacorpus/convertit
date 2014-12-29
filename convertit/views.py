@@ -1,5 +1,6 @@
 import os
 import urllib2
+import logging
 from functools import partial
 from mimetypes import guess_extension
 from uuid import uuid4
@@ -22,6 +23,7 @@ from convertit.helpers import (
 
 
 seconds_in_hour = 3600
+log = logging.getLogger(__name__)
 
 
 def remove_old_files(request):
@@ -57,11 +59,14 @@ def download(request, url):
                                             headers=request.headers)
         return downloaded_filepath
     except ValueError as e:
+        log.error(message % str(e))
         raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
     except urllib2.HTTPError as e:
+        log.error(message % str(e))
         raise HTTPError(body=message % str(e), status_int=e.getcode(),
                         content_type='text/plain')
     except urllib2.URLError as e:
+        log.error(message % str(e))
         raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
 
 
@@ -70,6 +75,7 @@ def get_input_mimetype(request, input_filepath):
     input_mimetype = request.GET.get('from', guessed_mimetype)
 
     if not input_mimetype:
+        log.error('Can not guess mimetype')
         raise HTTPBadRequest(body='Can not guess mimetype',
                              content_type='text/plain')
 
@@ -81,6 +87,7 @@ def get_converter(request, input_mimetype, output_mimetype):
 
     if (input_mimetype, output_mimetype) not in converters:
         message = 'Unsupported transform: from %s to %s'
+        log.error(message % (input_mimetype, output_mimetype))
         raise HTTPBadRequest(body=message % (input_mimetype, output_mimetype),
                              content_type='text/plain')
 
@@ -98,6 +105,7 @@ def output_basename_from_url(request, mimetype, url):
 def home_get_view(request):
     url = request.GET.get('url')
     if url is None:
+        log.error('Missing parameter: url')
         return HTTPBadRequest(body='Missing parameter: url',
                               content_type='text/plain')
 
@@ -142,6 +150,7 @@ def home_view(request, input_filepath, output_basename_generator):
         convert(input_filepath, output_filepath)
     except Exception as e:
         message = "Sorry, there was an error converting the document. Reason: %s"
+        log.error(message %  str(e))
         return HTTPInternalServerError(body=message % str(e),
                                        content_type='text/plain')
 
