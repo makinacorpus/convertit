@@ -8,6 +8,8 @@ from webtest import TestApp
 from convertit import main
 from convertit.tests.unittest import unittest
 
+from pyramid.paster import setup_logging
+
 
 here = os.path.dirname(__file__)
 data_path = os.path.join(here, 'data')
@@ -21,6 +23,8 @@ settings = {
     """,
     'convertit.converted_name': '{url_hostname}_{url_port}_{url_dirname}_{url_filename}{extension}',
 }
+
+setup_logging(os.path.join(here, '../../production.ini'))
 
 
 class FunctionalTests(unittest.TestCase):
