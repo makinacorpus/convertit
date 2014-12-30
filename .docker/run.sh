@@ -6,4 +6,4 @@ INIPASTE=${INIPASTE:-production.ini}
 cd $APP_ROOT
 git pull origin $BRANCH
 
-bin/gunicorn_paster --workers=4 $INIPASTE
+bin/gunicorn_paster --workers=1 $INIPASTE

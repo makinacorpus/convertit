@@ -109,7 +109,11 @@ Using *gunicorn* for example :
 
 ::
 
-    gunicorn_paster --workers=4 production.ini
+    gunicorn_paster --workers=1 production.ini
+
+**WARNING!** unoconv is not able to handle multiple conversions in parallel
+(see https://github.com/dagwieers/unoconv/issues/172) so you could experiment
+failures if you use multiple gunicorn workers.
 
 Using Docker :
 
@@ -117,7 +121,6 @@ Using Docker :
 
     sudo docker build -t="convertit" .
     sudo docker run -p :6543 convertit
-
 
 Feedback
 --------
@@ -149,3 +152,4 @@ Contributors
 -------------
 * kiorky  <kiorky@cryptelium.net>
 * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
+* Gaël Utard <gael.utard@makina-corpus.com>
