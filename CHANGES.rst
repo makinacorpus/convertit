@@ -2,11 +2,12 @@
 CHANGELOG
 =========
 
-1.1.2 (unreleased)
+1.1.2 (2014-12-30)
 ------------------
 
-- Fix crash in unoconv error handling
+- Fix a crash in unoconv error handling
 - Log errors
+- Add a warning about unoconv not able to work in parallel
 
 
 1.1.1 (2014-12-18)
