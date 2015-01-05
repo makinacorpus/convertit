@@ -6,4 +6,5 @@ INIPASTE=${INIPASTE:-production.ini}
 cd $APP_ROOT
 git pull origin $BRANCH
 
-bin/gunicorn_paster --workers=1 $INIPASTE
+bin/celery -P solo -A convertit.converters.tasks worker &
+bin/gunicorn_paster --workers=4 $INIPASTE

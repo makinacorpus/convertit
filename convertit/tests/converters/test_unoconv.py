@@ -6,6 +6,10 @@ from convertit.tests.unittest import unittest
 
 
 here = os.path.dirname(os.path.realpath(__file__))
+settings = {
+    'convertit.serialize_unoconv_calls': 'false',
+    'convertit.unoconv_timeout': 30,
+}
 
 
 class UnoconvConvertionTests(unittest.TestCase):
@@ -27,5 +31,5 @@ class UnoconvConvertionTests(unittest.TestCase):
 
     def test_odt_to_pdf_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_document.pdf')
-        unoconv.to_pdf(self.odt_filepath, converted_filepath)
+        unoconv.to_pdf(self.odt_filepath, converted_filepath, settings)
         self.assertTrue(os.path.exists(converted_filepath))

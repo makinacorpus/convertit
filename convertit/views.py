@@ -147,7 +147,7 @@ def home_view(request, input_filepath, output_basename_generator):
     convert = get_converter(request, input_mimetype, output_mimetype)
 
     try:
-        convert(input_filepath, output_filepath)
+        convert(input_filepath, output_filepath, settings)
     except Exception as e:
         message = "Sorry, there was an error converting the document. Reason: %s"
         log.error(message %  str(e))

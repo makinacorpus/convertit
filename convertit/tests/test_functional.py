@@ -22,6 +22,7 @@ settings = {
         convertit.converters.inkscape
     """,
     'convertit.converted_name': '{url_hostname}_{url_port}_{url_dirname}_{url_filename}{extension}',
+    'convertit.serialize_unoconv_calls': 'false',
 }
 
 setup_logging(os.path.join(here, '../../production.ini'))

@@ -80,6 +80,10 @@ System dependencies
 
 Conversion binaries should be in system ``PATH`` (``which`` is used internally.)
 
+As ``unoconv`` fails if it is called more than once at a time, if you want to
+serialize ``unoconv`` calls through a single celery worker, you should install
+``rabbitmq-server`` too.
+
 Download
 ---------
 * Download and extract a released tarball from `pypi <http://pypi.python.org/pypi/convertit>`_
@@ -109,11 +113,11 @@ Using *gunicorn* for example :
 
 ::
 
-    gunicorn_paster --workers=1 production.ini
+    ./bin/celery -P solo -A convertit.converters.tasks worker &
+    gunicorn_paster --workers=4 production.ini
 
-**WARNING!** unoconv is not able to handle multiple conversions in parallel
-(see https://github.com/dagwieers/unoconv/issues/172) so you could experiment
-failures if you use multiple gunicorn workers.
+Make sure to run only one celery worker as unoconv cannot handle multiple
+conversions in parallel.
 
 Using Docker :
 
