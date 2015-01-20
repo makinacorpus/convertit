@@ -2,10 +2,10 @@
 CHANGELOG
 =========
 
-1.1.3dev (unreleased)
+1.1.3 (2015-01-20)
 ------------------
 
--
+- Serialize parallel libreoffice conversions
 
 
 1.1.2 (2014-12-30)

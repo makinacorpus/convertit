@@ -24,7 +24,7 @@ test_requires = requires + [
 
 
 setup(name='convertit',
-      version='1.1.3dev',
+      version='1.1.3',
       description='A file conversion Web API in Pyramid',
       long_description=README + '\n\n' + CHANGES,
       license='AGPLV3',
