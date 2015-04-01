@@ -5,7 +5,7 @@ CHANGELOG
 1.1.4.dev (unreleased)
 ------------------
 
-- 
+- Serialize parallel libreoffice conversions with flock instead of celery
 
 
 1.1.3 (2015-01-20)
