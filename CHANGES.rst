@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.1.5.dev0
+1.1.5 (2015-04-01)
 ------------------
 
 - Fix systematic crash in unoconv converter
