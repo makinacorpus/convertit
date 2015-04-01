@@ -4,7 +4,7 @@ MAINTAINER Makina Corpus "python@makina-corpus.com"
 #
 #  Converters binaries
 #...
-RUN apt-get install -y libreoffice unoconv inkscape rabbitmq-server
+RUN apt-get install -y libreoffice unoconv inkscape
 
 #
 #  ConvertIt

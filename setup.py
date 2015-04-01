@@ -12,7 +12,6 @@ requires = [
     'pyramid_debugtoolbar',
     'waitress',
     'python-magic',
-    'celery',
 ]
 
 test_requires = requires + [

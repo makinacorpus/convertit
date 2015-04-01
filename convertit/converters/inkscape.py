@@ -12,13 +12,13 @@ def is_available():
     return exists('inkscape')
 
 
-def svg_to_pdf(source, target, settings=None):
+def svg_to_pdf(source, target):
     command = [
         'inkscape', '-f', source, '-A', target]
     subprocess.call(command)
 
 
-def svg_to_png(source, target, settings=None):
+def svg_to_png(source, target):
     command = [
         'inkscape', '-f', source, '-e', target]
     subprocess.call(command)
