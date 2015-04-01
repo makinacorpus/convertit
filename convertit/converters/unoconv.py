@@ -1,9 +1,27 @@
+import fcntl
 import os
 import subprocess
+import tempfile
 from functools import partial
 from mimetypes import types_map
 
 from convertit import exists
+
+
+class Lock:
+    def __init__(self, filename):
+        self.filename = filename
+        # This will create it if it does not exist already
+        self.handle = open(filename, 'w')
+
+    def acquire(self):
+        fcntl.flock(self.handle, fcntl.LOCK_EX)
+
+    def release(self):
+        fcntl.flock(self.handle, fcntl.LOCK_UN)
+
+    def __del__(self):
+        self.handle.close()
 
 
 def unoconv(output_path, output_format, source):
@@ -16,9 +34,16 @@ def unoconv(output_path, output_format, source):
     if 'PYTHONPATH' in env:
         del env['PYTHONPATH']
 
-    p = subprocess.Popen(command, env=env,
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p.wait()
+    try:
+        lock = Lock(os.path.join(tempfile.gettempdir(), "convertit.lock"))
+        lock.acquire()
+        p = subprocess.Popen(command, env=env,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p.wait()
+    finally:
+        lock.release()
+        raise
+
     return p
 
 
