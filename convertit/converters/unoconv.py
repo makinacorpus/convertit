@@ -42,7 +42,6 @@ def unoconv(output_path, output_format, source):
         p.wait()
     finally:
         lock.release()
-        raise
 
     return p
 

@@ -5,7 +5,7 @@ CHANGELOG
 1.1.5.dev0
 ------------------
 
--
+- Fix systematic crash in unoconv converter
 
 
 1.1.4 (2015-04-01)
