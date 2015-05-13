@@ -155,5 +155,5 @@ def home_view(request, input_filepath, output_basename_generator):
                                        content_type='text/plain')
 
     return HTTPFound(static_url(output_filepath, request),
-                     content_disposition='attachement; filename=%s' %
+                     content_disposition='attachment; filename=%s' %
                      output_basename)
