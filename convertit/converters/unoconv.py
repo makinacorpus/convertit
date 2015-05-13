@@ -8,11 +8,17 @@ from mimetypes import types_map
 from convertit import exists
 
 
-class Lock:
+class Lock(object):
     def __init__(self, filename):
         self.filename = filename
         # This will create it if it does not exist already
         self.handle = open(filename, 'w')
+
+    def __enter__(self):
+        self.acquire()
+
+    def __exit__(self, exec_type, exec_val, exec_tb):
+        self.release()
 
     def acquire(self):
         fcntl.flock(self.handle, fcntl.LOCK_EX)
@@ -34,14 +40,12 @@ def unoconv(output_path, output_format, source):
     if 'PYTHONPATH' in env:
         del env['PYTHONPATH']
 
-    try:
-        lock = Lock(os.path.join(tempfile.gettempdir(), "convertit.lock"))
-        lock.acquire()
+    lockfile = os.path.join(tempfile.gettempdir(), "convertit.lock")
+
+    with Lock(lockfile):
         p = subprocess.Popen(command, env=env,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p.wait()
-    finally:
-        lock.release()
 
     return p
 
