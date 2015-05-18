@@ -54,3 +54,26 @@ class UnoconvCommandTests(unittest.TestCase):
             stdout=subprocess_mock.PIPE,
             stderr=subprocess_mock.PIPE
         )
+
+
+class UnoconvCoverterTests(unittest.TestCase):
+
+    def test_options_declaration(self):
+        converter = unoconv.Converter(sentinel.output_format, sentinel.options)
+
+        self.assertEqual(converter.options, sentinel.options)
+
+    @patch('convertit.converters.unoconv.convert')
+    def test_convert_call_pass_arguments(self, convert_mock):
+        converter = unoconv.Converter(sentinel.output_format, sentinel.options)
+
+        converter(
+            sentinel.source,
+            sentinel.target,
+            quality=sentinel.quality)
+
+        convert_mock.assert_called_with(
+            sentinel.source,
+            sentinel.target,
+            sentinel.output_format,
+            quality=sentinel.quality)

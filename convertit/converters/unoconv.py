@@ -76,6 +76,16 @@ def is_available():
     return exists('unoconv')
 
 
+class Converter(object):
+
+    def __init__(self, output_format, options=None):
+        self._output_format = output_format
+        self.options = options
+
+    def __call__(self, source, target, **options):
+        return convert(source, target, self._output_format, **options)
+
+
 def converters():
 
     return {
