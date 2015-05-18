@@ -24,10 +24,15 @@ class Lock:
         self.handle.close()
 
 
-def unoconv(output_path, output_format, source):
+def unoconv(output_path, output_format, source, quality=None):
     # WARNING: Some old version of unoconv do not accept the full target path.
     #          So output_path must be a directory.
-    command = ['unoconv', '-o', output_path, '--format', output_format, source]
+    command = ['unoconv', '-o', output_path, '--format', output_format]
+
+    if quality:
+        command += ['-e', 'Quality=%d' % quality]
+
+    command.append(source)
 
     # Do not mess pyuno pythonpath !
     env = os.environ.copy()

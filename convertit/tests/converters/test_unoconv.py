@@ -1,5 +1,6 @@
 import os
 import shutil
+from mock import patch, sentinel
 
 from convertit.converters import unoconv
 from convertit.tests.unittest import unittest
@@ -29,3 +30,27 @@ class UnoconvConvertionTests(unittest.TestCase):
         converted_filepath = os.path.join(self.temp_dir, 'test_document.pdf')
         unoconv.to_pdf(self.odt_filepath, converted_filepath)
         self.assertTrue(os.path.exists(converted_filepath))
+
+
+class UnoconvCommandTests(unittest.TestCase):
+
+    @patch('convertit.converters.unoconv.Lock')
+    @patch('convertit.converters.unoconv.os')
+    @patch('convertit.converters.unoconv.subprocess')
+    def test_adds_quality_option_when_given(self, subprocess_mock, os_mock, LockMock):
+        unoconv.unoconv(sentinel.output_path,
+                        sentinel.output_format,
+                        sentinel.source,
+                        quality=100)
+
+        subprocess_mock.Popen.assert_called_with([
+                'unoconv',
+                '-o', sentinel.output_path,
+                '--format', sentinel.output_format,
+                '-e', 'Quality=100',
+                sentinel.source
+            ],
+            env=os_mock.environ.copy(),
+            stdout=subprocess_mock.PIPE,
+            stderr=subprocess_mock.PIPE
+        )
