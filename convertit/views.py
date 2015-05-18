@@ -94,6 +94,16 @@ def get_converter(request, input_mimetype, output_mimetype):
     return converters[(input_mimetype, output_mimetype)]
 
 
+def get_converter_options(options_definitions, request):
+    options = {}
+
+    for key, definition in options_definitions.items():
+        if key in request.GET:
+            options[key] = definition['type'](request.GET[key])
+
+    return options
+
+
 def output_basename_from_url(request, mimetype, url):
     settings = request.registry.settings
     name_template = settings['convertit.converted_name']
@@ -146,8 +156,13 @@ def home_view(request, input_filepath, output_basename_generator):
 
     convert = get_converter(request, input_mimetype, output_mimetype)
 
+    if hasattr(convert, 'options'):
+        options = get_converter_options(convert.options, request)
+    else:
+        options = {}
+
     try:
-        convert(input_filepath, output_filepath)
+        convert(input_filepath, output_filepath, **options)
     except Exception as e:
         message = "Sorry, there was an error converting the document. Reason: %s"
         log.error(message %  str(e))
