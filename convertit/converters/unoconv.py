@@ -66,16 +66,6 @@ def convert(source, target, output_format):
     os.rename(converted_path, target)
 
 
-to_doc = partial(convert, output_format='doc')
-to_ods = partial(convert, output_format='ods')
-to_pdf = partial(convert, output_format='pdf')
-to_xls = partial(convert, output_format='xls')
-
-
-def is_available():
-    return exists('unoconv')
-
-
 class Converter(object):
 
     def __init__(self, output_format, options=None):
@@ -84,6 +74,22 @@ class Converter(object):
 
     def __call__(self, source, target, **options):
         return convert(source, target, self._output_format, **options)
+
+
+to_doc = partial(convert, output_format='doc')
+to_ods = partial(convert, output_format='ods')
+to_pdf = Converter('pdf',
+    options={  # See https://wiki.openoffice.org/wiki/API/Tutorials/PDF_export
+        'quality': {  # Specifies quality of the JPG export.
+            'type': int
+        }
+    }
+)
+to_xls = partial(convert, output_format='xls')
+
+
+def is_available():
+    return exists('unoconv')
 
 
 def converters():

@@ -77,3 +77,13 @@ class UnoconvCoverterTests(unittest.TestCase):
             sentinel.target,
             sentinel.output_format,
             quality=sentinel.quality)
+
+
+class ToPdfTests(unittest.TestCase):
+
+    def test_it_has_a_quality_option_declared(self):
+        self.assertEqual(unoconv.to_pdf.options, {
+            'quality': {
+                'type': int
+            }
+        })
