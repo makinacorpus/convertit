@@ -1,26 +1,19 @@
-FROM makinacorpus/pythonbox
-MAINTAINER Makina Corpus "python@makina-corpus.com"
+FROM ubuntu:bionic
+MAINTAINER Makina Corpus "contact@geotrek.fr"
 
-#
-#  Converters binaries
-#...
-RUN apt-get install -y libreoffice unoconv inkscape
+RUN apt-get update && apt-get upgrade -qq -y
+RUN apt-get install -y -qq build-essential wget unoconv inkscape python-pip python-virtualenv
+RUN apt-get autoclean && apt-get clean all
 
-#
-#  ConvertIt
-#...
-# Recursive copy of repository
 ADD . /opt/apps/convertit
-# Replace repo with https
-RUN (cd /opt/apps/convertit && git remote rm origin)
-RUN (cd /opt/apps/convertit && git remote add origin https://github.com/makinacorpus/convertit.git)
-# Install
-RUN (cd /opt/apps/convertit && make install)
-RUN /opt/apps/convertit/bin/pip install gunicorn
+
+WORKDIR /opt/apps/convertit
+
+RUN virtualenv .
+RUN ./bin/pip install Pillow django>=1.11.11 gunicorn
+RUN ./bin/python setup.py develop
+
 ADD .docker/run.sh /usr/local/bin/run
 
-#
-#  Run !
-#...
 EXPOSE 6543
 CMD ["/bin/sh", "-e", "/usr/local/bin/run"]
