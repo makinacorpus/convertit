@@ -4,4 +4,6 @@ INIPASTE=${INIPASTE:-production.ini}
 
 cd $APP_ROOT
 
-bin/gunicorn_paster --workers=1 $INIPASTE
+. /opt/apps/convertit/bin/activate
+
+gunicorn --workers=1 --paste=$INIPASTE

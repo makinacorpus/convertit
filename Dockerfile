@@ -1,9 +1,8 @@
 FROM ubuntu:bionic
 MAINTAINER Makina Corpus "contact@geotrek.fr"
 
-RUN apt-get update && apt-get upgrade -qq -y
-RUN apt-get install -y -qq build-essential wget unoconv inkscape python-pip python-virtualenv
-RUN apt-get autoclean && apt-get clean all
+RUN apt-get update && apt-get install -y -qq build-essential wget unoconv inkscape python-pip python-virtualenv && \
+    apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
 
 ADD . /opt/apps/convertit
 

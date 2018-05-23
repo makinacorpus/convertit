@@ -109,7 +109,7 @@ Using *gunicorn* for example :
 
 ::
 
-    gunicorn_paster --workers=1 production.ini
+    gunicorn --workers=1 --paste=production.ini
 
 Using Docker :
 
