@@ -47,18 +47,10 @@ def unoconv(output_path, output_format, source):
 
 
 def convert(source, target, output_format):
-    output_path = os.path.dirname(target)
-    source_filename = os.path.splitext(os.path.basename(source))[0]
-    converted_basename = source_filename + '.' + output_format
-    converted_path = os.path.join(output_path, converted_basename)
-
-    p = unoconv(output_path, output_format, source)
+    p = unoconv(target, output_format, source)
     output = '\n'.join([p.stdout.read(), p.stderr.read()])
-
-    if not os.path.exists(converted_path):
+    if not os.path.exists(target):
         raise IOError(p.returncode, output)
-
-    os.rename(converted_path, target)
 
 
 to_doc = partial(convert, output_format='doc')
