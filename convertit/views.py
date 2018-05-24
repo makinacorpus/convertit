@@ -1,5 +1,6 @@
 import os
 import urllib2
+import urlparse
 import logging
 from functools import partial
 from mimetypes import guess_extension
@@ -98,6 +99,16 @@ def output_basename_from_url(request, mimetype, url):
     settings = request.registry.settings
     name_template = settings['convertit.converted_name']
     extension = guess_extension(mimetype)
+    try:
+        # if url has a correct filename, se it
+        parse = urlparse.urlparse(url)
+        basename = os.path.basename(parse.path)
+        if '.' or u'.' in basename:
+            return os.path.splitext(basename)[0] + extension
+
+    except:
+        pass
+
     return render_converted_name(name_template, url, extension)
 
 
