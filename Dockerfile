@@ -9,7 +9,7 @@ ADD . /opt/apps/convertit
 WORKDIR /opt/apps/convertit
 
 RUN virtualenv .
-RUN ./bin/pip install Pillow django>=1.11.11 gunicorn
+RUN ./bin/pip install Pillow django~=1.11 gunicorn
 RUN ./bin/python setup.py develop
 
 ADD .docker/run.sh /usr/local/bin/run
