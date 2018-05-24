@@ -1,5 +1,5 @@
 FROM ubuntu:bionic
-MAINTAINER Makina Corpus "contact@geotrek.fr"
+MAINTAINER Makina Corpus "contact@makina-corps.com"
 
 RUN apt-get update && apt-get install -y -qq build-essential wget unoconv inkscape python-pip python-virtualenv && \
     apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*

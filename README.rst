@@ -149,3 +149,4 @@ Contributors
 * kiorky  <kiorky@cryptelium.net>
 * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
 * Gaël Utard <gael.utard@makina-corpus.com>
+* Jean-Etienne Castagnede <j.e.castagnede@gmail.com>
