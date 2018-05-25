@@ -109,7 +109,7 @@ Using *gunicorn* for example :
 
 ::
 
-    gunicorn_paster --workers=1 production.ini
+    gunicorn --workers=1 --paste=production.ini
 
 Using Docker :
 
@@ -149,3 +149,4 @@ Contributors
 * kiorky  <kiorky@cryptelium.net>
 * Mathieu Leplatre <mathieu.leplatre@makina-corpus.com>
 * Gaël Utard <gael.utard@makina-corpus.com>
+* Jean-Etienne Castagnede <j.e.castagnede@gmail.com>
