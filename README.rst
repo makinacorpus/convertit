@@ -16,6 +16,9 @@ Supported conversions:
 - csv -> xls
 - svg -> pdf
 - svg -> png
+- docx -> pdf
+- ppt -> pdf
+- pptx -> pdf
 
 Previously converted documents are cleaned along the way (on each request).
 
@@ -117,6 +120,12 @@ Using Docker :
 
     sudo docker build -t="convertit" .
     sudo docker run -p :6543 convertit
+
+    curl -LF "file=@input.docx" http://localhost:6543/?to=application/pdf -o output.pdf
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+     95  4484    0     0  100  4277      0   3314  0:00:01  0:00:01 --:--:--  3312
+    100  6791  100  6791    0     0   5239      0  0:00:01  0:00:01 --:--:--  5239
 
 Feedback
 --------
