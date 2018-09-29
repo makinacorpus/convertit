@@ -71,4 +71,8 @@ def converters():
         (types_map['.ods'], types_map['.xls']): to_xls,
         (types_map['.odt'], types_map['.doc']): to_doc,
         (types_map['.odt'], types_map['.pdf']): to_pdf,
+        (types_map['.doc'], types_map['.pdf']): to_pdf,
+        (types_map['.docx'], types_map['.pdf']): to_pdf,
+        (types_map['.ppt'], types_map['.pdf']): to_pdf,
+        (types_map['.pptx'], types_map['.pdf']): to_pdf
     }
