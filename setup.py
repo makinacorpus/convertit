@@ -6,7 +6,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.md')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
 
-requires = []
+requires = ['Flask==1.0.3', 'gunicorn==19.0.0', 'WeasyPrint==47']
 
 
 setup(
