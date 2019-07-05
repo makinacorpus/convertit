@@ -1,18 +1,24 @@
-FROM ubuntu:bionic
+FROM ubuntu:19.04
 MAINTAINER Makina Corpus "contact@makina-corpus.com"
-
-RUN apt-get update && apt-get install -y -qq build-essential wget unoconv inkscape python-pip python-virtualenv && \
-    apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
 
 ADD . /opt/apps/convertit
 
-WORKDIR /opt/apps/convertit
-
-RUN virtualenv .
-RUN ./bin/pip install Pillow django~=1.11 gunicorn
-RUN ./bin/python setup.py develop
+RUN apt-get update && \
+    apt-get install -y python3-pip \
+    libreoffice \
+    git-core \
+    libcairo2 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf2.0-0 \
+    libffi-dev \
+    shared-mime-info && \
+    rm -r /var/lib/apt/lists/* && \
+    pip3 install -e /opt/apps/convertit/ && \
+    pip3 install gunicorn
 
 ADD .docker/run.sh /usr/local/bin/run
 
-EXPOSE 6543
+EXPOSE 8000
+
 CMD ["/bin/sh", "-e", "/usr/local/bin/run"]

@@ -1,9 +1,3 @@
 #!/bin/bash
-APP_ROOT=/opt/apps/convertit
-INIPASTE=${INIPASTE:-production.ini}
-
-cd $APP_ROOT
-
-. /opt/apps/convertit/bin/activate
-
-gunicorn --workers=1 --paste=$INIPASTE
+soffice --nologo --nodefault --nofirststartwizard --invisible --headless --norestore --accept='socket,host=localhost,port=2002,tcpNoDelay=1;urp;StarOffice.ComponentContext' &
+gunicorn -b '0.0.0.0:8000' convertit.application:app

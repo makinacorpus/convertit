@@ -26,6 +26,12 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+# Virtual environment
+venv/
+
+# Vs code
+.vscode
+
 
 src/convertit/tests/data/tmp/
 src/convertit/tests/data/converted_dir/
