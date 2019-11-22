@@ -1,4 +1,4 @@
-VIRTUALENV=virtualenv
+VIRTUALENV=virtualenv -p python3
 VENV=.
 PYTHON=$(VENV)/bin/python
 INSTALL_STAMP=$(VENV)/.install.stamp

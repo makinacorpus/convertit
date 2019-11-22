@@ -1,6 +1,5 @@
 import os
-import urllib2
-import urlparse
+import urllib
 import logging
 from functools import partial
 from mimetypes import guess_extension
@@ -45,7 +44,7 @@ def remove_old_files(request):
 def save(request, uploaded_file):
     downloads_path = request.registry.settings['convertit.downloads_path']
     target_file = os.path.join(downloads_path, str(uuid4()))
-    with open(target_file, 'w') as f:
+    with open(target_file, 'wb') as f:
         f.write(uploaded_file.read())
     return target_file
 
@@ -62,11 +61,11 @@ def download(request, url):
     except ValueError as e:
         log.error(message % str(e))
         raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
-    except urllib2.HTTPError as e:
+    except urllib.error.HTTPError as e:
         log.error(message % str(e))
         raise HTTPError(body=message % str(e), status_int=e.getcode(),
                         content_type='text/plain')
-    except urllib2.URLError as e:
+    except urllib.error.URLError as e:
         log.error(message % str(e))
         raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
 
@@ -101,12 +100,12 @@ def output_basename_from_url(request, mimetype, url):
     extension = guess_extension(mimetype)
     try:
         # if url has a correct filename, se it
-        parse = urlparse.urlparse(url)
+        parse = urllib.parse.urlparse(url)
         basename = os.path.basename(parse.path)
         if '.' or u'.' in basename:
             return os.path.splitext(basename)[0] + extension
 
-    except:
+    except Exception:
         pass
 
     return render_converted_name(name_template, url, extension)
@@ -160,9 +159,9 @@ def home_view(request, input_filepath, output_basename_generator):
     try:
         convert(input_filepath, output_filepath)
     except Exception as e:
-        message = "Sorry, there was an error converting the document. Reason: %s"
-        log.error(message %  str(e))
-        return HTTPInternalServerError(body=message % str(e),
+        msg = "Sorry, there was an error converting the document. Reason: %s"
+        log.error(msg % str(e))
+        return HTTPInternalServerError(body=msg % str(e),
                                        content_type='text/plain')
 
     return HTTPFound(static_url(output_filepath, request),

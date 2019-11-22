@@ -3,26 +3,27 @@ import os
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.rst')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.rst')).read()
+README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
+CHANGES = open(os.path.join(here, 'CHANGES.rst'), encoding='utf-8').read()
 
 requires = [
     'pyramid',
     'pyramid_debugtoolbar',
-    'waitress',
+    'gunicorn',
     'python-magic',
+    'Pillow',
 ]
 
 test_requires = requires + [
     'webtest',
     'mock',
     'coverage',
-    'unittest2'
+    'freezegun',
 ]
 
 
 setup(name='convertit',
-      version='1.1.5',
+      version='2.0.1',
       description='A file conversion Web API in Pyramid',
       long_description=README + '\n\n' + CHANGES,
       license='AGPLV3',

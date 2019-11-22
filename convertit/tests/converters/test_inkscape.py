@@ -1,8 +1,8 @@
 import os
 import shutil
+import unittest
 
 from convertit.converters import inkscape
-from convertit.tests.unittest import unittest
 
 
 here = os.path.dirname(os.path.realpath(__file__))

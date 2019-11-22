@@ -9,7 +9,7 @@ PROGRAMS = {}
 
 def which(program):
     """Cached call to which"""
-    if not program in PROGRAMS:
+    if program not in PROGRAMS:
         PROGRAMS[program] = subprocess.check_output(['which', program]).strip()
     return PROGRAMS[program]
 
@@ -18,7 +18,7 @@ def exists(program=None):
     try:
         which(program)  # raise on failure
         result = True
-    except:
+    except Exception:
         result = False
     return result
 

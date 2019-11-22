@@ -1,6 +1,5 @@
 import os
-import urllib2
-from urlparse import urlsplit
+import urllib
 from uuid import uuid4
 from datetime import datetime
 
@@ -13,12 +12,12 @@ def download_file(url, target_dir, headers=None):
         selected = dict((k.title(), v) for k, v in headers.items()
                         if k.lower() in selection)
         if selected:
-            url = urllib2.Request(url, headers=selected)
+            url = urllib.request.Request(url, headers=selected)
 
-    data = urllib2.urlopen(url).read()
+    data = urllib.request.urlopen(url).read()
     filename = "%s%s" % (uuid4(), ext)
     target_file = os.path.join(target_dir, filename)
-    with open(target_file, 'w') as f:
+    with open(target_file, 'wb') as f:
         f.write(data)
     return target_file
 
@@ -35,7 +34,7 @@ def remove_files_older_than(limit, path):
 
 
 def render_converted_name(template, url, extension):
-    parsed_url = urlsplit(url)
+    parsed_url = urllib.parse.urlsplit(url)
     url_dirname = os.path.dirname(parsed_url.path)[1:].replace('/', '_')
     url_basename = os.path.basename(parsed_url.path)
     url_filename, url_extension = os.path.splitext(url_basename)

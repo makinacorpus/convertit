@@ -1,16 +1,15 @@
 FROM ubuntu:bionic
 MAINTAINER Makina Corpus "contact@makina-corpus.com"
 
-RUN apt-get update && apt-get install -y -qq build-essential wget unoconv inkscape python-pip python-virtualenv && \
+RUN apt-get update && apt-get install -y -qq build-essential wget unoconv inkscape virtualenv && \
     apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
 
 ADD . /opt/apps/convertit
 
 WORKDIR /opt/apps/convertit
 
-RUN virtualenv .
-RUN ./bin/pip install Pillow django~=1.11 gunicorn
-RUN ./bin/python setup.py develop
+RUN virtualenv -p python3 .
+RUN ./bin/python setup.py install
 
 ADD .docker/run.sh /usr/local/bin/run
 

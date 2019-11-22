@@ -12,7 +12,7 @@ class Lock:
     def __init__(self, filename):
         self.filename = filename
         # This will create it if it does not exist already
-        self.handle = open(filename, 'w')
+        self.handle = open(filename, 'wb')
 
     def acquire(self):
         fcntl.flock(self.handle, fcntl.LOCK_EX)
@@ -48,9 +48,9 @@ def unoconv(output_path, output_format, source):
 
 def convert(source, target, output_format):
     p = unoconv(target, output_format, source)
-    output = '\n'.join([p.stdout.read(), p.stderr.read()])
+    output = b'\n'.join([p.stdout.read(), p.stderr.read()])
     if not os.path.exists(target):
-        raise IOError(p.returncode, output)
+        raise IOError(p.returncode, output.decode())
 
 
 to_doc = partial(convert, output_format='doc')
