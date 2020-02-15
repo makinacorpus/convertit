@@ -1,0 +1,47 @@
+Source: convertit
+Maintainer: Gaël Utard <gael.utard@makina-corpus.com>
+Section: python
+Priority: optional
+Build-Depends:
+ dh-python,
+ python3-setuptools,
+ python3-all,
+ python3-pil,
+ python3-magic,
+ python3-gunicorn,
+ python3-pyramid,
+ python3-webtest,
+ python3-mock,
+ python3-coverage,
+ python3-freezegun,
+ debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/makinacorpus/convertit
+
+Package: convertit
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+ gunicorn3,
+ libreoffice,
+ unoconv,
+ inkscape
+Description: A file conversion Web API in Pyramid
+ Convertit is a format conversion webservice.
+ .
+ Retrieve your document in an other format ! The input file is converted and served back !
+ Using a dead simple ``GET`` request, documents are pulled. Using ``POST`` request, it takes the attachment.
+ .
+ Supported conversions:
+ .
+ - odt -> pdf
+ - odt -> doc
+ - ods -> xls
+ - csv -> ods
+ - csv -> xls
+ - svg -> pdf
+ - svg -> png
+ .
+ Previously converted documents are cleaned along the way (on each request).
+
