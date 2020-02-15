@@ -27,13 +27,25 @@ pip-log.txt
 .coverage
 .tox
 
-#Translations
+# Translations
 *.mo
 
-#Mr Developer
+# Mr Developer
 .mr.developer.cfg
 
+# Packaging
+/.pybuild/
+/debian/convertit/
+/debian/.debhelper/
+/debian/files
+/debian/convertit.debhelper.log
+/debian/convertit.postinst.debhelper
+/debian/convertit.prerm.debhelper
+/debian/convertit.substvars
+/debian/convertit.postrm.debhelper
+/debian/debhelper-build-stamp
 
-src/convertit/tests/data/tmp/
+# Tests
+/convertit/tests/data/tmp/
 src/convertit/tests/data/converted_dir/
 src/convertit/tests/data/download_dir/

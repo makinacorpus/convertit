@@ -8,7 +8,6 @@ CHANGES = open(os.path.join(here, 'CHANGES.rst'), encoding='utf-8').read()
 
 requires = [
     'pyramid',
-    'pyramid_debugtoolbar',
     'gunicorn',
     'python-magic',
     'Pillow',

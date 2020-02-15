@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+adduser --system --group --no-create-home --quiet convertit || true
+mkdir /var/cache/convertit || true
+chown convertit.convertit /var/cache/convertit || true
+
+#DEBHELPER#

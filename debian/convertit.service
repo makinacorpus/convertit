@@ -1,0 +1,13 @@
+[Unit]
+Description=Format conversion webservice
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/gunicorn3 --paste=/etc/convertit/convertit.ini
+Restart=on-failure
+User=convertit
+Group=convertit
+UMask=007
+
+[Install]
+WantedBy=multi-user.target
