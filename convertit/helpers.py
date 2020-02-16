@@ -26,8 +26,8 @@ def remove_files_older_than(limit, path):
     for basename in os.listdir(path):
         target = os.path.join(path, basename)
         target_mtime = os.path.getmtime(target)
-        target_datetime = datetime.fromtimestamp(target_mtime)
-        now_datetime = datetime.now()
+        target_datetime = datetime.utcfromtimestamp(target_mtime)
+        now_datetime = datetime.utcnow()
         time_delta = now_datetime - target_datetime
         if time_delta.seconds > limit:
             os.remove(target)

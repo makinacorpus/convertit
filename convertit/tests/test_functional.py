@@ -131,9 +131,9 @@ class FunctionalTests(unittest.TestCase):
         "Get homepage with `url` that is forbidden"
         with patch.object(urllib.request, 'urlopen') as mock_urlopen:
             url = 'http://example.com/test_document.odt'
-            mock_urlopen.side_effect = urllib.error.HTTPError(url, 403,
-                                                 "Forbidden access",
-                                                 [], None)
+            mock_urlopen.side_effect = urllib.error.HTTPError(
+                url, 403, "Forbidden access", [], None
+            )
             resp = self.testapp.get('/', params={'url': url}, status=403)
             self.assertIn(b"Forbidden access", resp.body)
 
