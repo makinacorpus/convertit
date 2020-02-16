@@ -14,7 +14,7 @@ class RemoveFilesOlderThanTests(unittest.TestCase):
     def test_outdated_file_is_removed(self, listdir_mock, getmtime_mock,
                                       remove_mock):
         listdir_mock.return_value = ['foo']
-        getmtime_mock.return_value = 1336858529.0
+        getmtime_mock.return_value = 1336865729.0  # 2012-05-12 23:35:29
 
         remove_files_older_than(60, 'fake/path')
 
@@ -27,7 +27,7 @@ class RemoveFilesOlderThanTests(unittest.TestCase):
     def test_not_outdated_file_is_removed(self, listdir_mock, getmtime_mock,
                                           remove_mock):
         listdir_mock.return_value = ['foo']
-        getmtime_mock.return_value = 1336858529.0
+        getmtime_mock.return_value = 1336865729.0  # 2012-05-12 23:35:29
 
         remove_files_older_than(60, 'fake/path')
 
