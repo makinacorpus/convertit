@@ -1,0 +1,49 @@
+version: 2.1
+# orbs:
+#   codecov: codecov/codecov@1.0.5
+jobs:
+  codestyle:
+    docker:
+      - image: circleci/python:3.5
+    environment:
+      LANG: C.UTF-8
+    steps:
+      - checkout
+      - run: pip install flake8
+      - run: flake8 convertit
+  test:
+    docker:
+      - image: ubuntu:bionic
+    environment:
+      LANG: C.UTF-8
+    steps:
+      - checkout
+      - run: >
+          apt-get update && apt-get install -y
+          python3-setuptools python3-coverage unoconv
+          zlib1g-dev
+      - run: python3-coverage run setup.py test
+      # - codecov/upload:
+      #     when: on_success
+  build:
+    docker:
+      - image: ubuntu:bionic
+    environment:
+      LANG: C.UTF-8
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - checkout
+      - run: >
+          apt-get update && apt-get install -y
+          dpkg-dev debhelper dh-python python3-setuptools python3-all
+          python3-pil python3-magic python3-gunicorn python3-pyramid
+          python3-webtest python3-mock python3-coverage python3-freezegun
+          unoconv inkscape
+      - run: dpkg-buildpackage -uc -us
+workflows:
+  version: 2
+  all:
+    jobs:
+      - codestyle
+      - test
+      - build

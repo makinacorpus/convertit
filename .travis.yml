@@ -1,8 +1,0 @@
-dist: bionic
-language: python
-python:
-  - 3.5
-before_install:
- - sudo apt-get update -qq
- - sudo apt-get install -qq unoconv inkscape libreoffice-writer
-script: python setup.py test
