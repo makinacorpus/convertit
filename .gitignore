@@ -49,3 +49,6 @@ pip-log.txt
 /convertit/tests/data/tmp/
 src/convertit/tests/data/converted_dir/
 src/convertit/tests/data/download_dir/
+
+# IDE
+/.vscode/
