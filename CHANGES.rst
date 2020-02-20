@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-2.2.1.dev0
+2.2.1 (2020-02-20)
 ------------------
 
 - Fix Dockerfile for Python 3
