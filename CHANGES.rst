@@ -2,10 +2,11 @@
 CHANGELOG
 =========
 
-2.2.1 (2019-11-22)
+2.2.1.dev0
 ------------------
 
 - Fix Dockerfile for Python 3
+- Ubuntu packaging
 
 
 2.2.0 (2019-11-22)

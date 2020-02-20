@@ -8,3 +8,5 @@ override_dh_auto_install:
 	dh_auto_install
 	mkdir -p debian/convertit/etc/convertit
 	cp production.ini debian/convertit/etc/convertit/convertit.ini
+
+override_dh_auto_test: ;

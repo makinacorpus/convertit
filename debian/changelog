@@ -1,5 +1,5 @@
-convertit (2.2.1.dev0) UNRELEASED; urgency=low
+convertit (2.2.1~dev0) bionic; urgency=low
 
-  * initial release
+  * Initial Ubuntu release
 
- -- Gaël Utard <gael.utard@makina-corpus.com>  Sat, 15 Feb 2020 22:31:37 +0100
+ -- Gaël UTARD <gael.utard@makina-corpus.com>  Tue, 18 Feb 2020 15:59:12 +0100
