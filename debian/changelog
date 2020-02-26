@@ -1,8 +1,8 @@
-convertit (2.2.2~dev0) bionic; urgency=medium
+convertit (2.2.2) bionic; urgency=medium
 
   * Fix libreoffice conversion
 
- -- Gaël UTARD <gael.utard@makina-corpus.com>  Thu, 20 Feb 2020 11:38:04 +0100
+ -- Gaël UTARD <gael.utard@makina-corpus.com>  Wed, 26 Feb 2020 08:34:24 +0100
 
 convertit (2.2.1) bionic; urgency=low
 
