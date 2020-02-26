@@ -1,6 +1,6 @@
 convertit (2.2.2~dev0) bionic; urgency=medium
 
-  * New release
+  * Fix libreoffice conversion
 
  -- Gaël UTARD <gael.utard@makina-corpus.com>  Thu, 20 Feb 2020 11:38:04 +0100
 

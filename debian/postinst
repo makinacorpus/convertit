@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-adduser --system --group --no-create-home --quiet convertit || true
+adduser --system --group --home /run/convertit --no-create-home --quiet convertit || true
 mkdir /var/cache/convertit || true
 chown convertit.convertit /var/cache/convertit || true
 

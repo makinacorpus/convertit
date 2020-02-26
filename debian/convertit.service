@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 ExecStart=/usr/bin/gunicorn3 --paste=/etc/convertit/convertit.ini
+RuntimeDirectory=convertit
 Restart=on-failure
 User=convertit
 Group=convertit
