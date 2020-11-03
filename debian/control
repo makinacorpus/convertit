@@ -23,7 +23,7 @@ Architecture: any
 Depends:
  ${misc:Depends},
  ${python3:Depends},
- gunicorn3,
+ gunicorn3 | gunicorn,
  unoconv,
  inkscape
 Description: A file conversion Web API in Pyramid
