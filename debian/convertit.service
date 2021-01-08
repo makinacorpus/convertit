@@ -3,7 +3,7 @@ Description=Format conversion webservice
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/gunicorn3 --paste=/etc/convertit/convertit.ini
+ExecStart=/usr/bin/gunicorn3 --paste=/etc/convertit/convertit.ini -b 127.0.0.1:6543
 RuntimeDirectory=convertit
 Restart=on-failure
 User=convertit
