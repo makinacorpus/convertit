@@ -40,6 +40,24 @@ jobs:
           python3-webtest python3-mock python3-coverage python3-freezegun
           unoconv inkscape
       - run: dpkg-buildpackage -uc -us
+      - persist_to_workspace:
+          root: /root
+          paths: convertit_*_amd64.deb
+  publish:
+    docker:
+      - image: ubuntu:bionic
+      environment:
+        LANG: C.UTF-8
+      steps:
+        - checkout
+        - run: apt-get update -q && apt-get install -q -y ca-certificates openssh-client
+        - attach_workspace:
+            at: /tmp/workspace
+        - run:
+            command: |
+              export DEB_COMPONENT=main
+              scp -P $SSH_PORT -o StrictHostKeyChecking=no /tmp/workspace/convertit_*_amd64.deb $SSH_USER@$SSH_HOST:/srv/packages/incoming/$DEB_COMPONENT/
+        - run: ssh -p $SSH_PORT -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST make -C /srv/packages
 workflows:
   version: 2
   all:
