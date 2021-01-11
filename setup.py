@@ -7,7 +7,7 @@ README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst'), encoding='utf-8').read()
 
 requires = [
-    'pyramid',
+    'pyramid<=1.10.5',
     'gunicorn',
     'python-magic',
     'Pillow',
