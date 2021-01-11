@@ -11,9 +11,6 @@ override_dh_virtualenv:
 	--extra-pip-arg --no-cache-dir \
 	--builtin-venv
 	mkdir -p debian/convertit/usr/bin
-
-override_dh_auto_install:
-	dh_auto_install
 	mkdir -p debian/convertit/opt/convertit
 	cp production.ini debian/convertit/opt/convertit/convertit.ini
 
@@ -21,3 +18,7 @@ override_dh_auto_test: ;
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym
+
+override_dh_shlibdeps:
+	dh_shlibdeps \
+	    -X site-packages/Pillow.libs
