@@ -36,8 +36,7 @@ jobs:
       - run: >
           apt-get update && apt-get install -y
           dpkg-dev debhelper dh-python python3-setuptools python3-all
-          python3-pil python3-magic python3-gunicorn python3-pyramid
-          python3-webtest python3-mock python3-coverage python3-freezegun
+          python3-venv
           unoconv inkscape
       - run: dpkg-buildpackage -uc -us
       - persist_to_workspace:
