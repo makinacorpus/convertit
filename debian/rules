@@ -1,12 +1,20 @@
 #!/usr/bin/make -f
 
-export PYBUILD_NAME=convertit
+export DH_VIRTUALENV_INSTALL_ROOT=/opt
+
 %:
-	dh $@ --with python3 --buildsystem=pybuild
+	dh $@ --with python-virtualenv
+
+override_dh_virtualenv:
+	dh_virtualenv \
+	--python /usr/bin/python3 \
+	--extra-pip-arg --no-cache-dir \
+	--builtin-venv
+	mkdir -p debian/convertit/usr/bin
 
 override_dh_auto_install:
 	dh_auto_install
-	mkdir -p debian/convertit/etc/convertit
-	cp production.ini debian/convertit/etc/convertit/convertit.ini
+	mkdir -p debian/convertit/opt/convertit
+	cp production.ini debian/convertit/opt/convertit/convertit.ini
 
 override_dh_auto_test: ;

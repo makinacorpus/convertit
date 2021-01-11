@@ -6,4 +6,4 @@ cd $APP_ROOT
 
 . /opt/apps/convertit/bin/activate
 
-gunicorn --workers=1 --paste=$INIPASTE --bind=0.0.0.0:6543
+pserve3 --workers=1 --paste=$INIPASTE
