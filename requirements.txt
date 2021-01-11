@@ -4,7 +4,6 @@ certifi==2019.11.28
 chardet==3.0.4
 colorama==0.4.3
 contextlib2==0.6.0
-convertit==2.2.4.dev0
 distlib==0.3.0
 distro==1.4.0
 gunicorn==20.0.4

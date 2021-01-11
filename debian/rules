@@ -18,3 +18,6 @@ override_dh_auto_install:
 	cp production.ini debian/convertit/opt/convertit/convertit.ini
 
 override_dh_auto_test: ;
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
