@@ -8,8 +8,8 @@ ADD . /opt/apps/convertit
 
 WORKDIR /opt/apps/convertit
 
-RUN python3 -m venv .
-RUN bin/pip install -r requirements.txt --no-cache-dir
+RUN virtualenv -p python3 .
+RUN ./bin/python setup.py install
 
 ADD .docker/run.sh /usr/local/bin/run
 
