@@ -33,9 +33,12 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
     steps:
       - checkout
+      - run: apt-get update -q
+      - run: DEBIAN_FRONTEND=noninteractive apt-get install -q -y software-properties-common
+      - run: add-apt-repository ppa:jyrki-pulliainen/dh-virtualenv
       - run: >
           apt-get update && apt-get install -y
-          dpkg-dev debhelper dh-python python3-setuptools python3-all
+          dh-virtualenv dpkg-dev debhelper dh-python python3-setuptools python3-all
           python3-venv
           unoconv inkscape
       - run: dpkg-buildpackage -uc -us
