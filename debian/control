@@ -4,17 +4,11 @@ Section: python
 Priority: optional
 Build-Depends:
  debhelper (>= 9),
+ dh-virtualenv (>= 1.0),
  dh-python,
  python3-setuptools,
  python3-all,
- python3-pil,
- python3-magic,
- python3-gunicorn,
- python3-pyramid,
- python3-webtest,
- python3-mock,
- python3-coverage,
- python3-freezegun
+ python3-venv (>= 3.5),
 Standards-Version: 3.9.6
 Homepage: https://github.com/makinacorpus/convertit
 

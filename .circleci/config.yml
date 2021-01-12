@@ -33,13 +33,33 @@ jobs:
       DEBIAN_FRONTEND: noninteractive
     steps:
       - checkout
+      - run: apt-get update -q
+      - run: DEBIAN_FRONTEND=noninteractive apt-get install -q -y software-properties-common
+      - run: add-apt-repository ppa:jyrki-pulliainen/dh-virtualenv
       - run: >
           apt-get update && apt-get install -y
-          dpkg-dev debhelper dh-python python3-setuptools python3-all
-          python3-pil python3-magic python3-gunicorn python3-pyramid
-          python3-webtest python3-mock python3-coverage python3-freezegun
+          dh-virtualenv dpkg-dev debhelper dh-python python3-setuptools python3-all
+          python3-venv
           unoconv inkscape
       - run: dpkg-buildpackage -uc -us
+      - persist_to_workspace:
+          root: /root
+          paths: convertit_*_amd64.deb
+  publish:
+    docker:
+      - image: ubuntu:bionic
+    environment:
+      LANG: C.UTF-8
+    steps:
+      - checkout
+      - run: apt-get update -q && apt-get install -q -y ca-certificates openssh-client
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: |
+            export DEB_COMPONENT=main
+            scp -P $SSH_PORT -o StrictHostKeyChecking=no /tmp/workspace/convertit_*_amd64.deb $SSH_USER@$SSH_HOST:/srv/packages/incoming/$DEB_COMPONENT/
+      - run: ssh -p $SSH_PORT -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST make -C /srv/packages
 workflows:
   version: 2
   all:
@@ -47,3 +67,13 @@ workflows:
       - codestyle
       - test
       - build
+      - publish:
+          requires:
+            - codestyle
+            - test
+            - build
+          filters:
+            tags:
+              only: /[0-9]+\.[0-9]+\.[0-9]+/
+            branches:
+              ignore: /.*/
