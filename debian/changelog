@@ -1,3 +1,9 @@
+convertit (2.2.5~dev0) bionic; urgency=medium
+
+  * ...
+
+ -- Gaël UTARD <gael.utard@makina-corpus.com>  Wed, 13 Jan 2021 09:45:10 +0100
+
 convertit (2.2.4) RELEASED; urgency=medium
 
   * Fix binding service
