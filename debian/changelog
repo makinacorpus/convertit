@@ -1,8 +1,8 @@
-convertit (2.2.5~dev0) bionic; urgency=medium
+convertit (2.2.5) RELEASED; urgency=medium
 
-  * ...
+  * Fix build convertit
 
- -- Gaël UTARD <gael.utard@makina-corpus.com>  Wed, 13 Jan 2021 09:45:10 +0100
+ -- Timothée DE MONTETY <timothee.de-montety@makina-corpus.com>  Wed, 13 Jan 2021 14:08:10 +0100
 
 convertit (2.2.4) RELEASED; urgency=medium
 
