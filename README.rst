@@ -1,9 +1,9 @@
-**Convertit** is a format conversion webservice. 
+**Convertit** is a format conversion webservice.
 
 Retrieve your document in an other format ! The input file is converted and served back !
 Using a dead simple ``GET`` request, documents are pulled. Using ``POST`` request, it takes the attachment.
 
-.. image:: https://circleci.com/gh/makinacorpus/convertit.svg?style=svg
+.. image:: https://circleci.com/gh/makinacorpus/convertit.svg?style=shield
     :target: https://circleci.com/gh/makinacorpus/convertit
 
 Supported conversions:
@@ -64,7 +64,7 @@ Upload data in POST parameter named ``file``:
 Query parameters
 ----------------
 
-- **to**: output mimetype (optionnal, default to ``application/pdf`` if not provided); 
+- **to**: output mimetype (optionnal, default to ``application/pdf`` if not provided);
 - **from**: input mimetype (optionnal, guessed from input url or file if not provided).
 
 
@@ -120,7 +120,7 @@ Using Docker :
 Feedback
 --------
 
-Open `an issue <https://github.com/makinacorpus/convertit/issues>`_ to report a 
+Open `an issue <https://github.com/makinacorpus/convertit/issues>`_ to report a
 bug or request a new feature.
 
 
