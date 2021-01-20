@@ -3,9 +3,8 @@
 Retrieve your document in an other format ! The input file is converted and served back !
 Using a dead simple ``GET`` request, documents are pulled. Using ``POST`` request, it takes the attachment.
 
-.. image:: https://api.travis-ci.org/makinacorpus/convertit.png
-    :target: https://travis-ci.org/makinacorpus/convertit
-
+.. image:: https://circleci.com/gh/makinacorpus/convertit.svg?style=svg
+    :target: https://circleci.com/gh/makinacorpus/convertit
 
 Supported conversions:
 
@@ -133,11 +132,11 @@ Companies
 ---------
 |makinacom|_
 
-  * `Planet Makina Corpus <http://www.makina-corpus.org>`_
-  * `Contact us <mailto:python@makina-corpus.org>`_
+  * `Planet Makina Corpus <https://www.makina-corpus.com>`_
+  * `Contact us <mailto:python@makina-corpus.com>`_
 
-.. |makinacom| image:: http://depot.makina-corpus.org/public/logo.gif
-.. _makinacom:  http://www.makina-corpus.com
+.. |makinacom| image:: https://github.com/makinacorpus.png
+.. _makinacom:  https://www.makina-corpus.com
 
 Authors
 -------
