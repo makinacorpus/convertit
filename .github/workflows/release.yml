@@ -60,7 +60,7 @@ jobs:
         with:
           name: debian-22.04
           path: |
-            /home/runner/work/Geotrek-admin/*.deb
+            /home/runner/work/convertit/*.deb
 
   build_deb_20_04:
     name: Build 20.04 package
@@ -82,7 +82,7 @@ jobs:
         with:
           name: debian-20.04
           path: |
-            /home/runner/work/Geotrek-admin/*.deb
+            /home/runner/work/convertit/*.deb
 
 
   deploy:
