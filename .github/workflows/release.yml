@@ -45,12 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Prepare debian 22.04 versioning
+      - name: Prepare debian versioning
         run: |
           sed -i 's/+dev/.ubuntu22.04~dev'$GITHUB_RUN_ID'/' debian/changelog
           sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu22.04\2) jammy;/' debian/changelog
 
-      - name: Building package debian 22.04
+      - name: Building package
         run: |
           DISTRO=ubuntu:jammy make build_deb
           cp ./dpkg/*.deb /home/runner/work/convertit/
@@ -67,12 +67,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Prepare debian 20.04 versioning
+      - name: Prepare debian versioning
         run: |
           sed -i 's/+dev/.ubuntu20.04~dev'$GITHUB_RUN_ID'/' debian/changelog
           sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu20.04\2) focal;/' debian/changelog
 
-      - name: Building package debian 18.04
+      - name: Building package
         run: |
           DISTRO=ubuntu:focal make build_deb
           cp ./dpkg/*.deb /home/runner/work/convertit/
