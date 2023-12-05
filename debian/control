@@ -16,7 +16,7 @@ Package: convertit
 Architecture: any
 Depends:
  ${misc:Depends},
- python3.10,
+ python3,
  gunicorn3 | gunicorn,
  unoconv,
  inkscape

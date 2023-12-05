@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:jammy
 MAINTAINER Makina Corpus "contact@makina-corpus.com"
 
 RUN apt-get update && apt-get install -y -qq build-essential wget unoconv inkscape virtualenv && \
