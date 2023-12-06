@@ -40,62 +40,58 @@ jobs:
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
           image: "convertit:latest"
-  build_deb_22_04:
-    name: Build 22.04 package
+  build_debian_packages:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [22.04, 20.04]
+        include:
+          - version: 22.04
+            distro: jammy
+          - version: 20.04
+            distro: focal
+
     steps:
       - uses: actions/checkout@v3
       - name: Prepare debian versioning
         run: |
-          sed -i 's/+dev/.ubuntu22.04~dev'$GITHUB_RUN_ID'/' debian/changelog
-          sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu22.04\2) jammy;/' debian/changelog
+          sed -i 's/+dev/.ubuntu${{ matrix.version }}~dev'$GITHUB_RUN_ID'/' debian/changelog
+          sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu${{ matrix.version }}\2) ${{ matrix.distro }};/' debian/changelog
 
       - name: Building package
         run: |
-          DISTRO=ubuntu:jammy make build_deb
+          DISTRO=ubuntu:${{ matrix.distro }} make build_deb
           cp ./dpkg/*.deb /home/runner/work/convertit/
 
       - name: Archive package artifact
         uses: actions/upload-artifact@v3
         with:
-          name: debian-22.04
+          name: debian-${{ matrix.distro }}
           path: |
             /home/runner/work/convertit/*.deb
 
-  build_deb_20_04:
-    name: Build 20.04 package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Prepare debian versioning
-        run: |
-          sed -i 's/+dev/.ubuntu20.04~dev'$GITHUB_RUN_ID'/' debian/changelog
-          sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu20.04\2) focal;/' debian/changelog
 
-      - name: Building package
-        run: |
-          DISTRO=ubuntu:focal make build_deb
-          cp ./dpkg/*.deb /home/runner/work/convertit/
+  e2e_debian_packages:
+    strategy:
+      matrix:
+        version: [ 22.04, 20.04 ]
+        include:
+          - version: 22.04
+            distro: jammy
+          - version: 20.04
+            distro: focal
 
-      - name: Archive package artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: debian-20.04
-          path: |
-            /home/runner/work/convertit/*.deb
-
-  e2e_22_04:
-    name: Test 22.04 package
-    runs-on: ubuntu-22.04
-    needs: [ build_deb_22_04 ]
+    name: Test ${{ matrix.distro }} package
+    runs-on: ubuntu-${{ matrix.version }}
+    needs: [ build_debian_packages ]
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: debian-22.04
+          name: debian-${{ matrix.distro }}
 
       - name: Install package
         run: |
-          sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
+          sudo apt-get install /home/runner/work/convertit/convertit/*.deb || exit 0;
 
       - name: Test ODT / PDF conversion
         run: |
@@ -109,18 +105,7 @@ jobs:
             file -b -f ./myfile.pdf;
             exit 1;
           fi
-  e2e_20_04:
-    name: Test 20.04 package
-    runs-on: ubuntu-20.04
-    needs: [ build_deb_20_04 ]
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: debian-20.04
-
-      - name: Install package
-        run: |
-          sudo apt-get install /home/runner/work/convertit/convertit/*.deb || exit 0;
+          
 
   deploy:
     name: Publish (on release only)
