@@ -36,6 +36,8 @@ jobs:
             distro: jammy
           - version: 20.04
             distro: focal
+          - version: docker
+            distro: docker image
     name: Build ${{ matrix.distro }}
     steps:
       - uses: actions/checkout@v3
@@ -50,6 +52,7 @@ jobs:
         run: |
           DISTRO=ubuntu:${{ matrix.distro }} make build_deb
           cp ./dpkg/*.deb /home/runner/work/convertit/
+
       - name: Archive package artifact
         if: ${{ matrix.version != 'docker' }}
         uses: actions/upload-artifact@v3
@@ -57,21 +60,17 @@ jobs:
           name: debian-${{ matrix.distro }}
           path: |
             /home/runner/work/convertit/*.deb
-      - name: Building docker image
-        if: ${{ matrix.version == 'docker' }}
-        run: |
-          docker build -t convertit:latest .
-          docker save convertit:latest > convertit.tar
-          gzip convertit.tar
-          cp convertit.tar.gz /home/runner/work/convertit/
+
       - name: Set up Docker Buildx
         if: ${{ matrix.version == 'docker' }}
         id: buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build Docker image
         if: ${{ matrix.version == 'docker' }}
         run: |
           docker build -t convertit:latest .
+
       - name: Upload image
         if: ${{ matrix.version == 'docker' }}
         uses: ishworkh/docker-image-artifact-upload@v1
@@ -104,7 +103,7 @@ jobs:
           name: debian-${{ matrix.distro }}
 
       - name: Download image
-        if: ${{ matrix.version == 'docker' }}
+        if: ${{ matrix.distro == 'docker' }}
         uses: ishworkh/docker-image-artifact-download@v1
         with:
           image: "convertit:latest"
