@@ -159,7 +159,7 @@ jobs:
 
       - name: Test SVG / PDF conversion
         run: |
-          wget -O myfile.pdf "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg+xml&to=application/pdf"
+          wget -O myfile.pdf "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg%2Bxml&to=application/pdf"
 
           if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
