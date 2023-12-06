@@ -1,7 +1,7 @@
 FROM ubuntu:jammy
 MAINTAINER Makina Corpus "contact@makina-corpus.com"
 
-RUN apt-get update && apt-get install -y -qq build-essential wget unoconv inkscape virtualenv && \
+RUN apt-get update && apt-get install -y -qq build-essential wget libreoffice default-jre libreoffice-java-common inkscape virtualenv python3-magic && \
     apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
 
 ADD . /opt/apps/convertit

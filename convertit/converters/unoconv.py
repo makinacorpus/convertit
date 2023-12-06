@@ -25,9 +25,7 @@ class Lock:
 
 
 def unoconv(output_path, output_format, source):
-    # WARNING: Some old version of unoconv do not accept the full target path.
-    #          So output_path must be a directory.
-    command = ['unoconv', '-o', output_path, '--format', output_format, source]
+    command = ['libreoffice', '--headless', '--convert-to', output_format, '--outdir', output_path, source]
 
     # Do not mess pyuno pythonpath !
     env = os.environ.copy()
