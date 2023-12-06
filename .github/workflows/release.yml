@@ -111,20 +111,14 @@ jobs:
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
         run: |
+          sudo apt-get -qq update
           sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
 
       - name: Run docker image
         if: ${{ matrix.distro == 'docker' }}
         run: |
           docker run -p 6543:6543 -d convertit:latest
-      - name: Waiting service launched
-        run: |
-          echo "Waiting convertit to launch on 6543..."
-          while ! timeout 22 bash -c "echo > /dev/tcp/localhost/6543"; do   
-            sleep 1
-          done
 
-          echo "Jenkins launched"
       - name: Test ODT / PDF conversion
         run: |
           wget -O myfile.pdf "http://localhost:6543/?url=https://file-examples.com/storage/febf69dcf3656dfd992b0fa/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text"
