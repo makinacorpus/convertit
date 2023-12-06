@@ -84,7 +84,6 @@ jobs:
           path: |
             /home/runner/work/convertit/*.deb
 
-
   e2e_22_04:
     name: Test 22.04 package
     runs-on: ubuntu-22.04
@@ -100,7 +99,8 @@ jobs:
 
       - name: Test ODT / PDF conversion
         run: |
-          wget http://localhost:6543/?url=https://file-examples.com/storage/febf69dcf3656dfd992b0fa/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text
+          wget --server-response -q -O - "http://localhost:6543/?url=https://file-examples.com/storage/febf69dcf3656dfd992b0fa/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text" 2>&1 | grep "Content-Disposition:" | tail -1 |  awk 'match($0, /filename=(.+)/, f){ print f[1] }' )
+          
           if file -b -f ./file-sample_100kB.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
             exit 0;
