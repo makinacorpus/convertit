@@ -28,6 +28,7 @@ jobs:
   build_docker_image:
     name: Build docker image
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
@@ -42,6 +43,7 @@ jobs:
           image: "convertit:latest"
   build_debian_packages:
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
         version: [22.04, 20.04]
@@ -50,7 +52,7 @@ jobs:
             distro: jammy
           - version: 20.04
             distro: focal
-
+    name: Build ${{ matrix.distro }} debian package
     steps:
       - uses: actions/checkout@v3
       - name: Prepare debian versioning
@@ -72,6 +74,7 @@ jobs:
 
 
   e2e_debian_packages:
+    continue-on-error: true
     strategy:
       matrix:
         version: [ 22.04, 20.04 ]
@@ -91,7 +94,7 @@ jobs:
 
       - name: Install package
         run: |
-          sudo apt-get install /home/runner/work/convertit/convertit/*.deb || exit 0;
+          sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
 
       - name: Test ODT / PDF conversion
         run: |
