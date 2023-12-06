@@ -1,6 +1,5 @@
 import os
 import urllib
-from uuid import uuid4
 from datetime import datetime
 from urllib.parse import urlparse
 from pathlib import Path

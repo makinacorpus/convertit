@@ -5,7 +5,10 @@ CHANGELOG
 2.2.6.dev0
 ------------------
 
--
+- Add Ubuntu 22.04 official support with debian package
+- Update Docker image to ubuntu 22.04 base
+- Use directly libreoffice instead of deprecated unoconv
+- Move CI to github-action
 
 
 2.2.5 (2021-01-13)

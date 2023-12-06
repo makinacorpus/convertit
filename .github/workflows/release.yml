@@ -92,7 +92,6 @@ jobs:
           - distro: docker
             version: latest
 
-
     name: Test ${{ matrix.distro }}
     runs-on: ubuntu-${{ matrix.version }}
     needs: [ build ]
@@ -147,7 +146,7 @@ jobs:
 
       - name: Test SVG / PNG conversion
         run: |
-          wget -O myfile.png "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg+xml&to=image/png"
+          wget -O myfile.png "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg%2Bxml&to=image/png"
       
           if file -b --mime-type ./myfile.png |grep -q 'image/png'; then
             echo "File is PNG";
@@ -180,26 +179,31 @@ jobs:
       - name: Download 22.04 debian artifact
         uses: actions/download-artifact@v3
         with:
-          name: debian-22.04
+          name: debian-jammy
+
       - name: Download 20.04 debian artifact
         uses: actions/download-artifact@v3
         with:
-          name: debian-20.04
+          name: debian-focal
+
       - name: Download docker image
         uses: ishworkh/docker-image-artifact-download@v1
         with:
           image: "convertit:latest"
+
       - name: Attach debian packages as release binaries
         uses: skx/github-action-publish-binaries@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: '*.deb'
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Publish Docker image (v2 and latest)
         run: |
           if [[ "${{ github.ref }}" == *"dev"* ]]; then
@@ -211,6 +215,7 @@ jobs:
           fi
           docker tag convertit:latest makinacorpus/convertit:$DOCKER_TAG
           docker push makinacorpus/convertit:$DOCKER_TAG
+
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:

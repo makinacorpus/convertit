@@ -1,6 +1,6 @@
 import subprocess
 from mimetypes import types_map
-
+from pathlib import Path
 from convertit import exists
 
 
@@ -13,14 +13,18 @@ def is_available():
 
 
 def svg_to_pdf(source, target):
+    path = f"{target}/{Path(source).stem}.pdf"
+
     command = [
-        'inkscape', '-f', source, '-A', target]
+        'inkscape', '--export-filename', path, ]
     subprocess.call(command)
 
 
 def svg_to_png(source, target):
+    path = f"{target}/{Path(source).stem}.png"
+
     command = [
-        'inkscape', '-f', source, '-e', target]
+        'inkscape', '--export-filename', path, ]
     subprocess.call(command)
 
 
