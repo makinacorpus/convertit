@@ -25,76 +25,99 @@ env:
   LANG: C.UTF-8
 
 jobs:
-  build_docker_image:
-    name: Build docker image
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build Docker image
-        run: |
-          docker build -t convertit:latest .
-      - name: Upload image
-        uses: ishworkh/docker-image-artifact-upload@v1
-        with:
-          image: "convertit:latest"
-  build_debian_packages:
+  build:
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
       matrix:
-        version: [22.04, 20.04]
+        version: [22.04, 20.04, docker]
         include:
           - version: 22.04
             distro: jammy
           - version: 20.04
             distro: focal
-    name: Build ${{ matrix.distro }} debian package
+    name: Build ${{ matrix.distro }}
     steps:
       - uses: actions/checkout@v3
       - name: Prepare debian versioning
+        if: ${{ matrix.version != 'docker' }}
         run: |
           sed -i 's/+dev/.ubuntu${{ matrix.version }}~dev'$GITHUB_RUN_ID'/' debian/changelog
           sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu${{ matrix.version }}\2) ${{ matrix.distro }};/' debian/changelog
 
       - name: Building package
+        if: ${{ matrix.version != 'docker' }}
         run: |
           DISTRO=ubuntu:${{ matrix.distro }} make build_deb
           cp ./dpkg/*.deb /home/runner/work/convertit/
-
       - name: Archive package artifact
+        if: ${{ matrix.version != 'docker' }}
         uses: actions/upload-artifact@v3
         with:
           name: debian-${{ matrix.distro }}
           path: |
             /home/runner/work/convertit/*.deb
+      - name: Building docker image
+        if: ${{ matrix.version == 'docker' }}
+        run: |
+          docker build -t convertit:latest .
+          docker save convertit:latest > convertit.tar
+          gzip convertit.tar
+          cp convertit.tar.gz /home/runner/work/convertit/
+      - name: Set up Docker Buildx
+        if: ${{ matrix.version == 'docker' }}
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker image
+        if: ${{ matrix.version == 'docker' }}
+        run: |
+          docker build -t convertit:latest .
+      - name: Upload image
+        if: ${{ matrix.version == 'docker' }}
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: "convertit:latest"
 
-
-  e2e_debian_packages:
+  e2e:
     continue-on-error: true
     strategy:
       matrix:
-        version: [ 22.04, 20.04 ]
+        distro: [ jammy, focal, docker ]
         include:
-          - version: 22.04
-            distro: jammy
-          - version: 20.04
-            distro: focal
+          - distro: jammy
+            version: 22.04
 
-    name: Test ${{ matrix.distro }} package
+          - distro: focal
+            version: 20.04
+
+          - distro: docker
+            version: latest
+
+
+    name: Test ${{ matrix.distro }}
     runs-on: ubuntu-${{ matrix.version }}
-    needs: [ build_debian_packages ]
+    needs: [ build ]
     steps:
       - uses: actions/download-artifact@v3
+        if: ${{ matrix.distro != 'docker' }}
         with:
           name: debian-${{ matrix.distro }}
 
+      - name: Download image
+        if: ${{ matrix.version == 'docker' }}
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "convertit:latest"
+
       - name: Install package
+        if: ${{ matrix.distro != 'docker' }}
         run: |
           sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
+
+      - name: Run docker image
+        if: ${{ matrix.distro == 'docker' }}
+        run: |
+          docker run -p 6543:6543 -d convertit:latest
 
       - name: Test ODT / PDF conversion
         run: |
@@ -108,7 +131,6 @@ jobs:
             file -b -f ./myfile.pdf;
             exit 1;
           fi
-          
 
   deploy:
     name: Publish (on release only)
