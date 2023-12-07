@@ -1,8 +1,8 @@
 import os
 import urllib
 from datetime import datetime
-from urllib.parse import urlparse
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 def download_file(url, target_dir, headers=None):

@@ -1,5 +1,6 @@
-from mock import patch, MagicMock
 import unittest
+
+from mock import MagicMock, patch
 
 from convertit.views import download
 

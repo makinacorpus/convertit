@@ -4,13 +4,10 @@ import unittest
 import urllib
 
 from mock import Mock, patch
+from pyramid.paster import setup_logging
 from webtest import TestApp
 
 from convertit import main
-
-
-from pyramid.paster import setup_logging
-
 
 here = os.path.dirname(__file__)
 data_path = os.path.join(here, 'data')

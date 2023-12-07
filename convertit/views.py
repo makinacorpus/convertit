@@ -1,14 +1,14 @@
+import logging
 import os
 import urllib
-import logging
 from functools import partial
 from mimetypes import guess_extension
 from uuid import uuid4
 
 import magic
 from pyramid.httpexceptions import (
-    HTTPError,
     HTTPBadRequest,
+    HTTPError,
     HTTPFound,
     HTTPInternalServerError,
 )
@@ -20,7 +20,6 @@ from convertit.helpers import (
     remove_files_older_than,
     render_converted_name,
 )
-
 
 seconds_in_hour = 3600
 log = logging.getLogger(__name__)

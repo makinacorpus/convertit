@@ -4,7 +4,6 @@ import unittest
 
 from convertit.converters import unoconv
 
-
 here = os.path.dirname(os.path.realpath(__file__))
 
 

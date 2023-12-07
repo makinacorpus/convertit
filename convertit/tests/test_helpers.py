@@ -1,9 +1,10 @@
-from freezegun import freeze_time
-from mock import patch, MagicMock
 import unittest
 import urllib
 
-from convertit.helpers import remove_files_older_than, download_file
+from freezegun import freeze_time
+from mock import MagicMock, patch
+
+from convertit.helpers import download_file, remove_files_older_than
 
 
 class RemoveFilesOlderThanTests(unittest.TestCase):

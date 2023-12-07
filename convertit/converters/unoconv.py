@@ -25,7 +25,11 @@ class Lock:
 
 
 def unoconv(output_path, output_format, source):
-    command = ['libreoffice', '--headless', '--convert-to', output_format, '--outdir', output_path, source]
+    command = [
+        'libreoffice', '--headless',
+        '--convert-to', output_format,
+        '--outdir', output_path, source
+    ]
 
     # Do not mess pyuno pythonpath !
     env = os.environ.copy()
