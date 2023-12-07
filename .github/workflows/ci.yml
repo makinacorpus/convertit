@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Release
+name: CI workflow
 
 on:
   pull_request:
@@ -25,6 +25,32 @@ env:
   LANG: C.UTF-8
 
 jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    name: Check flake8 rules
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Install flake8
+        run: pip install flake8
+      - run: flake8 convertit
+
+  isort:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    name: Check flake8 rules
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - name: Install isort
+        run: pip install isort
+      - run: isort -c convertit
+
   build:
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -172,7 +198,7 @@ jobs:
   deploy:
     name: Publish (on release only)
     runs-on: ubuntu-latest
-    needs: [ e2e ]
+    needs: [ flake8, isort, e2e ]
     if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
     steps:
       - uses: actions/checkout@v3

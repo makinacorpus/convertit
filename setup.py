@@ -18,6 +18,8 @@ test_requires = requires + [
     'mock',
     'coverage',
     'freezegun',
+    'flake8',
+    'isort'
 ]
 
 

@@ -93,9 +93,7 @@ class FunctionalTests(unittest.TestCase):
             mock_req.read.return_value = self.odt_data()
             mock_urlopen.return_value = mock_req
             resp = self.testapp.get('/', params={'url': url}, status=302,
-                                    headers={
-                                        'X_FORWARDED_FOR': x_forwarded_for
-                                    })
+                                    headers={'X_FORWARDED_FOR': x_forwarded_for})
             mock_urlopen.assert_called_once_with(expected_url)
             filename = os.path.basename(resp.location)
             filepath = os.path.join(settings['convertit.converted_path'],
