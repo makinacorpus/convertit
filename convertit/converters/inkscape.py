@@ -23,12 +23,13 @@ def get_inkscape_version():
 
 
 def svg_to_pdf(source, target):
+    path = f"{target}/{Path(source).stem}.pdf"
+
     if get_inkscape_version() < version.parse('1.0'):
         command = [
-            'inkscape', '-f', source, '-A', target
+            'inkscape', '-f', source, '-A', path
         ]
     else:
-        path = f"{target}/{Path(source).stem}.pdf"
         command = [
             'inkscape', '--export-filename', path,
         ]
@@ -36,12 +37,13 @@ def svg_to_pdf(source, target):
 
 
 def svg_to_png(source, target):
+    path = f"{target}/{Path(source).stem}.png"
+
     if get_inkscape_version() < version.parse('1.0'):
         command = [
-            'inkscape', '-f', source, '-e', target]
+            'inkscape', '-f', source, '-e', path]
 
     else:
-        path = f"{target}/{Path(source).stem}.png"
         command = [
             'inkscape', '--export-filename', path, ]
     subprocess.call(command)
