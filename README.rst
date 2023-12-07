@@ -32,7 +32,7 @@ Example, convert from *odt* to *pdf* :
 
     curl http://convertit/?url=http://server/document.odt&to=application/pdf
     HTTP/1.1 302 Found
-    Content-Disposition: attachement; filename=document.pdf
+    Content-Disposition: attachment; filename=document.pdf
     ...
 
 GET parameters:
@@ -57,7 +57,7 @@ Upload data in POST parameter named ``file``:
 
     curl -F "file=@tiger.svg" http://convertit/?to=image/png
     HTTP/1.1 302 Found
-    Content-Disposition: attachement; filename=tiger.png
+    Content-Disposition: attachment; filename=tiger.png
 
 
 
