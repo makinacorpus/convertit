@@ -9,6 +9,7 @@ CHANGELOG
 - Update Docker image to ubuntu 22.04 base
 - Use directly libreoffice instead of deprecated unoconv
 - Move CI to github-action
+- Fix typo in attachment response Content-Disposition (#38)
 
 
 2.2.5 (2021-01-13)
