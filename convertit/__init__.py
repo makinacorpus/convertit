@@ -3,7 +3,6 @@ import subprocess
 
 from pyramid.config import Configurator
 
-
 PROGRAMS = {}
 
 

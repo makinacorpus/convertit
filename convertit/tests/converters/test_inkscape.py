@@ -4,7 +4,6 @@ import unittest
 
 from convertit.converters import inkscape
 
-
 here = os.path.dirname(os.path.realpath(__file__))
 
 

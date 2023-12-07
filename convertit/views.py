@@ -1,14 +1,14 @@
+import logging
 import os
 import urllib
-import logging
 from functools import partial
 from mimetypes import guess_extension
 from uuid import uuid4
 
 import magic
 from pyramid.httpexceptions import (
-    HTTPError,
     HTTPBadRequest,
+    HTTPError,
     HTTPFound,
     HTTPInternalServerError,
 )
@@ -20,7 +20,6 @@ from convertit.helpers import (
     remove_files_older_than,
     render_converted_name,
 )
-
 
 seconds_in_hour = 3600
 log = logging.getLogger(__name__)
@@ -102,7 +101,7 @@ def output_basename_from_url(request, mimetype, url):
         # if url has a correct filename, se it
         parse = urllib.parse.urlparse(url)
         basename = os.path.basename(parse.path)
-        if '.' or u'.' in basename:
+        if '.' in basename:
             return os.path.splitext(basename)[0] + extension
 
     except Exception:
@@ -157,7 +156,7 @@ def home_view(request, input_filepath, output_basename_generator):
     convert = get_converter(request, input_mimetype, output_mimetype)
 
     try:
-        convert(input_filepath, output_filepath)
+        convert(input_filepath, converted_path)
     except Exception as e:
         msg = "Sorry, there was an error converting the document. Reason: %s"
         log.error(msg % str(e))

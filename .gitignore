@@ -52,3 +52,5 @@ src/convertit/tests/data/download_dir/
 
 # IDE
 /.vscode/
+/dpkg/
+/.idea/

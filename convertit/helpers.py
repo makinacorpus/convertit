@@ -1,11 +1,13 @@
 import os
 import urllib
-from uuid import uuid4
 from datetime import datetime
+from pathlib import Path
+from urllib.parse import urlparse
 
 
 def download_file(url, target_dir, headers=None):
-    _, ext = os.path.splitext(url)
+    url_parsed = urlparse(url)
+    file_path = Path(url_parsed.path)
 
     if headers:
         selection = ['accept-language', 'user-agent']
@@ -15,8 +17,7 @@ def download_file(url, target_dir, headers=None):
             url = urllib.request.Request(url, headers=selected)
 
     data = urllib.request.urlopen(url).read()
-    filename = "%s%s" % (uuid4(), ext)
-    target_file = os.path.join(target_dir, filename)
+    target_file = os.path.join(target_dir, file_path.name)
     with open(target_file, 'wb') as f:
         f.write(data)
     return target_file

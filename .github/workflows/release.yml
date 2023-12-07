@@ -1,0 +1,239 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Release
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'docs/**'
+  release:
+    types:
+      - created
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  LANG: C.UTF-8
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        version: [22.04, 20.04, docker]
+        include:
+          - version: 22.04
+            distro: jammy
+          - version: 20.04
+            distro: focal
+          - version: docker
+            distro: docker image
+    name: Build ${{ matrix.distro }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare debian versioning
+        if: ${{ matrix.version != 'docker' }}
+        run: |
+          sed -i 's/+dev/.ubuntu${{ matrix.version }}~dev'$GITHUB_RUN_ID'/' debian/changelog
+          sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu${{ matrix.version }}\2) ${{ matrix.distro }};/' debian/changelog
+
+      - name: Building package
+        if: ${{ matrix.version != 'docker' }}
+        run: |
+          DISTRO=ubuntu:${{ matrix.distro }} make build_deb
+          cp ./dpkg/*.deb /home/runner/work/convertit/
+
+      - name: Archive package artifact
+        if: ${{ matrix.version != 'docker' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: debian-${{ matrix.distro }}
+          path: |
+            /home/runner/work/convertit/*.deb
+
+      - name: Set up Docker Buildx
+        if: ${{ matrix.version == 'docker' }}
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        if: ${{ matrix.version == 'docker' }}
+        run: |
+          docker build -t convertit:latest .
+
+      - name: Upload image
+        if: ${{ matrix.version == 'docker' }}
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: "convertit:latest"
+
+  e2e:
+    continue-on-error: true
+    strategy:
+      matrix:
+        distro: [ jammy, focal, docker ]
+        include:
+          - distro: jammy
+            version: 22.04
+
+          - distro: focal
+            version: 20.04
+
+          - distro: docker
+            version: latest
+
+    name: Test ${{ matrix.distro }}
+    runs-on: ubuntu-${{ matrix.version }}
+    needs: [ build ]
+    steps:
+      - uses: actions/download-artifact@v3
+        if: ${{ matrix.distro != 'docker' }}
+        with:
+          name: debian-${{ matrix.distro }}
+
+      - name: Download image
+        if: ${{ matrix.distro == 'docker' }}
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "convertit:latest"
+
+      - name: Install package
+        if: ${{ matrix.distro != 'docker' }}
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
+
+      - name: Run docker image
+        if: ${{ matrix.distro == 'docker' }}
+        run: |
+          docker run -p 6543:6543 -d convertit:latest
+
+      - name: Test ODT / PDF conversion
+        run: |
+          wget -O myfile.pdf "http://localhost:6543/?url=https://file-examples.com/storage/febf69dcf3656dfd992b0fa/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text"
+          
+          if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
+            echo "File is PDF";
+            exit 0;
+          else
+            echo "File is not PDF";
+            file -b -f ./myfile.pdf;
+            exit 1;
+          fi
+
+      - name: Test ODT / DOC conversion
+        run: |
+          wget -O myfile.doc "http://localhost:6543/?url=https://file-examples.com/storage/febf69dcf3656dfd992b0fa/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
+          
+          if file -b --mime-type ./myfile.doc |grep -q 'application/msword'; then
+            echo "File is DOC";
+            exit 0;
+          else
+            echo "File is not DOC";
+            file -b -f ./myfile.doc;
+            exit 1;
+          fi
+
+      - name: Test SVG / PNG conversion
+        run: |
+          wget -O myfile.png "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg%2Bxml&to=image/png"
+      
+          if file -b --mime-type ./myfile.png |grep -q 'image/png'; then
+            echo "File is PNG";
+            exit 0;
+          else
+            echo "File is not PNG";
+            file -b -f ./myfile.png;
+            exit 1;
+          fi
+
+      - name: Test SVG / PDF conversion
+        run: |
+          wget -O myfile.pdf "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg%2Bxml&to=application/pdf"
+
+          if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
+            echo "File is PDF";
+            exit 0;
+          else
+            echo "File is not PDF";
+            file -b -f ./myfile.pdf;
+            exit 1;
+          fi
+  deploy:
+    name: Publish (on release only)
+    runs-on: ubuntu-latest
+    needs: [ e2e ]
+    if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download 22.04 debian artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: debian-jammy
+
+      - name: Download 20.04 debian artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: debian-focal
+
+      - name: Download docker image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: "convertit:latest"
+
+      - name: Attach debian packages as release binaries
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: '*.deb'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Publish Docker image (v2 and latest)
+        run: |
+          if [[ "${{ github.ref }}" == *"dev"* ]]; then
+            export DOCKER_TAG=dev
+          else
+            docker tag convertit:latest makinacorpus/convertit:$(cat VERSION)
+            docker push makinacorpus/convertit:$(cat VERSION)
+            export DOCKER_TAG=latest
+          fi
+          docker tag convertit:latest makinacorpus/convertit:$DOCKER_TAG
+          docker push makinacorpus/convertit:$DOCKER_TAG
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+      - name: Publish debian packages
+        run: |
+          if [[ "${{ github.ref }}" == *"dev"* ]]; then
+            export DEB_COMPONENT=dev
+          else
+            export DEB_COMPONENT=main
+          fi
+          echo "${{ github.ref }} : Publishing as $DEB_COMPONENT package"
+          scp -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no /home/runner/work/convertit/convertit/convertit_*_amd64.deb ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/srv/packages/incoming/$DEB_COMPONENT/
+          if [[ "${{ github.ref }}" == *"dev"* ]]; then
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make bionic_dev -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_dev -C /srv/packages
+          else
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make bionic_main -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_main -C /srv/packages
+          fi

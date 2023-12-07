@@ -1,5 +1,5 @@
 Source: convertit
-Maintainer: Gaël Utard <gael.utard@makina-corpus.com>
+Maintainer: Makina Corpus <geobi@makina-corpus.com>
 Section: python
 Priority: optional
 Build-Depends:
@@ -16,10 +16,13 @@ Package: convertit
 Architecture: any
 Depends:
  ${misc:Depends},
- ${python3:Depends},
+ python3,
+ python3-magic,
  gunicorn3 | gunicorn,
- unoconv,
- inkscape
+ inkscape,
+ libreoffice,
+ default-jre,
+ libreoffice-java-common
 Description: A file conversion Web API in Pyramid
  Convertit is a format conversion webservice.
  .
