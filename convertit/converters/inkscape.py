@@ -15,11 +15,11 @@ def is_available():
 
 
 def get_inkscape_version():
-    version_str = subprocess.check_output([
-        'dpkg', '-s', 'inkscape',
-        '|', 'grep' 'Version'
-    ]).strip()
-    return version.parse(version_str.replace("Version: ", ""))
+    dpkg_process = subprocess.Popen(['dpkg', '-s', 'inkscape'], stdout=subprocess.PIPE, text=True)
+    grep_process = subprocess.Popen(["grep", "Version"], stdin=dpkg_process.stdout, stdout=subprocess.PIPE, text=True)
+    output, error = grep_process.communicate()
+    version_str = output.strip().replace("Version: ", "").split('-')[0]
+    return version.parse(version_str)
 
 
 def svg_to_pdf(source, target):
