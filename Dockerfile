@@ -1,8 +1,11 @@
-FROM ubuntu:jammy as base
+ARG DISTRO=jammy
+
+FROM ubuntu:${DISTRO} as base
 MAINTAINER Makina Corpus "contact@makina-corpus.com"
 
 RUN apt-get update && apt-get install -y -qq python3 libreoffice default-jre libreoffice-java-common inkscape python3-magic && \
     apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
+
 
 WORKDIR /opt/apps/convertit
 
