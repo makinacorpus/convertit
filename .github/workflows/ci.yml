@@ -41,7 +41,7 @@ jobs:
   isort:
     runs-on: ubuntu-latest
     continue-on-error: true
-    name: Check flake8 rules
+    name: Check isort rules
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
