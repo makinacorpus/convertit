@@ -1,0 +1,7 @@
+version: "3.8"
+services:
+  web:
+    build:
+      target: dev
+    volumes:
+      - .:/opt/apps/convertit

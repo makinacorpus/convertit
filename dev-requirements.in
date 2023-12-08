@@ -1,0 +1,9 @@
+-c requirements.txt
+
+webtest
+mock
+coverage
+freezegun
+flake8
+isort
+pip-tools
