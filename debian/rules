@@ -9,8 +9,10 @@ override_dh_virtualenv:
 	dh_virtualenv \
 	--python /usr/bin/python3 \
 	--extra-pip-arg --no-cache-dir \
-	--builtin-venv
-	--preinstall wheel
+	--upgrade-pip \
+	--preinstall wheel \
+	--preinstall setuptools \
+	--builtin-venv \
 	mkdir -p debian/convertit/usr/bin
 	mkdir -p debian/convertit/opt/convertit
 	cp production.ini debian/convertit/opt/convertit/convertit.ini
@@ -21,5 +23,4 @@ override_dh_strip:
 	dh_strip --no-automatic-dbgsym
 
 override_dh_shlibdeps:
-	dh_shlibdeps \
-	    -X site-packages/Pillow.libs
+	dh_shlibdeps --exclude=/site-packages/
