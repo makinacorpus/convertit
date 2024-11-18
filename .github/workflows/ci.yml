@@ -84,7 +84,7 @@ jobs:
 
       - name: Archive package artifact
         if: ${{ matrix.version != 'docker' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: debian-${{ matrix.distro }}
           path: |
@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-${{ matrix.version }}
     needs: [ build ]
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ matrix.distro != 'docker' }}
         with:
           name: debian-${{ matrix.distro }}
@@ -210,17 +210,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download 24.04 debian artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: debian-noble
 
       - name: Download 22.04 debian artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: debian-jammy
 
       - name: Download 20.04 debian artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: debian-focal
 
