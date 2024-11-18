@@ -5,7 +5,7 @@
 #    pip-compile
 #
 gunicorn==21.2.0
-    # via convertit (setup.py)
+    # via -r requirements.in
 hupper==1.12
     # via pyramid
 packaging==23.2
@@ -13,7 +13,7 @@ packaging==23.2
 pastedeploy==3.1.0
     # via plaster-pastedeploy
 pillow==10.1.0
-    # via convertit (setup.py)
+    # via -r requirements.in
 plaster==1.1.2
     # via
     #   plaster-pastedeploy
@@ -21,9 +21,9 @@ plaster==1.1.2
 plaster-pastedeploy==1.0.1
     # via pyramid
 pyramid==1.10.5
-    # via convertit (setup.py)
+    # via -r requirements.in
 python-magic==0.4.27
-    # via convertit (setup.py)
+    # via -r requirements.in
 translationstring==1.4
     # via pyramid
 venusian==3.1.0

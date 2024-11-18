@@ -1,26 +1,18 @@
 import os
 
+from pip.download import PipSession
+from pip.req import parse_requirements
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
 CHANGES = open(os.path.join(here, 'CHANGES.rst'), encoding='utf-8').read()
 
-requires = [
-    'pyramid<=1.10.5',
-    'gunicorn',
-    'python-magic',
-    'Pillow',
-]
+install_reqs = parse_requirements('./requirements.txt', session=PipSession())
 
-test_requires = requires + [
-    'webtest',
-    'mock',
-    'coverage',
-    'freezegun',
-    'flake8',
-    'isort'
-]
+reqs = [str(ir.req) for ir in install_reqs]
+
+test_reqs = reqs + [str(ir.req) for ir in parse_requirements('./dev-requirements.txt', session=PipSession())]
 
 
 setup(name='convertit',
@@ -42,10 +34,10 @@ setup(name='convertit',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      install_requires=requires,
+      #install_requires=reqs,
       tests_require=test_requires,
       extras_require={
-          'test': test_requires,
+          'test': test_reqs,
       },
       test_suite="convertit",
       entry_points="""\
