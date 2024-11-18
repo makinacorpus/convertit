@@ -6,4 +6,4 @@ cd $APP_ROOT
 
 . /opt/venv/bin/activate
 
-gunicorn --workers=1 --paste=$INIPASTE --bind=0.0.0.0:6543
+pserve $INIPASTE

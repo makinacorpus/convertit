@@ -1,4 +1,3 @@
 pyramid<=1.10.5
-gunicorn
 python-magic
 Pillow

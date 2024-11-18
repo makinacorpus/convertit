@@ -4,10 +4,11 @@
 #
 #    pip-compile
 #
-gunicorn==21.2.0
+gunicorn==23.0.0
     # via -r requirements.in
 hupper==1.12
     # via pyramid
+importlib-metadata
 packaging==23.2
     # via gunicorn
 pastedeploy==3.1.0
