@@ -148,7 +148,6 @@ jobs:
         if: ${{ matrix.distro == 'docker' }}
         run: |
           docker run -p 6543:6543 -d convertit:latest
-          s
 
       - name: Test ODT / PDF conversion
         run: |
