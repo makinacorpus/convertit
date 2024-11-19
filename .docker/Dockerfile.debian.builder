@@ -1,6 +1,6 @@
 ARG DISTRO=ubuntu:focal
 
-FROM ${DISTRO} as base
+FROM ${DISTRO} AS base
 
 
 RUN apt-get update -qq -o Acquire::Languages=none && \

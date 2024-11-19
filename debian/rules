@@ -23,4 +23,5 @@ override_dh_strip:
 	dh_strip --no-automatic-dbgsym
 
 override_dh_shlibdeps:
-	dh_shlibdeps --exclude=/site-packages/
+	dh_shlibdeps \
+	    -X site-packages/Pillow.libs
