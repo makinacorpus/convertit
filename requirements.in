@@ -1,0 +1,4 @@
+pyramid
+python-magic
+Pillow
+gunicorn

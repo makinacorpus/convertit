@@ -2,6 +2,6 @@
 
 adduser --system --group --home /run/convertit --no-create-home --quiet convertit || true
 mkdir -p /var/cache/convertit || true
-chown convertit.convertit /var/cache/convertit || true
+chown convertit:convertit /var/cache/convertit || true
 
 #DEBHELPER#

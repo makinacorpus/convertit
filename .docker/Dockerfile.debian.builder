@@ -1,6 +1,6 @@
 ARG DISTRO=ubuntu:focal
 
-FROM ${DISTRO} as base
+FROM ${DISTRO} AS base
 
 
 RUN apt-get update -qq -o Acquire::Languages=none && \
@@ -28,7 +28,7 @@ COPY . ./
 WORKDIR /dpkg-build
 
 RUN sed -i -re "1s/..UNRELEASED/.ubuntu$(lsb_release -rs)) $(lsb_release -cs)/" debian/changelog \
-    && chmod a-x debian/convertit.* \
-    && dpkg-buildpackage -us -uc -b && mkdir -p /dpkg && cp -pl /convertit[-_]* /dpkg \
+    && chmod a-x debian/convertit.*
+RUN dpkg-buildpackage -us -uc -b && mkdir -p /dpkg && cp -pl /convertit[-_]* /dpkg \
     && dpkg-deb -I /dpkg/convertit*.deb
 WORKDIR /dpkg

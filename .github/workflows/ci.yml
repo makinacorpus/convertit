@@ -30,7 +30,7 @@ jobs:
     continue-on-error: true
     name: Check flake8 rules
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
@@ -43,7 +43,7 @@ jobs:
     continue-on-error: true
     name: Check isort rules
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
@@ -56,17 +56,20 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        version: [22.04, 20.04, docker]
+        version: ['24.04', '22.04', '20.04', docker]
         include:
-          - version: 22.04
+          - version: '24.04'
+            distro: noble
+          - version: '22.04'
             distro: jammy
-          - version: 20.04
+          - version: '20.04'
             distro: focal
           - version: docker
             distro: docker image
+
     name: Build ${{ matrix.distro }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Prepare debian versioning
         if: ${{ matrix.version != 'docker' }}
         run: |
@@ -81,7 +84,7 @@ jobs:
 
       - name: Archive package artifact
         if: ${{ matrix.version != 'docker' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: debian-${{ matrix.distro }}
           path: |
@@ -99,21 +102,23 @@ jobs:
 
       - name: Upload image
         if: ${{ matrix.version == 'docker' }}
-        uses: ishworkh/docker-image-artifact-upload@v1
+        uses: ishworkh/container-image-artifact-upload@v2.0.0
         with:
           image: "convertit:latest"
 
   e2e:
-    continue-on-error: true
     strategy:
       matrix:
-        distro: [ jammy, focal, docker ]
+        distro: [ noble, jammy, focal, docker ]
         include:
+          - distro: noble
+            version: '24.04'
+
           - distro: jammy
-            version: 22.04
+            version: '22.04'
 
           - distro: focal
-            version: 20.04
+            version: '20.04'
 
           - distro: docker
             version: latest
@@ -121,15 +126,16 @@ jobs:
     name: Test ${{ matrix.distro }}
     runs-on: ubuntu-${{ matrix.version }}
     needs: [ build ]
+    continue-on-error: true
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ matrix.distro != 'docker' }}
         with:
           name: debian-${{ matrix.distro }}
 
       - name: Download image
         if: ${{ matrix.distro == 'docker' }}
-        uses: ishworkh/docker-image-artifact-download@v1
+        uses: ishworkh/container-image-artifact-download@v2.0.0
         with:
           image: "convertit:latest"
 
@@ -146,7 +152,7 @@ jobs:
 
       - name: Test ODT / PDF conversion
         run: |
-          wget -O myfile.pdf "http://localhost:6543/?url=https://file-examples.com/storage/febf69dcf3656dfd992b0fa/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text"
+          wget -O myfile.pdf "http://localhost:6543/?url=https://file-examples.com/wp-content/storage/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text"
           
           if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
@@ -159,7 +165,7 @@ jobs:
 
       - name: Test ODT / DOC conversion
         run: |
-          wget -O myfile.doc "http://localhost:6543/?url=https://file-examples.com/storage/febf69dcf3656dfd992b0fa/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
+          wget -O myfile.doc "http://localhost:6543/?url=https://file-examples.com/storage/fef4e75e176737761a179bf/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
           
           if file -b --mime-type ./myfile.doc |grep -q 'application/msword'; then
             echo "File is DOC";
@@ -195,25 +201,32 @@ jobs:
             file -b -f ./myfile.pdf;
             exit 1;
           fi
+
   deploy:
     name: Publish (on release only)
     runs-on: ubuntu-latest
     needs: [ flake8, isort, e2e ]
     if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Download 24.04 debian artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-noble
+
       - name: Download 22.04 debian artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: debian-jammy
 
       - name: Download 20.04 debian artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: debian-focal
 
       - name: Download docker image
-        uses: ishworkh/docker-image-artifact-download@v1
+        uses: ishworkh/container-image-artifact-download@v2.0.0
         with:
           image: "convertit:latest"
 

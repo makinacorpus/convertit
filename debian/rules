@@ -9,7 +9,11 @@ override_dh_virtualenv:
 	dh_virtualenv \
 	--python /usr/bin/python3 \
 	--extra-pip-arg --no-cache-dir \
+	--upgrade-pip \
+	--preinstall wheel \
+	--preinstall setuptools \
 	--builtin-venv
+
 	mkdir -p debian/convertit/usr/bin
 	mkdir -p debian/convertit/opt/convertit
 	cp production.ini debian/convertit/opt/convertit/convertit.ini
