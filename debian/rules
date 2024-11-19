@@ -12,7 +12,8 @@ override_dh_virtualenv:
 	--upgrade-pip \
 	--preinstall wheel \
 	--preinstall setuptools \
-	--builtin-venv \
+	--builtin-venv
+
 	mkdir -p debian/convertit/usr/bin
 	mkdir -p debian/convertit/opt/convertit
 	cp production.ini debian/convertit/opt/convertit/convertit.ini
