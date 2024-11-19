@@ -1,11 +1,10 @@
-ARG DISTRO=jammy
+ARG DISTRO=noble
 
 FROM ubuntu:${DISTRO} AS base
 LABEL org.opencontainers.image.authors="Makina Corpus <contact@makina-corpus.com>"
 
 RUN apt-get update && apt-get install -y -qq python3 libreoffice default-jre libreoffice-java-common inkscape python3-magic && \
     apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
-
 
 WORKDIR /opt/apps/convertit
 
@@ -37,6 +36,6 @@ COPY convertit /opt/apps/convertit/convertit
 COPY setup.py /opt/apps/convertit/setup.py
 COPY README.rst /opt/apps/convertit/README.rst
 RUN /opt/venv/bin/pip install .
-COPY production.ini /opt/apps/convertit/production.ini
+COPY docker.ini /opt/apps/convertit/production.ini
 VOLUME /var/cache/convertit/downloads
 VOLUME /var/cache/convertit/converted
