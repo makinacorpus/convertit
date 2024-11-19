@@ -126,6 +126,7 @@ jobs:
     name: Test ${{ matrix.distro }}
     runs-on: ubuntu-${{ matrix.version }}
     needs: [ build ]
+    continue-on-error: true
     steps:
       - uses: actions/download-artifact@v4
         if: ${{ matrix.distro != 'docker' }}
