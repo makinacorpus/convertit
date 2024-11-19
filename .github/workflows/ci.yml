@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload image
         if: ${{ matrix.version == 'docker' }}
-        uses: ishworkh/docker-image-artifact-upload@v1
+        uses: ishworkh/container-image-artifact-upload@v2.0.0
         with:
           image: "convertit:latest"
 
@@ -134,7 +134,7 @@ jobs:
 
       - name: Download image
         if: ${{ matrix.distro == 'docker' }}
-        uses: ishworkh/docker-image-artifact-download@v1
+        uses: ishworkh/container-image-artifact-download@v2.0.0
         with:
           image: "convertit:latest"
 
@@ -164,7 +164,7 @@ jobs:
 
       - name: Test ODT / DOC conversion
         run: |
-          wget -O myfile.doc "http://localhost:6543/?url=https://file-examples.com/wp-content/storage/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
+          wget -O myfile.doc "http://localhost:6543/?url=https://file-examples.com/storage/fef4e75e176737761a179bf/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
           
           if file -b --mime-type ./myfile.doc |grep -q 'application/msword'; then
             echo "File is DOC";
@@ -225,7 +225,7 @@ jobs:
           name: debian-focal
 
       - name: Download docker image
-        uses: ishworkh/docker-image-artifact-download@v1
+        uses: ishworkh/container-image-artifact-download@v2.0.0
         with:
           image: "convertit:latest"
 
