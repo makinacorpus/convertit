@@ -3,7 +3,6 @@ import os
 import subprocess
 import tempfile
 from functools import partial
-from mimetypes import types_map
 
 from convertit import exists
 
@@ -68,9 +67,9 @@ def is_available():
 def converters():
 
     return {
-        (types_map['.csv'], types_map['.ods']): to_ods,
-        (types_map['.csv'], types_map['.xls']): to_xls,
-        (types_map['.ods'], types_map['.xls']): to_xls,
-        (types_map['.odt'], types_map['.doc']): to_doc,
-        (types_map['.odt'], types_map['.pdf']): to_pdf,
+        ('plain/text', 'application/vnd.oasis.opendocument.spreadsheet'): to_ods,
+        ('plain/text', 'application/vnd.ms-excel'): to_xls,
+        ('application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.ms-excel'): to_xls,
+        ('application/vnd.oasis.opendocument.text', 'application/msword'): to_doc,
+        ('application/vnd.oasis.opendocument.text', 'application/pdf'): to_pdf,
     }
