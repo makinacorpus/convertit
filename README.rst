@@ -3,8 +3,9 @@
 Retrieve your document in an other format ! The input file is converted and served back !
 Using a dead simple ``GET`` request, documents are pulled. Using ``POST`` request, it takes the attachment.
 
-.. image:: https://circleci.com/gh/makinacorpus/convertit.svg?style=shield
-    :target: https://circleci.com/gh/makinacorpus/convertit
+.. image:: https://github.com/makinacorpus/convertit/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/makinacorpus/convertit/actions/workflows/ci.yml
+
 
 Supported conversions:
 
@@ -74,7 +75,7 @@ INSTALL
 
 System dependencies
 -------------------
-* for *OpenDocument* support: ``unoconv``
+* for *OpenDocument* support: ``libreoffice``
 * for *SVG* support: ``inkscape``
 
 Conversion binaries should be in system ``PATH`` (``which`` is used internally.)
