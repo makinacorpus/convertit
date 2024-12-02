@@ -42,13 +42,13 @@ six==1.16.0
     # via python-dateutil
 soupsieve==2.5
     # via beautifulsoup4
-waitress==3.0.1
+waitress==3.0.2
     # via webtest
 webob==1.8.7
     # via
     #   -c requirements.txt
     #   webtest
-webtest==3.0.1
+webtest==3.0.2
     # via -r dev-requirements.in
 wheel==0.42.0
     # via pip-tools
