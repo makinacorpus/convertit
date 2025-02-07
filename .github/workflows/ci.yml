@@ -141,7 +141,8 @@ jobs:
 
       - name: Prepare test server
         run: |
-          python -m http.server 8080 --bind 127.0.0.1 --directory /home/runner/work/convertit/convertit/test/ &
+          sudo systemctl enable nginx
+          cp ./test/nginx.conf /etc/nginx/sites-enabled/test.conf
 
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
