@@ -155,7 +155,7 @@ jobs:
 
       - name: Test ODT / PDF conversion
         run: |
-          wget -O myfile.pdf "http://localhost:6543/?url=http://localhost:8080/example.odt&from=application/vnd.oasis.opendocument.text"
+          wget -O myfile.pdf "http://localhost:6543/?url=http://172.17.0.1:8080/example.odt&from=application/vnd.oasis.opendocument.text"
           
           if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
