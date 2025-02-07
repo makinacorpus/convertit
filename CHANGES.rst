@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-2.2.6.dev0
+2.2.6 (2025-02-07)
 ------------------
 
 - Add Ubuntu 22.04 official support with debian package
