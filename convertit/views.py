@@ -51,22 +51,25 @@ def save(request, uploaded_file):
 def download(request, url):
     downloads_path = request.registry.settings['convertit.downloads_path']
 
-    message = "Sorry, there was an error fetching the document. Reason: %s"
+    message_template = "Sorry, there was an error fetching the document '{url}'. Reason: {e}"
     try:
         downloaded_filepath = download_file(url,
                                             downloads_path,
                                             headers=request.headers)
         return downloaded_filepath
     except ValueError as e:
-        log.error(message % str(e))
-        raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
+        message = message_template.format(url=url, e=str(e))
+        log.error(message)
+        raise HTTPBadRequest(body=message, content_type='text/plain')
     except urllib.error.HTTPError as e:
-        log.error(message % str(e))
-        raise HTTPError(body=message % str(e), status_int=e.getcode(),
+        message = message_template.format(url=url, e=str(e))
+        log.error(message)
+        raise HTTPError(body=message, status_int=e.getcode(),
                         content_type='text/plain')
     except urllib.error.URLError as e:
-        log.error(message % str(e))
-        raise HTTPBadRequest(body=message % str(e), content_type='text/plain')
+        message = message_template.format(url=url, e=str(e))
+        log.error(message)
+        raise HTTPBadRequest(body=message, content_type='text/plain')
 
 
 def get_input_mimetype(request, input_filepath):
@@ -152,11 +155,12 @@ def home_view(request, input_filepath, output_basename_generator):
     output_filepath = os.path.join(converted_path, output_basename)
 
     remove_old_files(request)
-
+    log.error(f"from: {input_mimetype} to {output_mimetype}, file: {output_filepath}")
     convert = get_converter(request, input_mimetype, output_mimetype)
 
     try:
         convert(input_filepath, converted_path)
+        log.error(f"converted: {input_filepath} to {converted_path}")
     except Exception as e:
         msg = "Sorry, there was an error converting the document. Reason: %s"
         log.error(msg % str(e))

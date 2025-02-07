@@ -139,10 +139,20 @@ jobs:
         with:
           image: "convertit:latest"
 
+      - name: Prepare test server
+        run: |
+          sudo apt-get -qq update
+          sudo service apache2 stop
+          sudo apt-get purge apache2 apache2-utils apache2.2-bin
+          sudo apt-get autoremove
+          sudo apt-get install -q -y nginx
+          sudo ln -s /home/runner/work/convertit/convertit/test/nginx.conf /etc/nginx/sites-enabled/convertit.conf
+          sudo systemctl restart nginx
+          sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
+
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
         run: |
-          sudo apt-get -qq update
           sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
 
       - name: Run docker image
@@ -152,7 +162,7 @@ jobs:
 
       - name: Test ODT / PDF conversion
         run: |
-          wget -O myfile.pdf "http://localhost:6543/?url=https://file-examples.com/wp-content/storage/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text"
+          wget -O myfile.pdf "http://localhost:6543/?url=http://localhost/example.odt&from=application/vnd.oasis.opendocument.text"
           
           if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
@@ -165,7 +175,7 @@ jobs:
 
       - name: Test ODT / DOC conversion
         run: |
-          wget -O myfile.doc "http://localhost:6543/?url=https://file-examples.com/storage/fef4e75e176737761a179bf/2017/10/file-sample_100kB.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
+          wget -O myfile.doc "http://localhost:6543/?url=http://localhost/example.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
           
           if file -b --mime-type ./myfile.doc |grep -q 'application/msword'; then
             echo "File is DOC";
@@ -178,7 +188,7 @@ jobs:
 
       - name: Test SVG / PNG conversion
         run: |
-          wget -O myfile.png "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg%2Bxml&to=image/png"
+          wget -O myfile.png "http://localhost:6543/?url=http://localhost/example.svg&from=image/svg%2Bxml&to=image/png"
       
           if file -b --mime-type ./myfile.png |grep -q 'image/png'; then
             echo "File is PNG";
@@ -191,7 +201,7 @@ jobs:
 
       - name: Test SVG / PDF conversion
         run: |
-          wget -O myfile.pdf "http://localhost:6543/?url=https://upload.wikimedia.org/wikipedia/commons/3/30/Vector-based_example.svg&from=image/svg%2Bxml&to=application/pdf"
+          wget -O myfile.pdf "http://localhost:6543/?url=http://localhost/example.svg&from=image/svg%2Bxml&to=application/pdf"
 
           if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
@@ -244,6 +254,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
+      - name: Download 22.04 debian artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-jammy
+
+      - name: Download 24.04 debian artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-noble
+
       - name: Publish debian packages
         run: |
           if [[ "${{ github.ref }}" == *"dev"* ]]; then
@@ -255,19 +275,11 @@ jobs:
           scp -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no /home/runner/work/convertit/convertit/convertit_*_amd64.deb ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/srv/packages/incoming/$DEB_COMPONENT/
           if [[ "${{ github.ref }}" == *"dev"* ]]; then
             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_dev -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_dev -C /srv/packages
           else
             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_main -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_main -C /srv/packages
           fi
-
-      - name: Download 24.04 debian artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: debian-noble
-
-      - name: Download 22.04 debian artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: debian-jammy
 
       - name: Attach debian packages as release binaries
         uses: skx/github-action-publish-binaries@master
