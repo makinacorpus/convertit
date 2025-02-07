@@ -145,7 +145,7 @@ jobs:
 
       - name: Copy test files
         run: |
-          cp /home/runner/work/convertit/convertit/test/* ${{ steps.nginx.outputs.html-dir }}/
+          cp /home/runner/work/convertit/test/* ${{ steps.nginx.outputs.html-dir }}/
 
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
