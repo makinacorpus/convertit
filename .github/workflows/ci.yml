@@ -150,7 +150,17 @@ jobs:
                   root /home/runner/work/convertit/convertit/test;
               }
             }" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
-            sudo service nginx restart
+
+      - name: Log NGINX config
+        run: |
+          journalctl -xeu nginx.service
+          cat /etc/nginx/sites-available/default
+
+      - name: Start NGINX
+        run: |
+          sudo systemctl start nginx
+          sudo systemctl status nginx.service
+          sudo journalctl -xeu nginx.service
 
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
