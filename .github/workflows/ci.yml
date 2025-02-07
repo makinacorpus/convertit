@@ -141,7 +141,7 @@ jobs:
 
       - name: Prepare test server
         run: |
-          python -m http.server 8080 --bind 127.0.0.1 --directory /home/runner/work/convertit/convertit/test/
+          python -m http.server 8080 --bind 127.0.0.1 --directory /home/runner/work/convertit/convertit/test/ &
 
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
