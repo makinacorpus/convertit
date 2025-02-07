@@ -142,6 +142,8 @@ jobs:
       - name: Prepare test server
         uses: nyurik/action-setup-nginx@v1
         id: nginx
+
+      - name: Copy test files
         run: |
           cp test/example.odt ${{ steps.nginx.outputs.html-dir }}/
           cp test/example.svg ${{ steps.nginx.outputs.html-dir }}/
