@@ -140,12 +140,8 @@ jobs:
           image: "convertit:latest"
 
       - name: Prepare test server
-        uses: nyurik/action-setup-nginx@v1
-        id: nginx
-
-      - name: Copy test files
         run: |
-          cp /home/runner/work/convertit/convertit/test/* ${{ steps.nginx.outputs.html-dir }}/
+          python -m http.server 8080 --bind 127.0.0.1 --directory /home/runner/work/convertit/convertit/test/
 
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
