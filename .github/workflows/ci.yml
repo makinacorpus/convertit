@@ -143,7 +143,7 @@ jobs:
         uses: nyurik/action-setup-nginx@v1
         id: nginx
         with:
-          conf-file-text: test/nginx.conf
+          conf-file-text: /home/runner/work/convertit/convertit/test/nginx.conf
 
       - name: Copy test files
         run: |
