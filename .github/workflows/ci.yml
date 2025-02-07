@@ -145,10 +145,7 @@ jobs:
             server {
               listen 80;
               server_name localhost;
-
-              location / {
-                  root /home/runner/work/convertit/convertit/test;
-              }
+              root /home/runner/work/convertit/convertit/test;
             }" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
 
       - name: Log NGINX config
