@@ -143,7 +143,7 @@ jobs:
         run: |
           sudo apt-get -qq update
           sudo service apache2 stop
-          sudo apt-get purge apache2 apache2-utils apache2.2-bin
+          sudo apt-get purge apache2*
           sudo apt-get autoremove
           sudo apt-get install -q -y nginx
           sudo ln -s /home/runner/work/convertit/convertit/test/nginx.conf /etc/nginx/sites-enabled/convertit.conf
