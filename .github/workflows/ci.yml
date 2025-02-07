@@ -126,7 +126,6 @@ jobs:
     name: Test ${{ matrix.distro }}
     runs-on: ubuntu-${{ matrix.version }}
     needs: [ build ]
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -151,6 +150,7 @@ jobs:
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
         run: |
+          sudo apt -qq update
           sudo apt-get -yqq install /home/runner/work/convertit/convertit/*.deb || exit 0;
 
       - name: Run docker image
