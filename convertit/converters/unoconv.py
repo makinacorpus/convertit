@@ -1,10 +1,13 @@
 import fcntl
+import logging
 import os
 import subprocess
 import tempfile
 from functools import partial
 
 from convertit import exists
+
+log = logging.getLogger(__name__)
 
 
 class Lock:
@@ -48,9 +51,18 @@ def unoconv(output_path, output_format, source):
 
 
 def convert(source, target, output_format):
+    log.error('Converting %s to %s with %s', source, target, output_format)
     p = unoconv(target, output_format, source)
     output = b'\n'.join([p.stdout.read(), p.stderr.read()])
-    if not os.path.exists(target):
+    log.error(output)
+    filename = os.path.basename(source)
+    # replace extenson with output_frmat
+    filename, _ = os.path.splitext(filename)
+    filename = filename + '.' + output_format
+
+    target_file = os.path.join(target, filename)
+
+    if not os.path.exists(target_file):
         raise IOError(p.returncode, output.decode())
 
 
