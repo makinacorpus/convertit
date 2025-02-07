@@ -145,6 +145,11 @@ jobs:
         with:
           conf-file-text: test/nginx.conf
 
+      - nam: Copy test files
+        run: |
+          cp test/example.odt ${{ steps.nginx.outputs.html-dir }}/
+          cp test/example.svg ${{ steps.nginx.outputs.html-dir }}/
+
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
         run: |
