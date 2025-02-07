@@ -140,7 +140,7 @@ jobs:
           image: "convertit:latest"
 
       - name: Prepare test server
-        run: docker run -p 8080:80 -v ./test:/var/www/ -v ./test/nginx.conf:/etc/nginx/conf.d/default.conf
+        run: docker run -d -p 8080:80 -v ./test:/var/www/ -v ./test/nginx.conf:/etc/nginx/conf.d/default.conf nginx:alpine
 
       - name: Log NGINX config
         run: |
