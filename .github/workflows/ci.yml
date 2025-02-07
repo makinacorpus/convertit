@@ -140,13 +140,7 @@ jobs:
           image: "convertit:latest"
 
       - name: Prepare test server
-        run: |
-            echo "
-            server {
-              listen 80;
-              server_name localhost;
-              root /home/runner/work/convertit/convertit/test;
-            }" | sudo tee -a /etc/nginx/sites-available/default > /dev/null
+        run: docker run -p 8080:80 -v ./test:/var/www/ -v ./test/nginx.conf:/etc/nginx/conf.d/default.conf
 
       - name: Log NGINX config
         run: |
@@ -172,7 +166,7 @@ jobs:
 
       - name: Test ODT / PDF conversion
         run: |
-          wget -O myfile.pdf "http://localhost:6543/?url=http://localhost/example.odt&from=application/vnd.oasis.opendocument.text"
+          wget -O myfile.pdf "http://localhost:6543/?url=http://localhost:8080/example.odt&from=application/vnd.oasis.opendocument.text"
           
           if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
@@ -185,7 +179,7 @@ jobs:
 
       - name: Test ODT / DOC conversion
         run: |
-          wget -O myfile.doc "http://localhost:6543/?url=http://localhost/example.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
+          wget -O myfile.doc "http://localhost:6543/?url=http://localhost:8080/example.odt&from=application/vnd.oasis.opendocument.text&to=application/msword"
           
           if file -b --mime-type ./myfile.doc |grep -q 'application/msword'; then
             echo "File is DOC";
@@ -198,7 +192,7 @@ jobs:
 
       - name: Test SVG / PNG conversion
         run: |
-          wget -O myfile.png "http://localhost:6543/?url=http://localhost/example.svg&from=image/svg%2Bxml&to=image/png"
+          wget -O myfile.png "http://localhost:6543/?url=http://localhost:8080/example.svg&from=image/svg%2Bxml&to=image/png"
       
           if file -b --mime-type ./myfile.png |grep -q 'image/png'; then
             echo "File is PNG";
@@ -211,7 +205,7 @@ jobs:
 
       - name: Test SVG / PDF conversion
         run: |
-          wget -O myfile.pdf "http://localhost:6543/?url=http://localhost/example.svg&from=image/svg%2Bxml&to=application/pdf"
+          wget -O myfile.pdf "http://localhost:6543/?url=http://localhost:8080/example.svg&from=image/svg%2Bxml&to=application/pdf"
 
           if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
             echo "File is PDF";
