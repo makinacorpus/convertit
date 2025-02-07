@@ -1,11 +1,11 @@
 import fcntl
+import logging
 import os
 import subprocess
 import tempfile
 from functools import partial
 
 from convertit import exists
-import logging
 
 log = logging.getLogger(__name__)
 
