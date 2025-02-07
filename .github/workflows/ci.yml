@@ -128,6 +128,7 @@ jobs:
     needs: [ build ]
     continue-on-error: true
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         if: ${{ matrix.distro != 'docker' }}
         with:
@@ -145,8 +146,7 @@ jobs:
 
       - name: Copy test files
         run: |
-          cp /home/runner/work/convertit/convertit/test/example.svg ${{ steps.nginx.outputs.html-dir }}/
-          cp /home/runner/work/convertit/convertit/test/example.odt ${{ steps.nginx.outputs.html-dir }}/
+          cp /home/runner/work/convertit/convertit/test/* ${{ steps.nginx.outputs.html-dir }}/
 
       - name: Install package
         if: ${{ matrix.distro != 'docker' }}
