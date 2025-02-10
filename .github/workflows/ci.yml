@@ -273,25 +273,25 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
-#       - name: Publish debian packages
-#         run: |
-#           if [[ "${{ github.ref }}" == *"dev"* ]]; then
-#             export DEB_COMPONENT=dev
-#           else
-#             export DEB_COMPONENT=main
-#           fi
-#           echo "${{ github.ref }} : Publishing as $DEB_COMPONENT package"
-#           scp -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no /home/runner/work/convertit/convertit/convertit_*_amd64.deb ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/srv/packages/incoming/$DEB_COMPONENT/
-#           if [[ "${{ github.ref }}" == *"dev"* ]]; then
-#             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_dev -C /srv/packages
-#             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_dev -C /srv/packages
-#             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make noble_dev -C /srv/packages
-#
-#           else
-#             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_main -C /srv/packages
-#             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_main -C /srv/packages
-#             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make noble_main -C /srv/packages
-#           fi
+      - name: Publish debian packages
+        run: |
+          if [[ "${{ github.ref }}" == *"dev"* ]]; then
+            export DEB_COMPONENT=dev
+          else
+            export DEB_COMPONENT=main
+          fi
+          echo "${{ github.ref }} : Publishing as $DEB_COMPONENT package"
+          scp -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no /home/runner/work/convertit/convertit/convertit_*_amd64.deb ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/srv/packages/incoming/$DEB_COMPONENT/
+          if [[ "${{ github.ref }}" == *"dev"* ]]; then
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_dev -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_dev -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make noble_dev -C /srv/packages
+
+          else
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_main -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_main -C /srv/packages
+            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make noble_main -C /srv/packages
+          fi
 
       - name: Attach debian packages as release binaries
         uses: skx/github-action-publish-binaries@master
