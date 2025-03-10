@@ -20,7 +20,7 @@ isort==6.0.0
     # via -r dev-requirements.in
 mccabe==0.7.0
     # via flake8
-mock==5.1.0
+mock==5.2.0
     # via -r dev-requirements.in
 packaging==23.2
     # via
