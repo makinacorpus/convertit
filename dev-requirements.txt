@@ -12,7 +12,7 @@ click==8.1.7
     # via pip-tools
 coverage==7.8.0
     # via -r dev-requirements.in
-flake8==7.2.0
+flake8==7.3.0
     # via -r dev-requirements.in
 freezegun==1.5.1
     # via -r dev-requirements.in
@@ -28,9 +28,9 @@ packaging==23.2
     #   build
 pip-tools==7.4.1
     # via -r dev-requirements.in
-pycodestyle==2.13.0
+pycodestyle==2.14.0
     # via flake8
-pyflakes==3.3.1
+pyflakes==3.4.0
     # via flake8
 pyproject-hooks==1.0.0
     # via
