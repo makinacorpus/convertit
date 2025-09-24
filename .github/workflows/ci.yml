@@ -109,16 +109,13 @@ jobs:
   e2e:
     strategy:
       matrix:
-        distro: [ noble, jammy, focal, docker ]
+        distro: [ noble, jammy, docker ]
         include:
           - distro: noble
             version: '24.04'
 
           - distro: jammy
             version: '22.04'
-
-          - distro: focal
-            version: '20.04'
 
           - distro: docker
             version: latest
