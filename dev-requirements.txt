@@ -10,11 +10,11 @@ build==1.0.3
     # via pip-tools
 click==8.1.7
     # via pip-tools
-coverage==7.8.0
+coverage==7.10.7
     # via -r dev-requirements.in
 flake8==7.2.0
     # via -r dev-requirements.in
-freezegun==1.5.1
+freezegun==1.5.5
     # via -r dev-requirements.in
 isort==6.0.1
     # via -r dev-requirements.in
