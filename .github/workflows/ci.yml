@@ -130,7 +130,7 @@ jobs:
 
       - name: Download image
         if: ${{ matrix.distro == 'docker' }}
-        uses: ishworkh/container-image-artifact-download@v2.0.0
+        uses: ishworkh/container-image-artifact-download@v2.1.0
         with:
           image: "convertit:latest"
 
@@ -219,7 +219,7 @@ jobs:
           name: debian-noble
 
       - name: Download docker image
-        uses: ishworkh/container-image-artifact-download@v2.0.0
+        uses: ishworkh/container-image-artifact-download@v2.1.0
         with:
           image: "convertit:latest"
 
