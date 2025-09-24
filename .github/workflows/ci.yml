@@ -30,10 +30,10 @@ jobs:
     continue-on-error: true
     name: Check flake8 rules
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: '3.8'
+          python-version: '3.10'
       - name: Install flake8
         run: pip install flake8
       - run: flake8 convertit
@@ -43,10 +43,10 @@ jobs:
     continue-on-error: true
     name: Check isort rules
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: '3.8'
+          python-version: '3.10'
       - name: Install isort
         run: pip install isort
       - run: isort -c convertit
@@ -56,20 +56,18 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        version: ['24.04', '22.04', '20.04', docker]
+        version: ['24.04', '22.04', docker]
         include:
           - version: '24.04'
             distro: noble
           - version: '22.04'
             distro: jammy
-          - version: '20.04'
-            distro: focal
           - version: docker
             distro: docker image
 
     name: Build ${{ matrix.distro }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare debian versioning
         if: ${{ matrix.version != 'docker' }}
         run: |
@@ -109,16 +107,13 @@ jobs:
   e2e:
     strategy:
       matrix:
-        distro: [ noble, jammy, focal, docker ]
+        distro: [ noble, jammy, docker ]
         include:
           - distro: noble
             version: '24.04'
 
           - distro: jammy
             version: '22.04'
-
-          - distro: focal
-            version: '20.04'
 
           - distro: docker
             version: latest
@@ -127,15 +122,15 @@ jobs:
     runs-on: ubuntu-${{ matrix.version }}
     needs: [ build ]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         if: ${{ matrix.distro != 'docker' }}
         with:
           name: debian-${{ matrix.distro }}
 
       - name: Download image
         if: ${{ matrix.distro == 'docker' }}
-        uses: ishworkh/container-image-artifact-download@v2.0.0
+        uses: ishworkh/container-image-artifact-download@v2.1.0
         with:
           image: "convertit:latest"
 
@@ -148,7 +143,7 @@ jobs:
           sudo apt -qq update
           sudo apt-get -yqq install --no-install-recommends /home/runner/work/convertit/convertit/*.deb || exit 0;
 
-      - name: Run docker image
+      - name: Run docker image (if required)
         if: ${{ matrix.distro == 'docker' }}
         run: |
           docker run -p 6543:6543 -d convertit:latest
@@ -211,25 +206,25 @@ jobs:
     needs: [ flake8, isort, e2e ]
     if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download 20.04 debian artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: debian-focal
 
       - name: Download 22.04 debian artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: debian-jammy
 
       - name: Download 24.04 debian artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: debian-noble
 
       - name: Download docker image
-        uses: ishworkh/container-image-artifact-download@v2.0.0
+        uses: ishworkh/container-image-artifact-download@v2.1.0
         with:
           image: "convertit:latest"
 
@@ -283,12 +278,10 @@ jobs:
           echo "${{ github.ref }} : Publishing as $DEB_COMPONENT package"
           scp -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no /home/runner/work/convertit/convertit/convertit_*_amd64.deb ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/srv/packages/incoming/$DEB_COMPONENT/
           if [[ "${{ github.ref }}" == *"dev"* ]]; then
-            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_dev -C /srv/packages
             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_dev -C /srv/packages
             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make noble_dev -C /srv/packages
 
           else
-            ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make focal_main -C /srv/packages
             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make jammy_main -C /srv/packages
             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make noble_main -C /srv/packages
           fi
