@@ -1,8 +1,8 @@
-convertit (2.2.6~dev0) UNRELEASED; urgency=medium
+convertit (2.2.6) RELEASED; urgency=medium
 
-  * ...
+  * Ne packaged version. Support Ubuntu 22.04 and 24.04
 
- -- Gaël UTARD <gael.utard@makina-corpus.com>  Wed, 13 Jan 2021 09:45:10 +0100
+ -- Jean-Etienne CASTAGNEDE <jean-etienne.castagnede@makina-corpus.com>  Tue, 11 Feb 2025 14:47:59 +0100
 
 convertit (2.2.5) RELEASED; urgency=medium
 

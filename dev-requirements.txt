@@ -10,27 +10,27 @@ build==1.0.3
     # via pip-tools
 click==8.1.7
     # via pip-tools
-coverage==7.6.7
+coverage==7.10.7
     # via -r dev-requirements.in
-flake8==7.1.1
+flake8==7.3.0
     # via -r dev-requirements.in
-freezegun==1.5.1
+freezegun==1.5.5
     # via -r dev-requirements.in
-isort==5.13.2
+isort==6.0.1
     # via -r dev-requirements.in
 mccabe==0.7.0
     # via flake8
-mock==5.1.0
+mock==5.2.0
     # via -r dev-requirements.in
 packaging==23.2
     # via
     #   -c requirements.txt
     #   build
-pip-tools==7.4.1
+pip-tools==7.5.0
     # via -r dev-requirements.in
-pycodestyle==2.12.1
+pycodestyle==2.14.0
     # via flake8
-pyflakes==3.2.0
+pyflakes==3.4.0
     # via flake8
 pyproject-hooks==1.0.0
     # via
@@ -42,13 +42,13 @@ six==1.16.0
     # via python-dateutil
 soupsieve==2.5
     # via beautifulsoup4
-waitress==3.0.1
+waitress==3.0.2
     # via webtest
 webob==1.8.7
     # via
     #   -c requirements.txt
     #   webtest
-webtest==3.0.1
+webtest==3.0.6
     # via -r dev-requirements.in
 wheel==0.42.0
     # via pip-tools
