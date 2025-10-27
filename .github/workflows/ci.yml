@@ -123,7 +123,7 @@ jobs:
     needs: [ build ]
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         if: ${{ matrix.distro != 'docker' }}
         with:
           name: debian-${{ matrix.distro }}
@@ -209,17 +209,17 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download 20.04 debian artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: debian-focal
 
       - name: Download 22.04 debian artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: debian-jammy
 
       - name: Download 24.04 debian artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: debian-noble
 
