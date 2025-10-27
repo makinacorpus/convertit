@@ -82,7 +82,7 @@ jobs:
 
       - name: Archive package artifact
         if: ${{ matrix.version != 'docker' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: debian-${{ matrix.distro }}
           path: |
