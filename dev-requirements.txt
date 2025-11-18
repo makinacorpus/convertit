@@ -16,7 +16,7 @@ flake8==7.3.0
     # via -r dev-requirements.in
 freezegun==1.5.5
     # via -r dev-requirements.in
-isort==6.0.1
+isort==7.0.0
     # via -r dev-requirements.in
 mccabe==0.7.0
     # via flake8
