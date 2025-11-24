@@ -30,7 +30,7 @@ jobs:
     continue-on-error: true
     name: Check flake8 rules
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
@@ -43,7 +43,7 @@ jobs:
     continue-on-error: true
     name: Check isort rules
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
@@ -67,7 +67,7 @@ jobs:
 
     name: Build ${{ matrix.distro }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Prepare debian versioning
         if: ${{ matrix.version != 'docker' }}
         run: |
@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-${{ matrix.version }}
     needs: [ build ]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@v6
         if: ${{ matrix.distro != 'docker' }}
         with:
@@ -206,7 +206,7 @@ jobs:
     needs: [ flake8, isort, e2e ]
     if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Download 20.04 debian artifact
         uses: actions/download-artifact@v6
