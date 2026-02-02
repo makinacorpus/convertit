@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-gunicorn==23.0.0
+gunicorn==25.0.0
     # via -r requirements.in
 hupper==1.12
     # via pyramid
