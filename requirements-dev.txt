@@ -8,7 +8,7 @@ flake8==7.4.1
     # via -r requirements-dev.in
 freezegun==1.5.5
     # via -r requirements-dev.in
-isort==7.0.0
+isort==9.0.1
     # via -r requirements-dev.in
 legacy-cgi==2.6.4
     # via
@@ -18,6 +18,8 @@ mccabe==0.7.0
     # via flake8
 mock==5.2.0
     # via -r requirements-dev.in
+mypy-extensions==1.1.0
+    # via isort
 pycodestyle==2.15.0
     # via flake8
 pyflakes==4.0.1
