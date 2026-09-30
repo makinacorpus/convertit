@@ -70,7 +70,7 @@ jobs:
       - name: Building package
         if: ${{ matrix.version != 'docker' }}
         run: |
-          VERSION=$(cat convertit/VERSION) make build_deb
+          VERSION="$(cat convertit/VERSION)" make build_deb
           cp ./dpkg/*.deb /home/runner/work/convertit/
 
       - name: Archive package artifact
