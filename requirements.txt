@@ -30,7 +30,7 @@ translationstring==1.4
     # via pyramid
 venusian==3.1.0
     # via pyramid
-webob==1.8.7
+webob==1.8.11
     # via pyramid
 zope-deprecation==6.0
     # via pyramid
