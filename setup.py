@@ -29,4 +29,10 @@ setup(name='convertit',
       [paste.app_factory]
       main = convertit:main
       """,
+      install_requires=[
+          "pyramid",
+            "python-magic",
+            "Pillow",
+            "gunicorn"
+      ]
       )

@@ -56,35 +56,28 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        version: ['24.04', '22.04', docker]
-        include:
-          - version: '24.04'
-            distro: noble
-          - version: '22.04'
-            distro: jammy
-          - version: docker
-            distro: docker image
+        version: [debian, docker]
 
-    name: Build ${{ matrix.distro }}
+    name: Build ${{ matrix.version }}
     steps:
       - uses: actions/checkout@v5
       - name: Prepare debian versioning
         if: ${{ matrix.version != 'docker' }}
         run: |
-          sed -i 's/+dev/.ubuntu${{ matrix.version }}~dev'$GITHUB_RUN_ID'/' debian/changelog
-          sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.ubuntu${{ matrix.version }}\2) ${{ matrix.distro }};/' debian/changelog
+          sed -i 's/+dev/.{{ matrix.version }}~dev'$GITHUB_RUN_ID'/' debian/changelog
+          sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.{{ matrix.version }}\2) ${{ matrix.distro }};/' debian/changelog
 
       - name: Building package
         if: ${{ matrix.version != 'docker' }}
         run: |
-          DISTRO=ubuntu:${{ matrix.distro }} make build_deb
+          make build_deb
           cp ./dpkg/*.deb /home/runner/work/convertit/
 
       - name: Archive package artifact
         if: ${{ matrix.version != 'docker' }}
         uses: actions/upload-artifact@v5
         with:
-          name: debian-${{ matrix.distro }}
+          name: debian-package
           path: |
             /home/runner/work/convertit/*.deb
 
@@ -107,8 +100,11 @@ jobs:
   e2e:
     strategy:
       matrix:
-        distro: [ noble, jammy, docker ]
+        distro: [ resolute, noble, jammy, docker ]
         include:
+          - distro: resolute
+            version: '26.04'
+
           - distro: noble
             version: '24.04'
 
@@ -126,7 +122,7 @@ jobs:
       - uses: actions/download-artifact@v6
         if: ${{ matrix.distro != 'docker' }}
         with:
-          name: debian-${{ matrix.distro }}
+          name: debian-package
 
       - name: Download image
         if: ${{ matrix.distro == 'docker' }}
@@ -208,20 +204,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Download 20.04 debian artifact
-        uses: actions/download-artifact@v6
+      - name: Download debian artifact
+        uses: actions/download-artifact@v5
         with:
-          name: debian-focal
-
-      - name: Download 22.04 debian artifact
-        uses: actions/download-artifact@v6
-        with:
-          name: debian-jammy
-
-      - name: Download 24.04 debian artifact
-        uses: actions/download-artifact@v6
-        with:
-          name: debian-noble
+          name: debian-package
 
       - name: Download docker image
         uses: ishworkh/container-image-artifact-download@v2.1.0
