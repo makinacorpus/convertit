@@ -2,7 +2,7 @@
 #    uv pip compile setup.py -o requirements.txt
 gunicorn==26.2.0
     # via convertit (setup.py)
-hupper==1.12
+hupper==1.12.1
     # via pyramid
 legacy-cgi==2.6.4
     # via convertit (setup.py)
