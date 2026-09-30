@@ -22,7 +22,7 @@ python-dateutil==2.8.2
     # via freezegun
 six==1.16.0
     # via python-dateutil
-soupsieve==2.5
+soupsieve==2.9
     # via beautifulsoup4
 waitress==3.0.2
     # via webtest
