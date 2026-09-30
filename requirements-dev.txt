@@ -2,7 +2,7 @@
 #    uv pip compile requirements-dev.in -o requirements-dev.txt
 beautifulsoup4==4.12.2
     # via webtest
-coverage==7.11.3
+coverage==7.16.2
     # via -r requirements-dev.in
 flake8==7.3.0
     # via -r requirements-dev.in
