@@ -1,22 +1,7 @@
 #!/usr/bin/make -f
 
-export DH_VIRTUALENV_INSTALL_ROOT=/opt
-
 %:
-	dh $@ --with python-virtualenv
-
-override_dh_virtualenv:
-	dh_virtualenv \
-	--python /usr/bin/python3 \
-	--extra-pip-arg --no-cache-dir \
-	--upgrade-pip \
-	--preinstall wheel \
-	--preinstall setuptools \
-	--builtin-venv
-
-	mkdir -p debian/convertit/usr/bin
-	mkdir -p debian/convertit/opt/convertit
-	cp production.ini debian/convertit/opt/convertit/convertit.ini
+	dh $@
 
 override_dh_auto_test: ;
 
@@ -24,4 +9,4 @@ override_dh_strip:
 	dh_strip --no-automatic-dbgsym
 
 override_dh_shlibdeps:
-	dh_shlibdeps --exclude=/site-packages/
+	dh_shlibdeps --exclude=/site-packages/ --exclude=/runtime/

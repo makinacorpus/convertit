@@ -1,7 +1,8 @@
 #!/bin/sh -e
 
-useradd --system --home /opt/convertit/home --create-home convertit || true
-mkdir -p /var/cache/convertit || true
-chown convertit:convertit /var/cache/convertit || true
+useradd --system --home /opt/convertit/home --create-home convertit 2>/dev/null || true
+mkdir -p /opt/convertit/home /var/cache/convertit /var/cache/convertit/downloads /var/cache/convertit/converted || true
+chown -R convertit:convertit /opt/convertit/home /var/cache/convertit || true
+chmod 750 /opt/convertit/home || true
 
 #DEBHELPER#

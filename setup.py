@@ -4,9 +4,10 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
+VERSION = open(os.path.join(here, 'convertit', 'VERSION'), encoding='utf-8').read().strip().replace('~', '.')
 
 setup(name='convertit',
-      version='2.2.6.dev0',
+      version=VERSION,
       description='A file conversion Web API in Pyramid',
       long_description=README,
       license='AGPLV3',
@@ -29,4 +30,11 @@ setup(name='convertit',
       [paste.app_factory]
       main = convertit:main
       """,
+      install_requires=[
+          "pyramid",
+            "python-magic",
+            "Pillow",
+            "gunicorn",
+            "legacy-cgi; python_version >= '3.13'"
+      ]
       )

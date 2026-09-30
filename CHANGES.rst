@@ -2,6 +2,15 @@
 CHANGELOG
 =========
 
+2.2.7 (2026-09-30)
+------------------
+
+- Update Docker image to Ubuntu 26.04 base
+- Use embedded python 3.14
+- Upgrade Pyramid and dependencies to latest versions
+- Debian package is now universal and can be installed on every supported debian like system.
+
+
 2.2.6 (2025-02-07)
 ------------------
 
