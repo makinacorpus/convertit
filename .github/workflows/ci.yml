@@ -295,9 +295,8 @@ jobs:
             ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} make debian_main -C /srv/packages
           fi
 
-      - name: Attach debian packages as release binaries
-        uses: skx/github-action-publish-binaries@master
+      - name: Upload assets to release
+        if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
+        run: gh release upload "${{ github.ref_name }}" *.deb --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: '*.deb'
