@@ -6,4 +6,3 @@ coverage
 freezegun
 flake8
 isort
-pip-tools
