@@ -28,7 +28,7 @@ setuptools==81.0.0
     #   zope-deprecation
 translationstring==1.4
     # via pyramid
-venusian==3.1.0
+venusian==3.1.1
     # via pyramid
 webob==1.8.11
     # via pyramid
