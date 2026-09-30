@@ -146,12 +146,27 @@ jobs:
         if: ${{ matrix.distro != 'docker' }}
         run: |
           sudo apt -qq update
-          sudo apt-get -yqq install --no-install-recommends /home/runner/work/convertit/convertit/*.deb || exit 0;
+          sudo apt-get -yqq install --no-install-recommends /home/runner/work/convertit/convertit/*.deb
 
       - name: Run docker image (if required)
         if: ${{ matrix.distro == 'docker' }}
         run: |
           docker run -p 6543:6543 -d convertit:latest
+
+      - name: Wait for convertit service
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:6543/ >/dev/null 2>&1 || wget -q -O- http://localhost:6543/ >/dev/null 2>&1; then
+              echo "convertit service is ready!"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "convertit service failed to start within 30s"
+          if command -v systemctl >/dev/null 2>&1; then
+            sudo journalctl -u convertit.service --no-pager 2>/dev/null || true
+          fi
+          exit 1
 
       - name: Test ODT / PDF conversion
         run: |

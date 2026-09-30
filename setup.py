@@ -34,6 +34,7 @@ setup(name='convertit',
           "pyramid",
             "python-magic",
             "Pillow",
-            "gunicorn"
+            "gunicorn",
+            "legacy-cgi; python_version >= '3.13'"
       ]
       )

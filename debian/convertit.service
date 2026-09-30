@@ -4,11 +4,13 @@ After=network.target
 
 [Service]
 ExecStart=/opt/convertit/bin/pserve /opt/convertit/convertit.ini
+WorkingDirectory=/opt/convertit
 RuntimeDirectory=convertit
 Restart=on-failure
 User=convertit
 Group=convertit
 UMask=007
+Environment="HOME=/opt/convertit/home"
 
 [Install]
 WantedBy=multi-user.target
