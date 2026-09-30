@@ -1,34 +1,33 @@
-ARG DISTRO=ubuntu:focal
+ARG DISTRO=debian:bookworm
+
+FROM ghcr.io/astral-sh/uv:latest AS uv
 
 FROM ${DISTRO} AS base
 
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -qq -o Acquire::Languages=none && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -yqq lsb-release && \
-    if test "$(lsb_release -cs)" = 'focal' ; then \
-       env DEBIAN_FRONTEND=noninteractive apt-get install -yqq software-properties-common wget && \
-       printf "deb [arch=amd64] https://packages.geotrek.fr/ubuntu focal main" > /etc/apt/sources.list.d/geotrek.list && \
-       wget -O- "https://packages.geotrek.fr/geotrek.gpg.key" | apt-key add - && \
-       add-apt-repository ppa:jyrki-pulliainen/dh-virtualenv; fi &&\
-    env DEBIAN_FRONTEND=noninteractive apt-get install -yqq \
+    apt-get install -yqq --no-install-recommends \
     dpkg-dev \
     debhelper \
-    dh-virtualenv \
     git \
     devscripts \
-    equivs
+    equivs \
+    ca-certificates \
+    lsb-release \
+    && rm -rf /var/lib/apt/lists/*
 
+COPY --from=uv /uv /usr/local/bin/uv
 
-WORKDIR /dpkg-build
-COPY debian ./debian
+WORKDIR /workspace
+COPY . /workspace
 
-RUN env DEBIAN_FRONTEND=noninteractive mk-build-deps --install --tool='apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes' debian/control
+ARG PYTHON_VERSION=3.14
+ENV PYTHON_VERSION=${PYTHON_VERSION}
 
-COPY . ./
-WORKDIR /dpkg-build
+ARG VERSION=""
+ENV DEB_VERSION=${VERSION}
 
-RUN sed -i -re "1s/..UNRELEASED/.ubuntu$(lsb_release -rs)) $(lsb_release -cs)/" debian/changelog \
-    && chmod a-x debian/convertit.*
-RUN dpkg-buildpackage -us -uc -b && mkdir -p /dpkg && cp -pl /convertit[-_]* /dpkg \
-    && dpkg-deb -I /dpkg/convertit*.deb
+RUN chmod +x .docker/build-deb.sh && .docker/build-deb.sh
+
 WORKDIR /dpkg
