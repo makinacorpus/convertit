@@ -92,7 +92,7 @@ jobs:
       - name: Set up Docker Buildx
         if: ${{ matrix.version == 'docker' }}
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Docker image
         if: ${{ matrix.version == 'docker' }}
@@ -254,7 +254,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Extract metadata
         id: meta
