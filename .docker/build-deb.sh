@@ -8,12 +8,66 @@ TARGET_DIR="/opt/convertit"
 PKG_ROOT="/tmp/pkg-dist"
 PYTHON_VERSION="${PYTHON_VERSION:-3.14}"
 
-# Update changelog distribution if UNRELEASED
-if grep -q "UNRELEASED" debian/changelog 2>/dev/null; then
-    sed -i -re "1s/..UNRELEASED/.ubuntu$(lsb_release -rs)) $(lsb_release -cs)/" debian/changelog
+# Détermination robuste de la version du paquet Debian
+VERSION=""
+
+# 1. Depuis DEB_VERSION ou VERSION (passé en build-arg / env)
+if [ -n "${DEB_VERSION:-}" ] && [ "${DEB_VERSION}" != "unknown" ]; then
+    VERSION="${DEB_VERSION}"
+elif [ -n "${VERSION:-}" ] && [ "${VERSION}" != "unknown" ]; then
+    VERSION="${VERSION}"
 fi
 
-VERSION="${DEB_VERSION:-$(dpkg-parsechangelog -S Version 2>/dev/null || sed -n '1s/.*(\(.*\)).*/\1/p' debian/changelog || echo "2.2.6")}"
+# 2. Depuis le fichier convertit/VERSION
+if [ -z "${VERSION}" ] && [ -f convertit/VERSION ]; then
+    FILE_VER="$(tr -d '[:space:]' < convertit/VERSION 2>/dev/null || true)"
+    if [ -n "${FILE_VER}" ] && [ "${FILE_VER}" != "unknown" ]; then
+        VERSION="${FILE_VER}"
+    fi
+fi
+
+# 3. Depuis dpkg-parsechangelog si valide
+if [ -z "${VERSION}" ] && [ -f debian/changelog ]; then
+    CL_VER="$(dpkg-parsechangelog -S Version 2>/dev/null || true)"
+    if [ -n "${CL_VER}" ] && [ "${CL_VER}" != "unknown" ]; then
+        VERSION="${CL_VER}"
+    fi
+fi
+
+# 4. Extraction directe depuis la première ligne de debian/changelog
+if [ -z "${VERSION}" ] && [ -f debian/changelog ]; then
+    HEADER_VER="$(sed -n '1s/^[a-zA-Z0-9_-]\+ *(\([^)]*\)).*/\1/p' debian/changelog 2>/dev/null || true)"
+    if [ -n "${HEADER_VER}" ] && [ "${HEADER_VER}" != "unknown" ]; then
+        VERSION="${HEADER_VER}"
+    fi
+fi
+
+# 5. Valeur de secours par défaut
+if [ -z "${VERSION}" ]; then
+    VERSION="2.2.6"
+fi
+
+# Nettoyage de la version (suppression des espaces et du préfixe 'v')
+VERSION="$(echo "${VERSION}" | tr -d '[:space:]' | sed 's/^v//')"
+
+# Validation : doit commencer par un chiffre pour être accepté par dpkg
+if ! echo "${VERSION}" | grep -q '^[0-9]'; then
+    echo "AVERTISSEMENT: La version '${VERSION}' ne commence pas par un chiffre, repli sur '2.2.6'" >&2
+    VERSION="2.2.6"
+fi
+
+# Nettoyage et vérification de la validité de debian/changelog
+if [ -f debian/changelog ]; then
+    if grep -q "UNRELEASED" debian/changelog 2>/dev/null; then
+        sed -i -re "1s/\) UNRELEASED;/\) stable;/" debian/changelog
+    fi
+    CL_TEST="$(dpkg-parsechangelog -S Version 2>/dev/null || true)"
+    if [ -z "${CL_TEST}" ] || [ "${CL_TEST}" = "unknown" ]; then
+        sed -i "1s/^[a-zA-Z0-9_-]\+ *([^)]*) *[^;]*;/convertit (${VERSION}) stable;/" debian/changelog 2>/dev/null || true
+    fi
+fi
+
+echo "=== Version Debian retenue : ${VERSION} ==="
 
 echo "=== 1. Résolution et installation des dépendances de build (mk-build-deps) ==="
 apt-get update -qq

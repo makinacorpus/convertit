@@ -25,6 +25,9 @@ COPY . /workspace
 ARG PYTHON_VERSION=3.14
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 
+ARG VERSION=""
+ENV DEB_VERSION=${VERSION}
+
 RUN chmod +x .docker/build-deb.sh && .docker/build-deb.sh
 
 WORKDIR /dpkg

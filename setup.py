@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
-VERSION = open(os.path.join(here, 'convertit', 'VERSION'), encoding='utf-8').read().strip()
+VERSION = open(os.path.join(here, 'convertit', 'VERSION'), encoding='utf-8').read().strip().replace('~', '.')
 
 setup(name='convertit',
       version=VERSION,

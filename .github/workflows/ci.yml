@@ -64,14 +64,22 @@ jobs:
       - name: Prepare debian versioning
         if: ${{ matrix.version != 'docker' }}
         run: |
-          sed -i 's/+dev/.{{ matrix.version }}~dev'$GITHUB_RUN_ID'/' debian/changelog
-          sed -i 's/convertit (\([0-9]\+\.[0-9]\+\.[0-9]\+\)\(.*\)) RELEASED;/convertit (\1.{{ matrix.version }}\2) ${{ matrix.distro }};/' debian/changelog
+          RAW_VER="$(cat convertit/VERSION | tr -d '[:space:]')"
+          BASE_VER="$(echo "$RAW_VER" | sed -E 's/[-+]dev.*//; s/^v//')"
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            PKG_VER="${BASE_VER}"
+          else
+            PKG_VER="${BASE_VER}~dev${GITHUB_RUN_ID}"
+          fi
+          echo "$PKG_VER" > convertit/VERSION
+          sed -i "1s/convertit (\([^)]*\)) [^;]*;/convertit (${PKG_VER}) stable;/" debian/changelog
 
       - name: Building package
         if: ${{ matrix.version != 'docker' }}
         run: |
           VERSION="$(cat convertit/VERSION)" make build_deb
-          cp ./dpkg/*.deb /home/runner/work/convertit/
+          cp ./dpkg/*.deb /home/runner/work/convertit/ 2>/dev/null || true
+          cp ./dpkg/*.deb ./ 2>/dev/null || true
 
       - name: Archive package artifact
         if: ${{ matrix.version != 'docker' }}
@@ -79,7 +87,7 @@ jobs:
         with:
           name: debian-package
           path: |
-            /home/runner/work/convertit/*.deb
+            ./dpkg/*.deb
 
       - name: Set up Docker Buildx
         if: ${{ matrix.version == 'docker' }}
@@ -123,6 +131,7 @@ jobs:
         if: ${{ matrix.distro != 'docker' }}
         with:
           name: debian-package
+          path: /home/runner/work/convertit/convertit/
 
       - name: Download image
         if: ${{ matrix.distro == 'docker' }}
@@ -205,9 +214,10 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download debian artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: debian-package
+          path: /home/runner/work/convertit/convertit/
 
       - name: Download docker image
         uses: ishworkh/container-image-artifact-download@v2.1.0

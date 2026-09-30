@@ -1,2 +1,3 @@
 include *.txt *.ini *.cfg *.rst
 recursive-include convertit *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
+include convertit/VERSION
