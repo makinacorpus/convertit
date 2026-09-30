@@ -1,11 +1,11 @@
-ARG DISTRO=noble
+ARG DISTRO=resolute
 
 FROM ghcr.io/astral-sh/uv:latest AS uv
 
 FROM ubuntu:${DISTRO} AS base
 LABEL org.opencontainers.image.authors="Makina Corpus <contact@makina-corpus.com>"
 
-RUN apt-get update && apt-get install -y -qq libreoffice default-jre libreoffice-java-common inkscape libmagic1 && \
+RUN apt-get update && apt-get install -y -qq libreoffice default-jre libreoffice-java-common inkscape libmagic1t64 && \
     apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
 
 WORKDIR /opt/apps/convertit
