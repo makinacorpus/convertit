@@ -10,7 +10,7 @@ packaging==23.2
     # via gunicorn
 pastedeploy==3.1.0
     # via plaster-pastedeploy
-pillow==11.3.0
+pillow==12.3.0
     # via convertit (setup.py)
 plaster==1.1.2
     # via
