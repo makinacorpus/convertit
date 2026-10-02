@@ -22,7 +22,7 @@ pyramid==2.1
     # via convertit (setup.py)
 python-magic==0.4.27
     # via convertit (setup.py)
-setuptools==81.0.0
+setuptools==84.0.0
     # via
     #   pyramid
     #   zope-deprecation
