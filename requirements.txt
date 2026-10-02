@@ -6,7 +6,7 @@ hupper==1.12.1
     # via pyramid
 legacy-cgi==2.6.4
     # via convertit (setup.py)
-packaging==23.2
+packaging==26.3
     # via gunicorn
 pastedeploy==3.1.0
     # via plaster-pastedeploy
