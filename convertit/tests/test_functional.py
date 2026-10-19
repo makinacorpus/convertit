@@ -1,49 +1,49 @@
 import os
 import shutil
-import unittest
 import urllib
+from unittest.mock import Mock, patch
 
-from mock import Mock, patch
-from pyramid.paster import setup_logging
-from webtest import TestApp
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 
-from convertit import main
+from convertit import create_dir
 
 here = os.path.dirname(__file__)
 data_path = os.path.join(here, 'data')
-settings = {
-    'convertit.converted_path': os.path.join(data_path, 'converted'),
-    'convertit.downloads_path': os.path.join(data_path, 'downloads'),
-    'convertit.converted_url': 'converted',
-    'convertit.converters': """
-        convertit.converters.unoconv
-        convertit.converters.inkscape
-    """,
-    'convertit.converted_name': '{url_hostname}_{url_port}_{url_dirname}_'
+TEST_SETTINGS = {
+    'CONVERTIT_CONVERTED_PATH': os.path.join(data_path, 'converted'),
+    'CONVERTIT_DOWNLOADS_PATH': os.path.join(data_path, 'downloads'),
+    'CONVERTIT_CONVERTED_URL': 'converted',
+    'CONVERTIT_CONVERTERS': [
+        'convertit.converters.unoconv',
+        'convertit.converters.inkscape',
+    ],
+    'CONVERTIT_CONVERTED_NAME': '{url_hostname}_{url_port}_{url_dirname}_'
                                 '{url_filename}{extension}',
 }
 
-setup_logging(os.path.join(here, '../../production.ini'))
 
-
-class FunctionalTests(unittest.TestCase):
+@override_settings(**TEST_SETTINGS)
+class FunctionalTests(TestCase):
     def setUp(self):
-        app = main({}, **settings)
-        self.testapp = TestApp(app)
+        create_dir(TEST_SETTINGS['CONVERTIT_CONVERTED_PATH'])
+        create_dir(TEST_SETTINGS['CONVERTIT_DOWNLOADS_PATH'])
 
     def tearDown(self):
-        shutil.rmtree(settings['convertit.converted_path'])
-        shutil.rmtree(settings['convertit.downloads_path'])
+        shutil.rmtree(TEST_SETTINGS['CONVERTIT_CONVERTED_PATH'])
+        shutil.rmtree(TEST_SETTINGS['CONVERTIT_DOWNLOADS_PATH'])
 
     def odt_data(self):
         odt_path = os.path.join(data_path, 'test_document.odt')
-        return open(odt_path, 'rb').read()
+        with open(odt_path, 'rb') as f:
+            return f.read()
 
     def test_no_url(self):
         "Get homepage without any `url` param"
 
-        resp = self.testapp.get('/', status=400)
-        self.assertTrue(b'Missing parameter' in resp.body)
+        resp = self.client.get('/')
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(b'Missing parameter' in resp.content)
 
     def test_with_valid_url(self):
         "Get homepage with valid `url` param"
@@ -53,34 +53,43 @@ class FunctionalTests(unittest.TestCase):
             mock_req = Mock()
             mock_req.read.return_value = self.odt_data()
             mock_urlopen.return_value = mock_req
-            resp = self.testapp.get('/', params={'url': url}, status=302)
+            resp = self.client.get('/', {'url': url})
+            self.assertEqual(resp.status_code, 302)
             mock_urlopen.assert_called_once_with(url)
-            filename = os.path.basename(resp.location)
-            filepath = os.path.join(settings['convertit.converted_path'],
+            filename = os.path.basename(resp['Location'])
+            self.assertEqual(
+                resp['Content-Disposition'],
+                f'attachment; filename={filename}',
+            )
+            filepath = os.path.join(TEST_SETTINGS['CONVERTIT_CONVERTED_PATH'],
                                     filename)
             self.assertTrue(os.path.exists(filepath))
+            file_resp = self.client.get(resp['Location'])
+            self.assertEqual(file_resp.status_code, 200)
 
     def test_with_valid_url_toword(self):
         "Get homepage with valid `url` param"
 
         url = 'http://example.com/test_document.odt'
-        converted_path = settings['convertit.converted_path']
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
         with patch.object(urllib.request, 'urlopen') as mock_urlopen:
             mock_req = Mock()
             mock_req.read.return_value = self.odt_data()
             mock_urlopen.return_value = mock_req
             request_params = {'url': url, 'to': 'application/msword'}
-            resp = self.testapp.get('/', params=request_params, status=302)
+            resp = self.client.get('/', request_params)
+            self.assertEqual(resp.status_code, 302)
             mock_urlopen.assert_called_once_with(url)
-            filename = os.path.basename(resp.location)
+            filename = os.path.basename(resp['Location'])
             filepath = os.path.join(converted_path, filename)
             self.assertTrue(os.path.exists(filepath))
 
     def test_invalid_url_type(self):
         "Get homepage with `url` missing a protocol identifier"
         url = 'www.example.com/test_document.odt'
-        resp = self.testapp.get('/', params={'url': url}, status=400)
-        self.assertTrue(b"unknown url type" in resp.body)
+        resp = self.client.get('/', {'url': url})
+        self.assertEqual(resp.status_code, 400)
+        self.assertTrue(b"unknown url type" in resp.content)
 
     def test_x_forwarded_for_replacement(self):
         "Get supports {X_FORWARDED_FOR} placeholder in `url`"
@@ -92,11 +101,12 @@ class FunctionalTests(unittest.TestCase):
             mock_req = Mock()
             mock_req.read.return_value = self.odt_data()
             mock_urlopen.return_value = mock_req
-            resp = self.testapp.get('/', params={'url': url}, status=302,
-                                    headers={'X_FORWARDED_FOR': x_forwarded_for})
+            resp = self.client.get('/', {'url': url},
+                                   HTTP_X_FORWARDED_FOR=x_forwarded_for)
+            self.assertEqual(resp.status_code, 302)
             mock_urlopen.assert_called_once_with(expected_url)
-            filename = os.path.basename(resp.location)
-            filepath = os.path.join(settings['convertit.converted_path'],
+            filename = os.path.basename(resp['Location'])
+            filepath = os.path.join(TEST_SETTINGS['CONVERTIT_CONVERTED_PATH'],
                                     filename)
             self.assertTrue(os.path.exists(filepath))
 
@@ -109,9 +119,10 @@ class FunctionalTests(unittest.TestCase):
             mock_urlopen.return_value = mock_req
 
             request_params = {'url': url, 'to': 'application/pdfnocontent'}
-            resp = self.testapp.get('/', params=request_params, status=400)
+            resp = self.client.get('/', request_params)
+            self.assertEqual(resp.status_code, 400)
 
-            self.assertIn(b'Unsupported transform', resp.body)
+            self.assertIn(b'Unsupported transform', resp.content)
 
     def test_invalid_hostname(self):
         "Get homepage with `url` that triggers a DNS resolution error"
@@ -119,8 +130,9 @@ class FunctionalTests(unittest.TestCase):
             url = 'http://example.com/test_document.odt'
             message = "Name or service not known"
             mock_urlopen.side_effect = urllib.error.URLError(message)
-            resp = self.testapp.get('/', params={'url': url}, status=400)
-            self.assertIn(b"Name or service not known", resp.body)
+            resp = self.client.get('/', {'url': url})
+            self.assertEqual(resp.status_code, 400)
+            self.assertIn(b"Name or service not known", resp.content)
 
     def test_forbidden_url(self):
         "Get homepage with `url` that is forbidden"
@@ -129,14 +141,16 @@ class FunctionalTests(unittest.TestCase):
             mock_urlopen.side_effect = urllib.error.HTTPError(
                 url, 403, "Forbidden access", [], None
             )
-            resp = self.testapp.get('/', params={'url': url}, status=403)
-            self.assertIn(b"Forbidden access", resp.body)
+            resp = self.client.get('/', {'url': url})
+            self.assertEqual(resp.status_code, 403)
+            self.assertIn(b"Forbidden access", resp.content)
 
     def test_post(self):
         "Get post document"
-        upload_files = [('file', 'test_document.odt', self.odt_data())]
-        converted_path = settings['convertit.converted_path']
-        resp = self.testapp.post('/', upload_files=upload_files, status=302)
-        filename = os.path.basename(resp.location)
+        uploaded_file = SimpleUploadedFile('test_document.odt', self.odt_data())
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        resp = self.client.post('/', {'file': uploaded_file})
+        self.assertEqual(resp.status_code, 302)
+        filename = os.path.basename(resp['Location'])
         filepath = os.path.join(converted_path, filename)
         self.assertTrue(os.path.exists(filepath))

@@ -15,3 +15,10 @@ build_deb:
 
 deps:
 	docker compose run --remove-orphans --no-deps --rm web bash -c "uv pip compile setup.py -o requirements.txt && uv pip compile requirements-dev.in -o requirements-dev.txt"
+
+quality:
+	@if command -v ruff >/dev/null 2>&1; then \
+		ruff check convertit; \
+	else \
+		docker compose run --remove-orphans --no-deps --rm web /opt/venv/bin/ruff check convertit; \
+	fi

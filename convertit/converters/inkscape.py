@@ -31,7 +31,7 @@ def svg_to_pdf(source, target):
         ]
     else:
         command = [
-            'inkscape', '--export-filename', path,
+            'inkscape', '--export-filename', path, source
         ]
     subprocess.call(command)
 
@@ -45,7 +45,7 @@ def svg_to_png(source, target):
 
     else:
         command = [
-            'inkscape', '--export-filename', path, ]
+            'inkscape', '--export-filename', path, source]
     subprocess.call(command)
 
 

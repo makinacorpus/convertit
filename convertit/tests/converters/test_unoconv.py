@@ -1,13 +1,14 @@
 import os
 import shutil
-import unittest
+
+from django.test import TestCase
 
 from convertit.converters import unoconv
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
-class UnoconvConvertionTests(unittest.TestCase):
+class UnoconvConvertionTests(TestCase):
     temp_dir = os.path.join(here, '../data/tmp')
     odt_filepath = os.path.join(here, '../data/test_document.odt')
     pdf_filepath = os.path.join(here, '../data/test_document.pdf')
@@ -26,5 +27,5 @@ class UnoconvConvertionTests(unittest.TestCase):
 
     def test_odt_to_pdf_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_document.pdf')
-        unoconv.to_pdf(self.odt_filepath, converted_filepath)
+        unoconv.to_pdf(self.odt_filepath, self.temp_dir)
         self.assertTrue(os.path.exists(converted_filepath))

@@ -109,7 +109,7 @@ Using *gunicorn* for example :
 
 ::
 
-    gunicorn --workers=1 --paste=production.ini
+    gunicorn --workers=1 -c python:convertit.gunicorn_conf convertit.wsgi:application
 
 Using Docker :
 

@@ -3,7 +3,7 @@ Description=Format conversion webservice
 After=network.target
 
 [Service]
-ExecStart=/opt/convertit/bin/pserve /opt/convertit/convertit.ini
+ExecStart=/opt/convertit/bin/gunicorn -c python:convertit.gunicorn_conf convertit.wsgi:application
 WorkingDirectory=/opt/convertit
 RuntimeDirectory=convertit
 Restart=on-failure
@@ -11,6 +11,8 @@ User=convertit
 Group=convertit
 UMask=007
 Environment="HOME=/opt/convertit/home"
+Environment="CONVERTIT_INI=/opt/convertit/convertit.ini"
+Environment="DJANGO_SETTINGS_MODULE=convertit.settings"
 
 [Install]
 WantedBy=multi-user.target
