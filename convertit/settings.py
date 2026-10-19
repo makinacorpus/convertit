@@ -122,7 +122,6 @@ CONVERTIT_CONVERTERS = os.environ.get(
     "CONVERTIT_CONVERTERS",
     INI_APP_SETTINGS.get(
         "convertit.converters",
-        "convertit.converters.unoconv\nconvertit.converters.cairosvg",
     ),
 ).split()
 
