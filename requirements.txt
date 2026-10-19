@@ -34,5 +34,5 @@ webob==1.8.11
     # via pyramid
 zope-deprecation==6.0
     # via pyramid
-zope-interface==8.6
+zope-interface==8.7
     # via pyramid
