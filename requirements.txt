@@ -7,26 +7,10 @@ django==5.2.18
 gunicorn==26.2.0
     # via convertit (setup.py)
 packaging==26.3
-    # via gunicorn
-pastedeploy==3.1.0
-    # via plaster-pastedeploy
-pillow==12.3.0
     # via convertit (setup.py)
 pillow==12.3.0
     # via convertit (setup.py)
 python-magic==0.4.27
     # via convertit (setup.py)
-setuptools==81.0.0
-    # via
-    #   pyramid
-    #   zope-deprecation
-translationstring==1.4
-    # via pyramid
-venusian==3.1.1
-    # via pyramid
-webob==1.8.11
-    # via pyramid
-zope-deprecation==6.0
-    # via pyramid
-zope-interface==8.7
-    # via pyramid
+sqlparse==0.6.0
+    # via django
