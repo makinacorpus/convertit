@@ -31,8 +31,7 @@ RUN uv venv /opt/venv --python ${PYTHON_VERSION}
 
 COPY requirements.txt /requirements.txt
 
-RUN uv pip install --no-cache --python /opt/venv/bin/python "setuptools<81" wheel && \
-    uv pip install --no-cache --python /opt/venv/bin/python -r /requirements.txt
+RUN uv pip install --no-cache --python /opt/venv/bin/python -r /requirements.txt
 
 COPY convertit /opt/apps/convertit/convertit
 COPY manage.py /opt/apps/convertit/manage.py
