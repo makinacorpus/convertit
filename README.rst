@@ -76,7 +76,7 @@ INSTALL
 System dependencies
 -------------------
 * for *OpenDocument* support: ``libreoffice``
-* for *SVG* support: ``inkscape``
+* for *SVG* support: ``libcairo2`` (used by ``CairoSVG``)
 
 Conversion binaries should be in system ``PATH`` (``which`` is used internally.)
 

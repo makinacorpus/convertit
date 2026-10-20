@@ -15,7 +15,7 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends},
  libmagic1 | libmagic1t64,
- inkscape,
+ libcairo2,
  libreoffice,
  default-jre,
  libreoffice-java-common
