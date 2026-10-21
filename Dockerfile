@@ -31,10 +31,10 @@ RUN uv venv /opt/venv --python ${PYTHON_VERSION}
 
 COPY requirements.txt /requirements.txt
 
-RUN uv pip install --no-cache --python /opt/venv/bin/python "setuptools<81" wheel && \
-    uv pip install --no-cache --python /opt/venv/bin/python -r /requirements.txt
+RUN uv pip install --no-cache --python /opt/venv/bin/python -r /requirements.txt
 
 COPY convertit /opt/apps/convertit/convertit
+COPY manage.py /opt/apps/convertit/manage.py
 COPY setup.py /opt/apps/convertit/setup.py
 COPY README.rst /opt/apps/convertit/README.rst
 
@@ -52,6 +52,7 @@ FROM base AS prod
 COPY --from=build /opt/python /opt/python
 COPY --from=build /opt/venv /opt/venv
 COPY convertit /opt/apps/convertit/convertit
+COPY manage.py /opt/apps/convertit/manage.py
 COPY setup.py /opt/apps/convertit/setup.py
 COPY README.rst /opt/apps/convertit/README.rst
 COPY docker.ini /opt/apps/convertit/production.ini

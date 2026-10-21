@@ -73,7 +73,7 @@ to_xls = partial(convert, output_format='xls')
 
 
 def is_available():
-    return exists('unoconv')
+    return exists('libreoffice')
 
 
 def converters():

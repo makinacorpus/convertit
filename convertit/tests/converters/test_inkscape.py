@@ -1,13 +1,14 @@
 import os
 import shutil
-import unittest
+
+from django.test import TestCase
 
 from convertit.converters import inkscape
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
-class InkscapeConvertionTests(unittest.TestCase):
+class InkscapeConvertionTests(TestCase):
     temp_dir = os.path.join(here, '../data/tmp')
     svg_filepath = os.path.join(here, '../data/test_svg.svg')
     pdf_filepath = os.path.join(here, '../data/test_svg.pdf')
@@ -26,10 +27,10 @@ class InkscapeConvertionTests(unittest.TestCase):
 
     def test_svg_to_pdf_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_svg.pdf')
-        inkscape.svg_to_pdf(self.svg_filepath, converted_filepath)
+        inkscape.svg_to_pdf(self.svg_filepath, self.temp_dir)
         self.assertTrue(os.path.exists(converted_filepath))
 
     def test_svg_to_png_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_svg.png')
-        inkscape.svg_to_png(self.svg_filepath, converted_filepath)
+        inkscape.svg_to_png(self.svg_filepath, self.temp_dir)
         self.assertTrue(os.path.exists(converted_filepath))

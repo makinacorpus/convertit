@@ -1,13 +1,13 @@
-import unittest
 import urllib
+from unittest.mock import MagicMock, patch
 
+from django.test import TestCase
 from freezegun import freeze_time
-from mock import MagicMock, patch
 
 from convertit.helpers import download_file, remove_files_older_than
 
 
-class RemoveFilesOlderThanTests(unittest.TestCase):
+class RemoveFilesOlderThanTests(TestCase):
     @patch('os.remove')
     @patch('os.path.getmtime')
     @patch('os.listdir')
@@ -35,7 +35,7 @@ class RemoveFilesOlderThanTests(unittest.TestCase):
         remove_mock.assert_not_called()
 
 
-class DownloadUrlTest(unittest.TestCase):
+class DownloadUrlTest(TestCase):
     @patch.object(urllib.request, 'urlopen')
     def test_download_can_specify_headers(self, urlopen_mock):
         response = MagicMock()

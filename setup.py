@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
@@ -8,33 +8,30 @@ VERSION = open(os.path.join(here, 'convertit', 'VERSION'), encoding='utf-8').rea
 
 setup(name='convertit',
       version=VERSION,
-      description='A file conversion Web API in Pyramid',
+      description='A file conversion Web API in Django',
       long_description=README,
       license='AGPLV3',
       classifiers=[
           "License :: OSI Approved :: GNU Affero General Public License v3",
           "Programming Language :: Python",
-          "Framework :: Pylons",
+          "Framework :: Django",
+          "Framework :: Django :: 5.2",
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
       ],
       author='Makina Corpus',
       author_email='python@makina-corpus.org',
       url='https://github.com/makinacorpus/convertit',
-      keywords='web pyramid webservice convert',
+      keywords='web django webservice convert',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
       test_suite="convertit",
-      entry_points="""\
-      [paste.app_factory]
-      main = convertit:main
-      """,
       install_requires=[
-          "pyramid",
-            "python-magic",
-            "Pillow",
-            "gunicorn",
-            "legacy-cgi; python_version >= '3.13'"
+          "Django>=5.2,<5.3",
+          "python-magic",
+          "Pillow",
+          "gunicorn",
+          "packaging",
       ]
       )

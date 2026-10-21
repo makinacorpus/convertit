@@ -1,16 +1,16 @@
-import unittest
+from unittest.mock import MagicMock, patch
 
-from mock import MagicMock, patch
+from django.test import TestCase, override_settings
 
 from convertit.views import download
 
 
-class DownloadTest(unittest.TestCase):
+class DownloadTest(TestCase):
+    @override_settings(CONVERTIT_DOWNLOADS_PATH='/path')
     @patch('convertit.views.download_file')
     def test_download_using_original_request_language(self,
                                                       download_file_mock):
         fakerequest = MagicMock()
-        fakerequest.registry.settings = {'convertit.downloads_path': '/path'}
         fakerequest.headers = {
             'Accept-language': 'fr',
             'Host': 'localhost:1234'

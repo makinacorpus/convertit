@@ -1,20 +1,27 @@
+import importlib
 import logging
 import os
 import urllib
+import urllib.error
+import urllib.parse
+import urllib.request
 from functools import partial
 from mimetypes import guess_extension
 from uuid import uuid4
 
 import magic
-from pyramid.httpexceptions import (
-    HTTPBadRequest,
-    HTTPError,
-    HTTPFound,
-    HTTPInternalServerError,
+from django.conf import settings
+from django.http import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseNotAllowed,
+    HttpResponseRedirect,
+    HttpResponseServerError,
 )
-from pyramid.url import static_url
-from pyramid.view import view_config
+from django.views.decorators.csrf import csrf_exempt
+from django.views.static import serve as static_serve
 
+from convertit import create_dir
 from convertit.helpers import (
     download_file,
     remove_files_older_than,
@@ -25,51 +32,78 @@ seconds_in_hour = 3600
 log = logging.getLogger(__name__)
 
 
-def remove_old_files(request):
-    settings = request.registry.settings
+class ConvertitHttpException(Exception):
+    def __init__(self, body, status=400, content_type='text/plain'):
+        super().__init__(body)
+        self.body = body
+        self.status = status
+        self.content_type = content_type
 
-    downloads_path = settings['convertit.downloads_path']
-    converted_path = settings['convertit.converted_path']
+    def to_response(self):
+        return HttpResponse(
+            self.body, status=self.status, content_type=self.content_type
+        )
 
-    downloads_max_age = settings.get('convertit.downloads_max_age',
-                                     seconds_in_hour)
-    converted_max_age = settings.get('convertit.converted_max_age',
-                                     seconds_in_hour)
 
-    remove_files_older_than(int(downloads_max_age), downloads_path)
-    remove_files_older_than(int(converted_max_age), converted_path)
+def remove_old_files(request=None):
+    downloads_path = settings.CONVERTIT_DOWNLOADS_PATH
+    converted_path = settings.CONVERTIT_CONVERTED_PATH
+
+    downloads_max_age = getattr(
+        settings, 'CONVERTIT_DOWNLOADS_MAX_AGE', seconds_in_hour
+    )
+    converted_max_age = getattr(
+        settings, 'CONVERTIT_CONVERTED_MAX_AGE', seconds_in_hour
+    )
+
+    if os.path.exists(downloads_path):
+        remove_files_older_than(int(downloads_max_age), downloads_path)
+    if os.path.exists(converted_path):
+        remove_files_older_than(int(converted_max_age), converted_path)
 
 
 def save(request, uploaded_file):
-    downloads_path = request.registry.settings['convertit.downloads_path']
-    target_file = os.path.join(downloads_path, str(uuid4()))
+    downloads_path = settings.CONVERTIT_DOWNLOADS_PATH
+    create_dir(downloads_path)
+    filename = getattr(uploaded_file, 'name', None) or getattr(
+        uploaded_file, 'filename', None
+    )
+    target_name = os.path.basename(filename) if filename else str(uuid4())
+    target_file = os.path.join(downloads_path, target_name)
     with open(target_file, 'wb') as f:
         f.write(uploaded_file.read())
     return target_file
 
 
 def download(request, url):
-    downloads_path = request.registry.settings['convertit.downloads_path']
+    downloads_path = settings.CONVERTIT_DOWNLOADS_PATH
 
-    message_template = "Sorry, there was an error fetching the document '{url}'. Reason: {e}"
+    message_template = (
+        "Sorry, there was an error fetching the document '{url}'. Reason: {e}"
+    )
     try:
-        downloaded_filepath = download_file(url,
-                                            downloads_path,
-                                            headers=request.headers)
+        downloaded_filepath = download_file(
+            url, downloads_path, headers=request.headers
+        )
         return downloaded_filepath
     except ValueError as e:
         message = message_template.format(url=url, e=str(e))
         log.error(message)
-        raise HTTPBadRequest(body=message, content_type='text/plain')
+        raise ConvertitHttpException(
+            body=message, status=400, content_type='text/plain'
+        )
     except urllib.error.HTTPError as e:
         message = message_template.format(url=url, e=str(e))
         log.error(message)
-        raise HTTPError(body=message, status_int=e.getcode(),
-                        content_type='text/plain')
+        raise ConvertitHttpException(
+            body=message, status=e.getcode(), content_type='text/plain'
+        )
     except urllib.error.URLError as e:
         message = message_template.format(url=url, e=str(e))
         log.error(message)
-        raise HTTPBadRequest(body=message, content_type='text/plain')
+        raise ConvertitHttpException(
+            body=message, status=400, content_type='text/plain'
+        )
 
 
 def get_input_mimetype(request, input_filepath):
@@ -78,27 +112,43 @@ def get_input_mimetype(request, input_filepath):
 
     if not input_mimetype:
         log.error('Can not guess mimetype')
-        raise HTTPBadRequest(body='Can not guess mimetype',
-                             content_type='text/plain')
+        raise ConvertitHttpException(
+            body='Can not guess mimetype', status=400, content_type='text/plain'
+        )
 
     return input_mimetype
 
 
+def get_converters():
+    converters = {}
+    converter_settings = settings.CONVERTIT_CONVERTERS
+    if isinstance(converter_settings, str):
+        namespaces = converter_settings.split()
+    else:
+        namespaces = converter_settings
+    for namespace in namespaces:
+        package = importlib.import_module(namespace)
+        converters.update(package.converters())
+    return converters
+
+
 def get_converter(request, input_mimetype, output_mimetype):
-    converters = request.registry.convertit
+    converters = get_converters()
 
     if (input_mimetype, output_mimetype) not in converters:
         message = 'Unsupported transform: from %s to %s'
         log.error(message % (input_mimetype, output_mimetype))
-        raise HTTPBadRequest(body=message % (input_mimetype, output_mimetype),
-                             content_type='text/plain')
+        raise ConvertitHttpException(
+            body=message % (input_mimetype, output_mimetype),
+            status=400,
+            content_type='text/plain',
+        )
 
     return converters[(input_mimetype, output_mimetype)]
 
 
 def output_basename_from_url(request, mimetype, url):
-    settings = request.registry.settings
-    name_template = settings['convertit.converted_name']
+    name_template = settings.CONVERTIT_CONVERTED_NAME
     extension = guess_extension(mimetype)
     try:
         # if url has a correct filename, se it
@@ -113,16 +163,52 @@ def output_basename_from_url(request, mimetype, url):
     return render_converted_name(name_template, url, extension)
 
 
-@view_config(route_name='home', request_method='GET')
+def get_client_addr(request):
+    xff = request.META.get('HTTP_X_FORWARDED_FOR') or request.headers.get(
+        'x-forwarded-for'
+    )
+    if xff:
+        return xff.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', '')
+
+
+def build_converted_url(request, output_basename):
+    converted_url = settings.CONVERTIT_CONVERTED_URL
+    if converted_url.startswith(('http://', 'https://')):
+        return f"{converted_url.rstrip('/')}/{output_basename}"
+    url_prefix = converted_url.strip('/')
+    path = (
+        f"/{url_prefix}/{output_basename}"
+        if url_prefix
+        else f"/{output_basename}"
+    )
+    return request.build_absolute_uri(path)
+
+
+@csrf_exempt
+def home(request):
+    create_dir(settings.CONVERTIT_CONVERTED_PATH)
+    create_dir(settings.CONVERTIT_DOWNLOADS_PATH)
+    try:
+        if request.method == 'GET':
+            return home_get_view(request)
+        elif request.method == 'POST':
+            return home_post_view(request)
+        return HttpResponseNotAllowed(['GET', 'POST'])
+    except ConvertitHttpException as e:
+        return e.to_response()
+
+
 def home_get_view(request):
     url = request.GET.get('url')
     if url is None:
         log.error('Missing parameter: url')
-        return HTTPBadRequest(body='Missing parameter: url',
-                              content_type='text/plain')
+        return HttpResponseBadRequest(
+            'Missing parameter: url', content_type='text/plain'
+        )
 
     if '{X_FORWARDED_FOR}' in url:
-        url = url.replace('{X_FORWARDED_FOR}', request.client_addr)
+        url = url.replace('{X_FORWARDED_FOR}', get_client_addr(request))
 
     input_filepath = download(request, url)
     output_basename_generator = partial(output_basename_from_url, url=url)
@@ -130,12 +216,16 @@ def home_get_view(request):
     return home_view(request, input_filepath, output_basename_generator)
 
 
-@view_config(route_name='home', request_method='POST')
 def home_post_view(request):
-    uploaded = request.POST.get('file')
-    input_filepath = save(request, uploaded.file)
+    uploaded = request.FILES.get('file')
+    if uploaded is None:
+        log.error('Missing parameter: file')
+        return HttpResponseBadRequest(
+            'Missing parameter: file', content_type='text/plain'
+        )
+    input_filepath = save(request, uploaded)
 
-    filename = os.path.splitext(uploaded.filename)[0]
+    filename = os.path.splitext(uploaded.name)[0]
 
     def output_basename_generator(request, mimetype):
         extension = guess_extension(mimetype)
@@ -145,8 +235,7 @@ def home_post_view(request):
 
 
 def home_view(request, input_filepath, output_basename_generator):
-    settings = request.registry.settings
-    converted_path = settings['convertit.converted_path']
+    converted_path = settings.CONVERTIT_CONVERTED_PATH
 
     input_mimetype = get_input_mimetype(request, input_filepath)
 
@@ -155,7 +244,9 @@ def home_view(request, input_filepath, output_basename_generator):
     output_filepath = os.path.join(converted_path, output_basename)
 
     remove_old_files(request)
-    log.error(f"from: {input_mimetype} to {output_mimetype}, file: {output_filepath}")
+    log.error(
+        f"from: {input_mimetype} to {output_mimetype}, file: {output_filepath}"
+    )
     convert = get_converter(request, input_mimetype, output_mimetype)
 
     try:
@@ -164,9 +255,25 @@ def home_view(request, input_filepath, output_basename_generator):
     except Exception as e:
         msg = "Sorry, there was an error converting the document. Reason: %s"
         log.error(msg % str(e))
-        return HTTPInternalServerError(body=msg % str(e),
-                                       content_type='text/plain')
+        return HttpResponseServerError(msg % str(e), content_type='text/plain')
 
-    return HTTPFound(static_url(output_filepath, request),
-                     content_disposition='attachment; filename=%s' %
-                     output_basename)
+    response = HttpResponseRedirect(
+        build_converted_url(request, output_basename)
+    )
+    response['Content-Disposition'] = 'attachment; filename=%s' % output_basename
+    return response
+
+
+def serve_converted(request, path):
+    response = static_serve(
+        request, path, document_root=settings.CONVERTIT_CONVERTED_PATH
+    )
+    response['Cache-Control'] = f'max-age={seconds_in_hour}'
+    return response
+
+
+def serve_static(request, path):
+    static_dir = os.path.join(os.path.dirname(__file__), 'static')
+    response = static_serve(request, path, document_root=static_dir)
+    response['Cache-Control'] = f'max-age={seconds_in_hour}'
+    return response

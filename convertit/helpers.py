@@ -17,7 +17,8 @@ def download_file(url, target_dir, headers=None):
             url = urllib.request.Request(url, headers=selected)
 
     data = urllib.request.urlopen(url).read()
-    target_file = os.path.join(target_dir, file_path.name)
+    filename = file_path.name or url_parsed.hostname or 'downloaded'
+    target_file = os.path.join(target_dir, filename)
     with open(target_file, 'wb') as f:
         f.write(data)
     return target_file

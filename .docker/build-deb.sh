@@ -193,7 +193,7 @@ Depends: ${DEPENDS}
 Section: python
 Priority: optional
 Homepage: https://github.com/makinacorpus/convertit
-Description: A file conversion Web API in Pyramid
+Description: A file conversion Web API in Django
  Convertit is a format conversion webservice.
  .
  Retrieve your document in an other format ! The input file is converted and served back !
