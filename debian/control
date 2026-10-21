@@ -16,9 +16,8 @@ Depends:
  ${shlibs:Depends},
  libmagic1 | libmagic1t64,
  libcairo2,
- libreoffice,
- default-jre,
- libreoffice-java-common
+ libreoffice-writer-nogui | libreoffice-writer,
+ libreoffice-calc-nogui | libreoffice-calc
 Description: A file conversion Web API in Django
  Convertit is a format conversion webservice.
  .

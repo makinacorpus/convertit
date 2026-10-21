@@ -5,8 +5,8 @@ FROM ghcr.io/astral-sh/uv:latest AS uv
 FROM ubuntu:${DISTRO} AS base
 LABEL org.opencontainers.image.authors="Makina Corpus <contact@makina-corpus.com>"
 
-RUN apt-get update && apt-get install -y -qq libreoffice default-jre libreoffice-java-common libcairo2 libmagic1t64 && \
-    apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
+RUN apt-get update && apt-get install -y -qq --no-install-recommends libreoffice-writer-nogui libreoffice-calc-nogui libcairo2 libmagic1t64 && \
+    apt-get autoclean && apt-get clean all && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/apps/convertit
 
@@ -18,8 +18,8 @@ CMD ["/bin/sh", "-e", "/usr/local/bin/run"]
 FROM base AS build
 ARG PYTHON_VERSION=3.14
 
-RUN apt-get update && apt-get install -y -qq build-essential ca-certificates && \
-    apt-get autoclean && apt-get clean all && rm -rf /var/apt/lists/*
+RUN apt-get update && apt-get install -y -qq --no-install-recommends build-essential ca-certificates && \
+    apt-get autoclean && apt-get clean all && rm -rf /var/lib/apt/lists/*
 
 COPY --from=uv /uv /uvx /bin/
 
