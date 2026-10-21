@@ -32,6 +32,6 @@ setup(name='convertit',
           "python-magic",
           "Pillow",
           "gunicorn",
-          "packaging",
+          "CairoSVG",
       ]
       )

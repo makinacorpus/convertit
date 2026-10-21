@@ -3,20 +3,17 @@ import shutil
 
 from django.test import TestCase
 
-from convertit.converters import inkscape
+from convertit.converters import cairosvg
 
 here = os.path.dirname(os.path.realpath(__file__))
 
 
-class InkscapeConvertionTests(TestCase):
+class CairosvgConvertionTests(TestCase):
     temp_dir = os.path.join(here, '../data/tmp')
     svg_filepath = os.path.join(here, '../data/test_svg.svg')
     pdf_filepath = os.path.join(here, '../data/test_svg.pdf')
 
     def setUp(self):
-        if not inkscape.is_available():
-            self.skipTest('inkscape not found')
-
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 
@@ -27,10 +24,10 @@ class InkscapeConvertionTests(TestCase):
 
     def test_svg_to_pdf_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_svg.pdf')
-        inkscape.svg_to_pdf(self.svg_filepath, self.temp_dir)
+        cairosvg.svg_to_pdf(self.svg_filepath, self.temp_dir)
         self.assertTrue(os.path.exists(converted_filepath))
 
     def test_svg_to_png_conversion(self):
         converted_filepath = os.path.join(self.temp_dir, 'test_svg.png')
-        inkscape.svg_to_png(self.svg_filepath, self.temp_dir)
+        cairosvg.svg_to_png(self.svg_filepath, self.temp_dir)
         self.assertTrue(os.path.exists(converted_filepath))

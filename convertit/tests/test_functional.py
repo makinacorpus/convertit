@@ -16,7 +16,7 @@ TEST_SETTINGS = {
     'CONVERTIT_CONVERTED_URL': 'converted',
     'CONVERTIT_CONVERTERS': [
         'convertit.converters.unoconv',
-        'convertit.converters.inkscape',
+        'convertit.converters.cairosvg',
     ],
     'CONVERTIT_CONVERTED_NAME': '{url_hostname}_{url_port}_{url_dirname}_'
                                 '{url_filename}{extension}',
