@@ -3,8 +3,6 @@ import shutil
 
 from django.test import TestCase
 
-from django.test import TestCase
-
 from convertit.converters import cairosvg
 
 here = os.path.dirname(os.path.realpath(__file__))
