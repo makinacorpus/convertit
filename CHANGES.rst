@@ -2,6 +2,14 @@
 CHANGELOG
 =========
 
+3.0.0 (2026-10-21)
+------------------
+
+- Switch from Pyramid to Django framework
+- Switch from Inkscape to cairosvg for SVG to PNG or PDF conversion
+- Optimize libreoffice dependencies with no-gui alternatives
+
+
 2.2.7 (2026-09-30)
 ------------------
 
