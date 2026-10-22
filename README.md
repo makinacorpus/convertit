@@ -2,12 +2,15 @@
 
 **Convertit** is a format conversion webservice.
 
-Retrieve your document in an other format ! The input file is converted and served back !
+Retrieve your document in another format !
+
+The input file is converted and served back !
 Using a dead simple `GET` request, documents are pulled. Using `POST` request, it takes the attachment.
 
 [![CI](https://github.com/makinacorpus/convertit/actions/workflows/ci.yml/badge.svg)](https://github.com/makinacorpus/convertit/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/makinacorpus/convertit/graph/badge.svg?token=JxxPUFe6DD)](https://codecov.io/gh/makinacorpus/convertit)
 
-Supported conversions:
+**Supported conversions:**
 
 - odt -> pdf
 - odt -> doc
@@ -21,12 +24,18 @@ Previously converted documents are cleaned along the way (on each request).
 
 ## USAGE
 
+Default port is 6543, but can be changed with `--port` option.
+
+### Using the web interface
+
+Go to http://localhost:6543/ui/ and upload your document. The converted document will be served back.
+
 ### Using GET request
 
 Example, convert from *odt* to *pdf* :
 
 ```bash
-curl http://convertit/?url=http://server/document.odt&to=application/pdf
+curl http://localhost:6543/?url=http://server/document.odt&to=application/pdf
 HTTP/1.1 302 Found
 Content-Disposition: attachment; filename=document.pdf
 ...
@@ -43,7 +52,7 @@ a safe value since it can be modified by user agents or given false value by
 forward proxies. Use only if really needed. Exemple:
 
 ```bash
-curl "http://convertit/?url=http://{X_FORWARDED_FOR}/document.odt&to=application/pdf"
+curl "http://localhost:6543/?url=http://{X_FORWARDED_FOR}/document.odt&to=application/pdf"
 ```
 
 ### Using POST request
@@ -51,7 +60,7 @@ curl "http://convertit/?url=http://{X_FORWARDED_FOR}/document.odt&to=application
 Upload data in POST parameter named `file`:
 
 ```bash
-curl -F "file=@tiger.svg" http://convertit/?to=image/png
+curl -F "file=@tiger.svg" http://localhost:6543/?to=image/png
 HTTP/1.1 302 Found
 Content-Disposition: attachment; filename=tiger.png
 ```
@@ -72,18 +81,16 @@ Conversion binaries should be in system `PATH` (`which` is used internally.)
 
 ### Download
 
-- Download and extract a released tarball from [pypi](http://pypi.python.org/pypi/convertit)
-- The bleeding edge version is hosted on [github](https://github.com/makinacorpus/convertit):
-
-```bash
-git clone https://github.com/makinacorpus/convertit.git
-cd convertit
-```
+- Debian package from latest github release
+- Docker image from github package registry: `ghcr.io/makinacorpus/convertit:latest` or dockerhub image: `makinacorpus/convertit:latest`
 
 ### Development
 
 ```bash
-make serve
+git clone https://github.com/makinacorpus/convertit.git
+cd convertit
+docker compose build
+docker compose up
 ```
 
 Once the application is running, you may visit http://localhost:6543/ in your browser.
@@ -96,17 +103,10 @@ make tests
 
 ### Production
 
-Using *gunicorn* for example :
-
-```bash
-gunicorn --workers=1 -c python:convertit.gunicorn_conf convertit.wsgi:application
-```
-
 Using Docker :
 
 ```bash
-sudo docker build -t="convertit" .
-sudo docker run -p :6543 convertit
+docker run -p :6543 convertit
 ```
 
 ### Feedback
