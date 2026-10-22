@@ -1,5 +1,0 @@
--c requirements.txt
-
-coverage
-freezegun
-ruff
