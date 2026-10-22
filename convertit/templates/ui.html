@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertit — Convertisseur de fichiers</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --error: #dc2626;
+            --error-bg: #fee2e2;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 520px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--border);
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+        .header img {
+            max-width: 180px;
+            height: auto;
+            margin-bottom: 0.5rem;
+        }
+        .header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: #fff;
+            color: var(--text);
+        }
+        input[type="file"]:focus,
+        select:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 1px;
+        }
+        .hint {
+            margin-top: 0.35rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.15s ease;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-download {
+            background-color: var(--success);
+            color: #ffffff;
+            margin-top: 0.75rem;
+        }
+        .alert {
+            margin-top: 1.25rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .alert-success {
+            background-color: var(--success-bg);
+            color: #14532d;
+            border: 1px solid #86efac;
+        }
+        .alert-error {
+            background-color: var(--error-bg);
+            color: var(--error);
+            border: 1px solid #fca5a5;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="header">
+            <img src="/static/img/convertit_logo_light.png" alt="Convertit">
+            <p>Sélectionnez un fichier, choisissez le format cible et téléchargez le document converti.</p>
+        </div>
+
+        <form id="convert-form" method="post" action="{% url 'home' %}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file-input">1. Fichier source</label>
+                <input
+                    type="file"
+                    id="file-input"
+                    name="file"
+                    accept="{{ accepted_extensions }}"
+                    required
+                >
+                <div class="hint" id="file-hint">
+                    Formats supportés : {{ accepted_extensions }}
+                </div>
+                <input type="hidden" id="from-input" name="from" value="">
+            </div>
+
+            <div class="form-group">
+                <label for="to-select">2. Conversion disponible</label>
+                <select id="to-select" name="to" required>
+                    {% for item in conversions %}
+                        <option value="{{ item.to }}" data-from="{{ item.from }}">
+                            {{ item.from_label }} &rarr; {{ item.to_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-primary">
+                Convertir le fichier
+            </button>
+        </form>
+
+        <div id="result-box" class="alert alert-success" role="status">
+            <div id="result-message">Conversion terminée avec succès !</div>
+            <a id="download-link" href="#" class="btn btn-download" download>
+                Télécharger le fichier converti
+            </a>
+        </div>
+
+        <div id="error-box" class="alert alert-error" role="alert"></div>
+    </main>
+
+    <script>
+        (function () {
+            const conversions = {{ conversions_json|safe }};
+            const extensionMap = {{ extension_map_json|safe }};
+            const fileInput = document.getElementById('file-input');
+            const fromInput = document.getElementById('from-input');
+            const toSelect = document.getElementById('to-select');
+            const submitBtn = document.getElementById('submit-btn');
+            const form = document.getElementById('convert-form');
+            const resultBox = document.getElementById('result-box');
+            const downloadLink = document.getElementById('download-link');
+            const errorBox = document.getElementById('error-box');
+
+            function updateAvailableConversions() {
+                resultBox.style.display = 'none';
+                errorBox.style.display = 'none';
+
+                const file = fileInput.files && fileInput.files[0];
+                if (!file) {
+                    return;
+                }
+                const dotIndex = file.name.lastIndexOf('.');
+                const ext = dotIndex !== -1 ? file.name.slice(dotIndex).toLowerCase() : '';
+                const sourceMime = extensionMap[ext];
+
+                if (!sourceMime) {
+                    fromInput.value = '';
+                    toSelect.innerHTML = '';
+                    submitBtn.disabled = true;
+                    errorBox.textContent = 'Format de fichier non supporté : ' + (ext || file.name);
+                    errorBox.style.display = 'block';
+                    return;
+                }
+
+                fromInput.value = sourceMime;
+                const matching = conversions.filter(function (c) {
+                    return c.from === sourceMime;
+                });
+
+                toSelect.innerHTML = '';
+                matching.forEach(function (item) {
+                    const opt = document.createElement('option');
+                    opt.value = item.to;
+                    opt.dataset.from = item.from;
+                    opt.textContent = item.from_label + ' \u2192 ' + item.to_label;
+                    toSelect.appendChild(opt);
+                });
+
+                submitBtn.disabled = matching.length === 0;
+            }
+
+            fileInput.addEventListener('change', updateAvailableConversions);
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                resultBox.style.display = 'none';
+                errorBox.style.display = 'none';
+                submitBtn.disabled = true;
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Conversion en cours...';
+
+                try {
+                    const formData = new FormData(form);
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        redirect: 'follow'
+                    });
+
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(errText || ('Erreur HTTP ' + response.status));
+                    }
+
+                    const blob = await response.blob();
+                    const objectUrl = URL.createObjectURL(blob);
+                    const finalUrl = response.url || objectUrl;
+                    const parts = finalUrl.split('/');
+                    const filename = decodeURIComponent(parts[parts.length - 1] || 'document_converti');
+
+                    downloadLink.href = objectUrl;
+                    downloadLink.setAttribute('download', filename);
+                    resultBox.style.display = 'block';
+                } catch (err) {
+                    errorBox.textContent = err.message || 'Une erreur est survenue lors de la conversion.';
+                    errorBox.style.display = 'block';
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

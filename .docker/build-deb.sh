@@ -99,6 +99,7 @@ ln -sfn . "${TARGET_DIR}/venv"
 echo "Installation des dépendances..."
 uv pip install --python "${TARGET_DIR}/bin/python" "setuptools<81" wheel
 uv pip install -r requirements.txt --python "${TARGET_DIR}/bin/python"
+sed -i 's/~/./g' convertit/VERSION
 uv pip install --no-deps . --python "${TARGET_DIR}/bin/python"
 
 echo "=== 4. Optimisation de l'arborescence ==="

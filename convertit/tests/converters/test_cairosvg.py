@@ -31,3 +31,8 @@ class CairosvgConvertionTests(TestCase):
         converted_filepath = os.path.join(self.temp_dir, 'test_svg.png')
         cairosvg.svg_to_png(self.svg_filepath, self.temp_dir)
         self.assertTrue(os.path.exists(converted_filepath))
+
+    def test_is_available_and_existing_temp_dir(self):
+        self.assertTrue(cairosvg.is_available())
+        self.setUp()
+        self.assertTrue(os.path.exists(self.temp_dir))
