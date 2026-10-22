@@ -1,7 +1,9 @@
-version: "3.8"
 services:
   web:
     build:
       target: dev
     volumes:
       - .:/opt/apps/convertit
+    ports:
+      - "8000:8000"
+    command: /opt/venv/bin/python ./manage.py runserver 0.0.0.0:8000

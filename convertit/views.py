@@ -1,4 +1,5 @@
 import importlib
+import json
 import logging
 import os
 import urllib
@@ -18,6 +19,7 @@ from django.http import (
     HttpResponseRedirect,
     HttpResponseServerError,
 )
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve as static_serve
 
@@ -30,6 +32,27 @@ from convertit.helpers import (
 
 seconds_in_hour = 3600
 log = logging.getLogger(__name__)
+
+MIMETYPE_LABELS = {
+    'application/vnd.oasis.opendocument.text': 'Document OpenDocument (.odt)',
+    'application/vnd.oasis.opendocument.spreadsheet': (
+        'Feuille de calcul OpenDocument (.ods)'
+    ),
+    'plain/text': 'Texte / CSV (.csv, .txt)',
+    'image/svg+xml': 'Image vectorielle SVG (.svg)',
+    'application/pdf': 'Document PDF (.pdf)',
+    'application/msword': 'Document Word (.doc)',
+    'application/vnd.ms-excel': 'Feuille de calcul Excel (.xls)',
+    'image/png': 'Image PNG (.png)',
+}
+
+EXTENSION_TO_MIMETYPE = {
+    '.odt': 'application/vnd.oasis.opendocument.text',
+    '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
+    '.csv': 'plain/text',
+    '.txt': 'plain/text',
+    '.svg': 'image/svg+xml',
+}
 
 
 class ConvertitHttpException(Exception):
@@ -108,7 +131,11 @@ def download(request, url):
 
 def get_input_mimetype(request, input_filepath):
     guessed_mimetype = magic.from_file(input_filepath, mime=True)
-    input_mimetype = request.GET.get('from', guessed_mimetype)
+    input_mimetype = (
+        request.GET.get('from')
+        or request.POST.get('from')
+        or guessed_mimetype
+    )
 
     if not input_mimetype:
         log.error('Can not guess mimetype')
@@ -239,7 +266,11 @@ def home_view(request, input_filepath, output_basename_generator):
 
     input_mimetype = get_input_mimetype(request, input_filepath)
 
-    output_mimetype = request.GET.get('to', 'application/pdf')
+    output_mimetype = (
+        request.GET.get('to')
+        or request.POST.get('to')
+        or 'application/pdf'
+    )
     output_basename = output_basename_generator(request, output_mimetype)
     output_filepath = os.path.join(converted_path, output_basename)
 
@@ -262,6 +293,33 @@ def home_view(request, input_filepath, output_basename_generator):
     )
     response['Content-Disposition'] = 'attachment; filename=%s' % output_basename
     return response
+
+
+def get_available_conversions():
+    conversions = []
+    for input_mime, output_mime in get_converters().keys():
+        conversions.append(
+            {
+                'from': input_mime,
+                'from_label': MIMETYPE_LABELS.get(input_mime, input_mime),
+                'to': output_mime,
+                'to_label': MIMETYPE_LABELS.get(output_mime, output_mime),
+            }
+        )
+    return conversions
+
+
+def ui_view(request):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed(['GET'])
+    conversions = get_available_conversions()
+    context = {
+        'conversions': conversions,
+        'conversions_json': json.dumps(conversions),
+        'extension_map_json': json.dumps(EXTENSION_TO_MIMETYPE),
+        'accepted_extensions': ','.join(EXTENSION_TO_MIMETYPE.keys()),
+    }
+    return render(request, 'ui.html', context)
 
 
 def serve_converted(request, path):

@@ -14,7 +14,7 @@ build_deb:
 	docker rm convertit_deb_run
 
 deps:
-	docker compose run --remove-orphans --no-deps --rm web bash -c "uv pip compile setup.py -o requirements.txt && uv pip compile requirements-dev.in -o requirements-dev.txt"
+	docker compose run --remove-orphans --no-deps --rm web bash -c "uv pip compile pyproject.toml -o requirements.txt && uv pip compile --group dev -c requirements.txt -o requirements-dev.txt"
 
 quality:
 	@if command -v ruff >/dev/null 2>&1; then \

@@ -5,6 +5,7 @@ from convertit import views
 
 urlpatterns = [
     path("", views.home, name="home"),
+    path("ui/", views.ui_view, name="ui"),
     re_path(r"^static/(?P<path>.*)$", views.serve_static, name="static"),
     re_path(r"^converted/(?P<path>.*)$", views.serve_converted, name="converted"),
 ]

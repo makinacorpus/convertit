@@ -59,3 +59,15 @@ class DownloadUrlTest(TestCase):
         request = urlopen_mock.call_args_list[0][0][0]
         self.assertEqual(request.headers, {'Accept-language': 'fr',
                                            'User-agent': 'curl'})
+
+    @patch.object(urllib.request, 'urlopen')
+    def test_download_headers_all_filtered_out(self, urlopen_mock):
+        response = MagicMock()
+        response.read.return_value = b''
+        urlopen_mock.return_value = response
+
+        headers = {'Host': '127.0.0.1:8001'}
+        download_file('http://geotrek.fr', '/tmp', headers=headers)
+        request = urlopen_mock.call_args_list[0][0][0]
+        self.assertEqual(request, 'http://geotrek.fr')
+
