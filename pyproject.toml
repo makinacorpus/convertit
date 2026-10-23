@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
 ]
 dependencies = [
-    "Django>=5.2,<5.3",
+    "Django>=6.1.2,<6.2",
     "python-magic",
     "Pillow",
     "gunicorn",
