@@ -6,7 +6,7 @@ freezegun==1.5.5
     # via convertit (pyproject.toml:dev)
 python-dateutil==3.0.0
     # via freezegun
-ruff==0.17.2
+ruff==0.17.3
     # via convertit (pyproject.toml:dev)
 six==1.17.0
     # via python-dateutil
