@@ -10,5 +10,5 @@ ruff==0.17.2
     # via convertit (pyproject.toml:dev)
 six==1.17.0
     # via python-dateutil
-tzdata==2026.5
+tzdata==2026.6
     # via python-dateutil
