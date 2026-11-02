@@ -20,7 +20,7 @@ pillow==13.0.0
     # via
     #   convertit (pyproject.toml)
     #   cairosvg
-pycparser==3.11
+pycparser==3.12
     # via cffi
 python-magic==0.4.27
     # via convertit (pyproject.toml)
