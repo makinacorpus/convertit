@@ -2,11 +2,18 @@ ARG DISTRO=resolute
 
 FROM ghcr.io/astral-sh/uv:latest AS uv
 
-FROM ubuntu:${DISTRO} AS base
+FROM debian:trixie-slim AS base
 LABEL org.opencontainers.image.authors="Makina Corpus <contact@makina-corpus.com>"
 
-RUN apt-get update && apt-get install -y -qq --no-install-recommends libreoffice-writer-nogui libreoffice-calc-nogui libcairo2 libmagic1t64 && \
-    apt-get autoclean && apt-get clean all && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked  \
+    apt-get update && \
+    apt-get install -y -qq --no-install-recommends \
+        ca-certificates \
+        libcairo2 \
+        libmagic1 \
+        libreoffice-calc-nogui \
+        libreoffice-writer-nogui
 
 WORKDIR /opt/apps/convertit
 
@@ -18,8 +25,10 @@ CMD ["/bin/sh", "-e", "/usr/local/bin/run"]
 FROM base AS build
 ARG PYTHON_VERSION=3.14
 
-RUN apt-get update && apt-get install -y -qq --no-install-recommends build-essential ca-certificates && \
-    apt-get autoclean && apt-get clean all && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked  \
+    apt-get update && \
+    apt-get install -y -qq --no-install-recommends build-essential
 
 COPY --from=uv /uv /uvx /bin/
 
@@ -29,9 +38,9 @@ RUN uv python install ${PYTHON_VERSION} --install-dir ${UV_PYTHON_INSTALL_DIR}
 
 RUN uv venv /opt/venv --python ${PYTHON_VERSION}
 
-COPY requirements.txt /requirements.txt
-
-RUN uv pip install --no-cache --python /opt/venv/bin/python -r /requirements.txt
+RUN --mount=type=bind,src=./requirements.txt,dst=/requirements.txt \
+    --mount=type=cache,sharing=locked,uid=1001,gid=1001 \
+    uv pip install --no-cache --python /opt/venv/bin/python -r /requirements.txt
 
 COPY convertit /opt/apps/convertit/convertit
 COPY manage.py /opt/apps/convertit/manage.py
@@ -43,9 +52,9 @@ RUN uv pip install --no-cache --no-deps --python /opt/venv/bin/python .
 
 FROM build AS dev
 
-COPY requirements-dev.txt /requirements-dev.txt
-
-RUN uv pip install --no-cache --python /opt/venv/bin/python -r /requirements-dev.txt
+RUN --mount=type=bind,src=./requirements-dev.txt,dst=/requirements-dev.txt \
+    --mount=type=cache,sharing=locked,uid=1001,gid=1001 \
+    uv pip install --no-cache --python /opt/venv/bin/python -r /requirements-dev.txt
 
 FROM base AS prod
 
