@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-3.0.0+dev   (XXXX-XX-XX)
+3.0.1       (2026-11-03)
 ------------------------
 
 - Fix ca certificate error when using requests library to download a file from a https URL
