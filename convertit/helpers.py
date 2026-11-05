@@ -3,6 +3,7 @@ import urllib
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
+from werkzeug.utils import secure_filename
 
 
 def download_file(url, target_dir, headers=None):
@@ -18,7 +19,11 @@ def download_file(url, target_dir, headers=None):
 
     data = urllib.request.urlopen(url).read()
     filename = file_path.name or url_parsed.hostname or 'downloaded'
-    target_file = os.path.join(target_dir, filename)
+    safe_filename = secure_filename(filename) or 'downloaded'
+    base_dir = os.path.abspath(target_dir)
+    target_file = os.path.abspath(os.path.join(base_dir, safe_filename))
+    if os.path.commonpath([base_dir, target_file]) != base_dir:
+        raise ValueError('Invalid target file path')
     with open(target_file, 'wb') as f:
         f.write(data)
     return target_file
