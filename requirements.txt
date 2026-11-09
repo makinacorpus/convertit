@@ -24,7 +24,7 @@ pycparser==3.12
     # via cffi
 python-magic==0.4.27
     # via convertit (pyproject.toml)
-sqlparse==0.6.0
+sqlparse==0.6.1
     # via django
 tinycss2==1.5.1
     # via
