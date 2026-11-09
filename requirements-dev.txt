@@ -4,7 +4,7 @@ coverage==7.17.2
     # via convertit (pyproject.toml:dev)
 freezegun==1.5.5
     # via convertit (pyproject.toml:dev)
-python-dateutil==3.0.0
+python-dateutil==4.0.0
     # via freezegun
 ruff==0.17.4
     # via convertit (pyproject.toml:dev)
