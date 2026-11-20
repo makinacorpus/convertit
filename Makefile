@@ -1,5 +1,5 @@
 DISTRO ?= debian:bookworm
-PYTHON_VERSION ?= 3.14
+PYTHON_VERSION ?= $(shell tr -d '[:space:]' < .python-version 2>/dev/null)
 VERSION ?= $(shell tr -d '[:space:]' < convertit/VERSION 2>/dev/null || echo "2.2.6")
 
 build_deb:

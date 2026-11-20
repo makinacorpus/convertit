@@ -6,7 +6,14 @@ git config --global --add safe.directory /workspace 2>/dev/null || true
 
 TARGET_DIR="/opt/convertit"
 PKG_ROOT="/tmp/pkg-dist"
-PYTHON_VERSION="${PYTHON_VERSION:-3.14}"
+
+if [ -z "${PYTHON_VERSION:-}" ] && [ -f .python-version ]; then
+    PYTHON_VERSION="$(tr -d '[:space:]' < .python-version)"
+fi
+if [ -z "${PYTHON_VERSION:-}" ]; then
+    echo "ERREUR : PYTHON_VERSION non défini et fichier .python-version introuvable ou vide" >&2
+    exit 1
+fi
 
 # Détermination robuste de la version du paquet Debian
 VERSION=""

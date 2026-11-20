@@ -22,7 +22,7 @@ COPY --from=uv /uv /usr/local/bin/uv
 WORKDIR /workspace
 COPY . /workspace
 
-ARG PYTHON_VERSION=3.14
+ARG PYTHON_VERSION=""
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 
 ARG VERSION=""
