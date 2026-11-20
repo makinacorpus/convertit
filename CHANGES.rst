@@ -5,6 +5,8 @@ CHANGELOG
 3.0.1+dev   (XXXX-XX-XX)
 ------------------------
 
+- Support XLSX and DOCX conversions
+
 
 3.0.1       (2026-11-03)
 ------------------------
