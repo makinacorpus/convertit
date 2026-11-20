@@ -67,9 +67,25 @@ def convert(source, target, output_format):
 
 
 to_doc = partial(convert, output_format='doc')
+to_docx = partial(convert, output_format='docx')
 to_ods = partial(convert, output_format='ods')
+to_odt = partial(convert, output_format='odt')
 to_pdf = partial(convert, output_format='pdf')
 to_xls = partial(convert, output_format='xls')
+to_xlsx = partial(convert, output_format='xlsx')
+
+PLAIN_TEXT = 'plain/text'
+ODT_MIMETYPE = 'application/vnd.oasis.opendocument.text'
+ODS_MIMETYPE = 'application/vnd.oasis.opendocument.spreadsheet'
+DOC_MIMETYPE = 'application/msword'
+DOCX_MIMETYPE = (
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+)
+XLS_MIMETYPE = 'application/vnd.ms-excel'
+XLSX_MIMETYPE = (
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+)
+PDF_MIMETYPE = 'application/pdf'
 
 
 def is_available():
@@ -77,11 +93,21 @@ def is_available():
 
 
 def converters():
-
     return {
-        ('plain/text', 'application/vnd.oasis.opendocument.spreadsheet'): to_ods,
-        ('plain/text', 'application/vnd.ms-excel'): to_xls,
-        ('application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.ms-excel'): to_xls,
-        ('application/vnd.oasis.opendocument.text', 'application/msword'): to_doc,
-        ('application/vnd.oasis.opendocument.text', 'application/pdf'): to_pdf,
+        (PLAIN_TEXT, ODS_MIMETYPE): to_ods,
+        (PLAIN_TEXT, XLS_MIMETYPE): to_xls,
+        (PLAIN_TEXT, XLSX_MIMETYPE): to_xlsx,
+        (ODS_MIMETYPE, XLS_MIMETYPE): to_xls,
+        (ODS_MIMETYPE, XLSX_MIMETYPE): to_xlsx,
+        (XLS_MIMETYPE, XLSX_MIMETYPE): to_xlsx,
+        (XLSX_MIMETYPE, PDF_MIMETYPE): to_pdf,
+        (XLSX_MIMETYPE, ODS_MIMETYPE): to_ods,
+        (XLSX_MIMETYPE, XLS_MIMETYPE): to_xls,
+        (ODT_MIMETYPE, DOC_MIMETYPE): to_doc,
+        (ODT_MIMETYPE, DOCX_MIMETYPE): to_docx,
+        (ODT_MIMETYPE, PDF_MIMETYPE): to_pdf,
+        (DOC_MIMETYPE, DOCX_MIMETYPE): to_docx,
+        (DOCX_MIMETYPE, PDF_MIMETYPE): to_pdf,
+        (DOCX_MIMETYPE, ODT_MIMETYPE): to_odt,
+        (DOCX_MIMETYPE, DOC_MIMETYPE): to_doc,
     }
