@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-3.0.1+dev   (XXXX-XX-XX)
+3.1.0       (2026-11-20)
 ------------------------
 
 - Support XLSX and DOCX conversions
