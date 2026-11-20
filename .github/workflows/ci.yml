@@ -239,6 +239,58 @@ jobs:
             exit 1;
           fi
 
+      - name: Test ODT / DOCX conversion
+        run: |
+          wget -O myfile.docx "http://localhost:6543/?url=http://172.17.0.1:8080/example.odt&from=application/vnd.oasis.opendocument.text&to=application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+          if file -b --mime-type ./myfile.docx |grep -q 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'; then
+            echo "File is DOCX";
+            exit 0;
+          else
+            echo "File is not DOCX";
+            file -b -f ./myfile.docx;
+            exit 1;
+          fi
+
+      - name: Test DOCX / PDF conversion
+        run: |
+          wget -O myfile.pdf "http://localhost:6543/?url=http://172.17.0.1:8080/example.docx&from=application/vnd.openxmlformats-officedocument.wordprocessingml.document&to=application/pdf"
+
+          if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
+            echo "File is PDF";
+            exit 0;
+          else
+            echo "File is not PDF";
+            file -b -f ./myfile.pdf;
+            exit 1;
+          fi
+
+      - name: Test XLSX / PDF conversion
+        run: |
+          wget -O myfile.pdf "http://localhost:6543/?url=http://172.17.0.1:8080/example.xlsx&from=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&to=application/pdf"
+
+          if file -b --mime-type ./myfile.pdf |grep -q 'application/pdf'; then
+            echo "File is PDF";
+            exit 0;
+          else
+            echo "File is not PDF";
+            file -b -f ./myfile.pdf;
+            exit 1;
+          fi
+
+      - name: Test XLSX / ODS conversion
+        run: |
+          wget -O myfile.ods "http://localhost:6543/?url=http://172.17.0.1:8080/example.xlsx&from=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&to=application/vnd.oasis.opendocument.spreadsheet"
+
+          if file -b --mime-type ./myfile.ods |grep -q 'application/vnd.oasis.opendocument.spreadsheet'; then
+            echo "File is ODS";
+            exit 0;
+          else
+            echo "File is not ODS";
+            file -b -f ./myfile.ods;
+            exit 1;
+          fi
+
   deploy:
     name: Publish (on release only)
     runs-on: ubuntu-latest

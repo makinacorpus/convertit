@@ -14,9 +14,20 @@ Using a dead simple `GET` request, documents are pulled. Using `POST` request, i
 
 - odt -> pdf
 - odt -> doc
+- odt -> docx
+- doc -> docx
+- docx -> pdf
+- docx -> odt
+- docx -> doc
 - ods -> xls
+- ods -> xlsx
+- xls -> xlsx
+- xlsx -> pdf
+- xlsx -> ods
+- xlsx -> xls
 - csv -> ods
 - csv -> xls
+- csv -> xlsx
 - svg -> pdf
 - svg -> png
 

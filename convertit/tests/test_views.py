@@ -220,6 +220,16 @@ class ViewsAndCoreUnitTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b'Convertir le fichier', resp.content)
         self.assertIn(b'application/pdf', resp.content)
+        self.assertIn(b'.docx', resp.content)
+        self.assertIn(b'.xlsx', resp.content)
+        self.assertIn(
+            b'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            resp.content,
+        )
+        self.assertIn(
+            b'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            resp.content,
+        )
 
         post_resp = self.client.post('/ui/')
         self.assertEqual(post_resp.status_code, 405)

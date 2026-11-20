@@ -42,13 +42,27 @@ MIMETYPE_LABELS = {
     'image/svg+xml': 'Image vectorielle SVG (.svg)',
     'application/pdf': 'Document PDF (.pdf)',
     'application/msword': 'Document Word (.doc)',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
+        'Document Word (.docx)'
+    ),
     'application/vnd.ms-excel': 'Feuille de calcul Excel (.xls)',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': (
+        'Feuille de calcul Excel (.xlsx)'
+    ),
     'image/png': 'Image PNG (.png)',
 }
 
 EXTENSION_TO_MIMETYPE = {
     '.odt': 'application/vnd.oasis.opendocument.text',
     '.ods': 'application/vnd.oasis.opendocument.spreadsheet',
+    '.doc': 'application/msword',
+    '.docx': (
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ),
+    '.xls': 'application/vnd.ms-excel',
+    '.xlsx': (
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ),
     '.csv': 'plain/text',
     '.txt': 'plain/text',
     '.svg': 'image/svg+xml',

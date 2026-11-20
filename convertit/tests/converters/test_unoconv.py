@@ -13,6 +13,8 @@ here = os.path.dirname(os.path.realpath(__file__))
 class UnoconvConvertionTests(TestCase):
     temp_dir = os.path.join(here, '../data/tmp')
     odt_filepath = os.path.join(here, '../data/test_document.odt')
+    docx_filepath = os.path.join(here, '../data/test_document.docx')
+    xlsx_filepath = os.path.join(here, '../data/test_spreadsheet.xlsx')
     pdf_filepath = os.path.join(here, '../data/test_document.pdf')
 
     def setUp(self):
@@ -31,6 +33,96 @@ class UnoconvConvertionTests(TestCase):
         converted_filepath = os.path.join(self.temp_dir, 'test_document.pdf')
         unoconv.to_pdf(self.odt_filepath, self.temp_dir)
         self.assertTrue(os.path.exists(converted_filepath))
+
+    def test_odt_to_docx_conversion(self):
+        converted_filepath = os.path.join(self.temp_dir, 'test_document.docx')
+        unoconv.to_docx(self.odt_filepath, self.temp_dir)
+        self.assertTrue(os.path.exists(converted_filepath))
+
+    def test_docx_conversions(self):
+        unoconv.to_pdf(self.docx_filepath, self.temp_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(self.temp_dir, 'test_document.pdf'))
+        )
+        unoconv.to_odt(self.docx_filepath, self.temp_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(self.temp_dir, 'test_document.odt'))
+        )
+        unoconv.to_doc(self.docx_filepath, self.temp_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(self.temp_dir, 'test_document.doc'))
+        )
+
+    def test_xlsx_conversions(self):
+        unoconv.to_pdf(self.xlsx_filepath, self.temp_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(self.temp_dir, 'test_spreadsheet.pdf'))
+        )
+        ods_filepath = os.path.join(self.temp_dir, 'test_spreadsheet.ods')
+        unoconv.to_ods(self.xlsx_filepath, self.temp_dir)
+        self.assertTrue(os.path.exists(ods_filepath))
+        xls_filepath = os.path.join(self.temp_dir, 'test_spreadsheet.xls')
+        unoconv.to_xls(self.xlsx_filepath, self.temp_dir)
+        self.assertTrue(os.path.exists(xls_filepath))
+
+        # Also test converting ods and xls back to xlsx
+        ods_to_xlsx_dir = os.path.join(self.temp_dir, 'from_ods')
+        os.makedirs(ods_to_xlsx_dir)
+        unoconv.to_xlsx(ods_filepath, ods_to_xlsx_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(ods_to_xlsx_dir, 'test_spreadsheet.xlsx'))
+        )
+
+        xls_to_xlsx_dir = os.path.join(self.temp_dir, 'from_xls')
+        os.makedirs(xls_to_xlsx_dir)
+        unoconv.to_xlsx(xls_filepath, xls_to_xlsx_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(xls_to_xlsx_dir, 'test_spreadsheet.xlsx'))
+        )
+
+    def test_converters_registry_includes_docx_and_xlsx(self):
+        registered = unoconv.converters()
+        docx_mime = (
+            'application/vnd.openxmlformats-officedocument.'
+            'wordprocessingml.document'
+        )
+        xlsx_mime = (
+            'application/vnd.openxmlformats-officedocument.'
+            'spreadsheetml.sheet'
+        )
+        self.assertEqual(
+            registered[(unoconv.ODT_MIMETYPE, docx_mime)], unoconv.to_docx
+        )
+        self.assertEqual(
+            registered[(unoconv.DOC_MIMETYPE, docx_mime)], unoconv.to_docx
+        )
+        self.assertEqual(
+            registered[(docx_mime, unoconv.PDF_MIMETYPE)], unoconv.to_pdf
+        )
+        self.assertEqual(
+            registered[(docx_mime, unoconv.ODT_MIMETYPE)], unoconv.to_odt
+        )
+        self.assertEqual(
+            registered[(docx_mime, unoconv.DOC_MIMETYPE)], unoconv.to_doc
+        )
+        self.assertEqual(
+            registered[(unoconv.PLAIN_TEXT, xlsx_mime)], unoconv.to_xlsx
+        )
+        self.assertEqual(
+            registered[(unoconv.ODS_MIMETYPE, xlsx_mime)], unoconv.to_xlsx
+        )
+        self.assertEqual(
+            registered[(unoconv.XLS_MIMETYPE, xlsx_mime)], unoconv.to_xlsx
+        )
+        self.assertEqual(
+            registered[(xlsx_mime, unoconv.PDF_MIMETYPE)], unoconv.to_pdf
+        )
+        self.assertEqual(
+            registered[(xlsx_mime, unoconv.ODS_MIMETYPE)], unoconv.to_ods
+        )
+        self.assertEqual(
+            registered[(xlsx_mime, unoconv.XLS_MIMETYPE)], unoconv.to_xls
+        )
 
     def test_setup_existing_temp_dir_and_unavailable(self):
         self.setUp()

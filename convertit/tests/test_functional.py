@@ -38,6 +38,16 @@ class FunctionalTests(TestCase):
         with open(odt_path, 'rb') as f:
             return f.read()
 
+    def docx_data(self):
+        docx_path = os.path.join(data_path, 'test_document.docx')
+        with open(docx_path, 'rb') as f:
+            return f.read()
+
+    def xlsx_data(self):
+        xlsx_path = os.path.join(data_path, 'test_spreadsheet.xlsx')
+        with open(xlsx_path, 'rb') as f:
+            return f.read()
+
     def test_no_url(self):
         "Get homepage without any `url` param"
 
@@ -154,3 +164,98 @@ class FunctionalTests(TestCase):
         filename = os.path.basename(resp['Location'])
         filepath = os.path.join(converted_path, filename)
         self.assertTrue(os.path.exists(filepath))
+
+    def test_with_valid_url_odt_to_docx(self):
+        "Convert odt document from URL to docx"
+        url = 'http://example.com/test_document.odt'
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        docx_mime = (
+            'application/vnd.openxmlformats-officedocument.'
+            'wordprocessingml.document'
+        )
+        with patch.object(urllib.request, 'urlopen') as mock_urlopen:
+            mock_req = Mock()
+            mock_req.read.return_value = self.odt_data()
+            mock_urlopen.return_value = mock_req
+            resp = self.client.get('/', {'url': url, 'to': docx_mime})
+            self.assertEqual(resp.status_code, 302)
+            filename = os.path.basename(resp['Location'])
+            self.assertTrue(filename.endswith('.docx'))
+            filepath = os.path.join(converted_path, filename)
+            self.assertTrue(os.path.exists(filepath))
+
+    def test_post_docx_to_pdf_and_odt(self):
+        "Post docx document and convert to pdf and odt"
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        uploaded_file = SimpleUploadedFile(
+            'test_document.docx', self.docx_data()
+        )
+        resp = self.client.post('/', {'file': uploaded_file})
+        self.assertEqual(resp.status_code, 302)
+        filename = os.path.basename(resp['Location'])
+        self.assertEqual(filename, 'test_document.pdf')
+        self.assertTrue(os.path.exists(os.path.join(converted_path, filename)))
+
+        uploaded_file_odt = SimpleUploadedFile(
+            'test_document.docx', self.docx_data()
+        )
+        resp_odt = self.client.post(
+            '/',
+            {
+                'file': uploaded_file_odt,
+                'to': 'application/vnd.oasis.opendocument.text',
+            },
+        )
+        self.assertEqual(resp_odt.status_code, 302)
+        filename_odt = os.path.basename(resp_odt['Location'])
+        self.assertEqual(filename_odt, 'test_document.odt')
+        self.assertTrue(
+            os.path.exists(os.path.join(converted_path, filename_odt))
+        )
+
+    def test_post_xlsx_to_pdf_and_ods(self):
+        "Post xlsx spreadsheet and convert to pdf and ods"
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        uploaded_file = SimpleUploadedFile(
+            'test_spreadsheet.xlsx', self.xlsx_data()
+        )
+        resp = self.client.post('/', {'file': uploaded_file})
+        self.assertEqual(resp.status_code, 302)
+        filename = os.path.basename(resp['Location'])
+        self.assertEqual(filename, 'test_spreadsheet.pdf')
+        self.assertTrue(os.path.exists(os.path.join(converted_path, filename)))
+
+        uploaded_file_ods = SimpleUploadedFile(
+            'test_spreadsheet.xlsx', self.xlsx_data()
+        )
+        resp_ods = self.client.post(
+            '/',
+            {
+                'file': uploaded_file_ods,
+                'to': 'application/vnd.oasis.opendocument.spreadsheet',
+            },
+        )
+        self.assertEqual(resp_ods.status_code, 302)
+        filename_ods = os.path.basename(resp_ods['Location'])
+        self.assertEqual(filename_ods, 'test_spreadsheet.ods')
+        self.assertTrue(
+            os.path.exists(os.path.join(converted_path, filename_ods))
+        )
+
+    def test_with_valid_url_xlsx_to_xls(self):
+        "Convert xlsx spreadsheet from URL to xls"
+        url = 'http://example.com/test_spreadsheet.xlsx'
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        with patch.object(urllib.request, 'urlopen') as mock_urlopen:
+            mock_req = Mock()
+            mock_req.read.return_value = self.xlsx_data()
+            mock_urlopen.return_value = mock_req
+            resp = self.client.get(
+                '/', {'url': url, 'to': 'application/vnd.ms-excel'}
+            )
+            self.assertEqual(resp.status_code, 302)
+            filename = os.path.basename(resp['Location'])
+            self.assertEqual(filename, 'test_spreadsheet.xls')
+            self.assertTrue(
+                os.path.exists(os.path.join(converted_path, filename))
+            )
