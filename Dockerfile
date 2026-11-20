@@ -23,7 +23,7 @@ EXPOSE 6543
 CMD ["/bin/sh", "-e", "/usr/local/bin/run"]
 
 FROM base AS build
-ARG PYTHON_VERSION=3.14
+ARG PYTHON_VERSION=""
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked  \
@@ -34,9 +34,11 @@ COPY --from=uv /uv /uvx /bin/
 
 ENV UV_PYTHON_INSTALL_DIR=/opt/python
 
-RUN uv python install ${PYTHON_VERSION} --install-dir ${UV_PYTHON_INSTALL_DIR}
+COPY .python-version /opt/apps/convertit/.python-version
 
-RUN uv venv /opt/venv --python ${PYTHON_VERSION}
+RUN PYTHON_VERSION="${PYTHON_VERSION:-$(tr -d '[:space:]' < /opt/apps/convertit/.python-version)}" && \
+    uv python install "${PYTHON_VERSION}" --install-dir "${UV_PYTHON_INSTALL_DIR}" && \
+    uv venv /opt/venv --python "${PYTHON_VERSION}"
 
 RUN --mount=type=bind,src=./requirements.txt,dst=/requirements.txt \
     --mount=type=cache,sharing=locked,uid=1001,gid=1001 \
