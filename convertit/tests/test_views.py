@@ -9,12 +9,15 @@ from django.test import RequestFactory, TestCase, override_settings
 
 import convertit
 from convertit import asgi, gunicorn_conf, settings, urls, wsgi
+from convertit.converters import unoconv
 from convertit.views import (
     ConvertitHttpException,
     build_converted_url,
     download,
     get_client_addr,
+    get_converter,
     get_converters,
+    get_csv_options,
     get_input_mimetype,
     output_basename_from_url,
     remove_old_files,
@@ -147,6 +150,52 @@ class ViewsAndCoreUnitTests(TestCase):
             self.assertEqual(ctx.exception.status, 400)
             self.assertEqual(ctx.exception.body, 'Can not guess mimetype')
 
+    def test_get_input_mimetype_refines_text_plain_csv(self):
+        request = self.factory.get('/')
+        with patch('magic.from_file', return_value='text/plain'):
+            self.assertEqual(
+                get_input_mimetype(request, '/fake/data.csv'), 'text/csv'
+            )
+            self.assertEqual(
+                get_input_mimetype(request, '/fake/export'), 'text/plain'
+            )
+
+    def test_get_converter_resolves_csv_aliases(self):
+        request = self.factory.get('/')
+        for alias in ('plain/text', 'text/plain', 'application/csv'):
+            self.assertEqual(
+                get_converter(request, alias, unoconv.ODS_MIMETYPE),
+                unoconv.csv_to_ods,
+            )
+        with self.assertRaises(ConvertitHttpException) as ctx:
+            get_converter(request, 'text/plain', 'application/pdf')
+        self.assertEqual(ctx.exception.status, 400)
+        self.assertEqual(
+            ctx.exception.body,
+            'Unsupported transform: from text/plain to application/pdf',
+        )
+
+    def test_get_csv_options(self):
+        self.assertEqual(get_csv_options(self.factory.get('/')), {})
+        self.assertEqual(
+            get_csv_options(
+                self.factory.get('/', {'csv_delimiter': ';', 'csv_quotechar': "'"})
+            ),
+            {'delimiter': ';', 'quotechar': "'"},
+        )
+        self.assertEqual(
+            get_csv_options(
+                self.factory.post('/', {'csv_delimiter': 'tab', 'csv_quotechar': 'none'})
+            ),
+            {'delimiter': '\t', 'quotechar': ''},
+        )
+        with self.assertRaises(ConvertitHttpException) as ctx:
+            get_csv_options(self.factory.get('/', {'csv_delimiter': ';;'}))
+        self.assertEqual(ctx.exception.status, 400)
+        with self.assertRaises(ConvertitHttpException) as ctx:
+            get_csv_options(self.factory.get('/', {'csv_quotechar': '""'}))
+        self.assertEqual(ctx.exception.status, 400)
+
     @override_settings(CONVERTIT_CONVERTERS='convertit.converters.cairosvg')
     def test_get_converters_from_string_setting(self):
         converters = get_converters()
@@ -218,10 +267,16 @@ class ViewsAndCoreUnitTests(TestCase):
     def test_ui_view_get_and_method_not_allowed(self):
         resp = self.client.get('/ui/')
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Convertir le fichier', resp.content)
+        self.assertIn(b'<html lang="en">', resp.content)
+        self.assertIn(b'Convert file', resp.content)
+        self.assertIn(b'OpenDocument Text (.odt)', resp.content)
         self.assertIn(b'application/pdf', resp.content)
         self.assertIn(b'.docx', resp.content)
         self.assertIn(b'.xlsx', resp.content)
+        self.assertIn(b'.csv', resp.content)
+        self.assertIn(b'text/csv', resp.content)
+        self.assertIn(b'csv_delimiter', resp.content)
+        self.assertIn(b'csv_quotechar', resp.content)
         self.assertIn(
             b'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             resp.content,
@@ -233,5 +288,16 @@ class ViewsAndCoreUnitTests(TestCase):
 
         post_resp = self.client.post('/ui/')
         self.assertEqual(post_resp.status_code, 405)
+
+    def test_ui_view_accept_language_french(self):
+        resp = self.client.get(
+            '/ui/',
+            HTTP_ACCEPT_LANGUAGE='fr-FR,fr;q=0.9,en;q=0.8',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'<html lang="fr">', resp.content)
+        self.assertIn(b'Convertir le fichier', resp.content)
+        self.assertIn(b'Document OpenDocument (.odt)', resp.content)
+        self.assertIn(b'Virgule (,)', resp.content)
 
 

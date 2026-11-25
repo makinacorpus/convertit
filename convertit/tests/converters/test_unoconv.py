@@ -15,6 +15,7 @@ class UnoconvConvertionTests(TestCase):
     odt_filepath = os.path.join(here, '../data/test_document.odt')
     docx_filepath = os.path.join(here, '../data/test_document.docx')
     xlsx_filepath = os.path.join(here, '../data/test_spreadsheet.xlsx')
+    csv_filepath = os.path.join(here, '../data/test_spreadsheet.csv')
     pdf_filepath = os.path.join(here, '../data/test_document.pdf')
 
     def setUp(self):
@@ -80,6 +81,81 @@ class UnoconvConvertionTests(TestCase):
             os.path.exists(os.path.join(xls_to_xlsx_dir, 'test_spreadsheet.xlsx'))
         )
 
+    def test_spreadsheet_to_csv_and_back_conversions(self):
+        # xlsx -> csv
+        xlsx_to_csv_dir = os.path.join(self.temp_dir, 'xlsx_to_csv')
+        os.makedirs(xlsx_to_csv_dir)
+        unoconv.to_csv(self.xlsx_filepath, xlsx_to_csv_dir)
+        csv_from_xlsx = os.path.join(xlsx_to_csv_dir, 'test_spreadsheet.csv')
+        self.assertTrue(os.path.exists(csv_from_xlsx))
+        with open(csv_from_xlsx, encoding='utf-8') as f:
+            self.assertIn('Name,Value', f.read())
+
+        # ods -> csv
+        ods_filepath = os.path.join(self.temp_dir, 'test_spreadsheet.ods')
+        unoconv.csv_to_ods(self.csv_filepath, self.temp_dir)
+        self.assertTrue(os.path.exists(ods_filepath))
+        ods_to_csv_dir = os.path.join(self.temp_dir, 'ods_to_csv')
+        os.makedirs(ods_to_csv_dir)
+        unoconv.to_csv(ods_filepath, ods_to_csv_dir)
+        csv_from_ods = os.path.join(ods_to_csv_dir, 'test_spreadsheet.csv')
+        self.assertTrue(os.path.exists(csv_from_ods))
+        with open(csv_from_ods, encoding='utf-8') as f:
+            self.assertIn('Alpha,10', f.read())
+
+        # xls -> csv
+        xls_filepath = os.path.join(self.temp_dir, 'test_spreadsheet.xls')
+        unoconv.csv_to_xls(self.csv_filepath, self.temp_dir)
+        self.assertTrue(os.path.exists(xls_filepath))
+        xls_to_csv_dir = os.path.join(self.temp_dir, 'xls_to_csv')
+        os.makedirs(xls_to_csv_dir)
+        unoconv.to_csv(xls_filepath, xls_to_csv_dir)
+        csv_from_xls = os.path.join(xls_to_csv_dir, 'test_spreadsheet.csv')
+        self.assertTrue(os.path.exists(csv_from_xls))
+        with open(csv_from_xls, encoding='utf-8') as f:
+            self.assertIn('Beta,20', f.read())
+
+        # csv -> xlsx
+        unoconv.csv_to_xlsx(self.csv_filepath, self.temp_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(self.temp_dir, 'test_spreadsheet.xlsx'))
+        )
+
+        # csv with .txt extension -> ods (requires input_filter)
+        txt_csv = os.path.join(self.temp_dir, 'data.txt')
+        shutil.copy(self.csv_filepath, txt_csv)
+        txt_out_dir = os.path.join(self.temp_dir, 'from_txt')
+        os.makedirs(txt_out_dir)
+        unoconv.csv_to_ods(txt_csv, txt_out_dir)
+        self.assertTrue(
+            os.path.exists(os.path.join(txt_out_dir, 'data.ods'))
+        )
+
+    def test_to_csv_with_custom_delimiter_and_quotechar(self):
+        semicolon_dir = os.path.join(self.temp_dir, 'csv_semicolon')
+        os.makedirs(semicolon_dir)
+        unoconv.to_csv(
+            self.xlsx_filepath, semicolon_dir, delimiter=';', quotechar="'"
+        )
+        out_semicolon = os.path.join(semicolon_dir, 'test_spreadsheet.csv')
+        self.assertTrue(os.path.exists(out_semicolon))
+        with open(out_semicolon, encoding='utf-8') as f:
+            content = f.read()
+        self.assertIn("'Name';'Value'", content)
+        self.assertIn("'Alpha';10", content)
+
+        no_quote_dir = os.path.join(self.temp_dir, 'csv_no_quote')
+        os.makedirs(no_quote_dir)
+        unoconv.to_csv(
+            self.xlsx_filepath, no_quote_dir, delimiter='|', quotechar=''
+        )
+        out_no_quote = os.path.join(no_quote_dir, 'test_spreadsheet.csv')
+        self.assertTrue(os.path.exists(out_no_quote))
+        with open(out_no_quote, encoding='utf-8') as f:
+            content = f.read()
+        self.assertIn('Name|Value', content)
+        self.assertIn('Alpha|10', content)
+
     def test_converters_registry_includes_docx_and_xlsx(self):
         registered = unoconv.converters()
         docx_mime = (
@@ -106,7 +182,26 @@ class UnoconvConvertionTests(TestCase):
             registered[(docx_mime, unoconv.DOC_MIMETYPE)], unoconv.to_doc
         )
         self.assertEqual(
-            registered[(unoconv.PLAIN_TEXT, xlsx_mime)], unoconv.to_xlsx
+            registered[(unoconv.CSV_MIMETYPE, unoconv.ODS_MIMETYPE)],
+            unoconv.csv_to_ods,
+        )
+        self.assertEqual(
+            registered[(unoconv.CSV_MIMETYPE, unoconv.XLS_MIMETYPE)],
+            unoconv.csv_to_xls,
+        )
+        self.assertEqual(
+            registered[(unoconv.CSV_MIMETYPE, xlsx_mime)], unoconv.csv_to_xlsx
+        )
+        self.assertEqual(
+            registered[(unoconv.ODS_MIMETYPE, unoconv.CSV_MIMETYPE)],
+            unoconv.to_csv,
+        )
+        self.assertEqual(
+            registered[(unoconv.XLS_MIMETYPE, unoconv.CSV_MIMETYPE)],
+            unoconv.to_csv,
+        )
+        self.assertEqual(
+            registered[(xlsx_mime, unoconv.CSV_MIMETYPE)], unoconv.to_csv
         )
         self.assertEqual(
             registered[(unoconv.ODS_MIMETYPE, xlsx_mime)], unoconv.to_xlsx
@@ -139,6 +234,19 @@ class UnoconvConvertionTests(TestCase):
             unoconv.unoconv(self.temp_dir, 'pdf', self.odt_filepath)
         called_env = mock_popen.call_args.kwargs['env']
         self.assertNotIn('PYTHONPATH', called_env)
+
+    @patch('subprocess.Popen')
+    def test_unoconv_passes_input_filter(self, mock_popen):
+        mock_proc = MagicMock()
+        mock_popen.return_value = mock_proc
+        unoconv.unoconv(
+            self.temp_dir,
+            'ods',
+            self.csv_filepath,
+            input_filter=unoconv.CSV_INPUT_FILTER,
+        )
+        called_cmd = mock_popen.call_args.args[0]
+        self.assertIn(f'--infilter={unoconv.CSV_INPUT_FILTER}', called_cmd)
 
     @patch.object(unoconv, 'unoconv')
     def test_convert_raises_ioerror_when_target_missing(self, mock_unoconv):

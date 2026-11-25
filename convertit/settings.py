@@ -55,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
 ]
 
@@ -68,6 +69,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+                "django.template.context_processors.i18n",
             ],
         },
     },
@@ -85,8 +87,12 @@ DATABASES = {
 
 LANGUAGE_CODE = INI_APP_SETTINGS.get(
     "default_locale_name",
-    INI_APP_SETTINGS.get("pyramid.default_locale_name", "en-us"),
+    INI_APP_SETTINGS.get("pyramid.default_locale_name", "en"),
 )
+LANGUAGES = [
+    ("en", "English"),
+    ("fr", "Français"),
+]
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
@@ -135,6 +141,7 @@ CONVERTIT_CONVERTERS = os.environ.get(
     "CONVERTIT_CONVERTERS",
     INI_APP_SETTINGS.get(
         "convertit.converters",
+        "convertit.converters.unoconv convertit.converters.cairosvg",
     ),
 ).split()
 

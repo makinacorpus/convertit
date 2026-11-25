@@ -7,7 +7,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from functools import partial
-from mimetypes import guess_extension
+from mimetypes import guess_extension, guess_type
 from uuid import uuid4
 
 import magic
@@ -20,6 +20,7 @@ from django.http import (
     HttpResponseServerError,
 )
 from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve as static_serve
 
@@ -34,22 +35,23 @@ seconds_in_hour = 3600
 log = logging.getLogger(__name__)
 
 MIMETYPE_LABELS = {
-    'application/vnd.oasis.opendocument.text': 'Document OpenDocument (.odt)',
-    'application/vnd.oasis.opendocument.spreadsheet': (
-        'Feuille de calcul OpenDocument (.ods)'
+    'application/vnd.oasis.opendocument.text': _('OpenDocument Text (.odt)'),
+    'application/vnd.oasis.opendocument.spreadsheet': _(
+        'OpenDocument Spreadsheet (.ods)'
     ),
-    'plain/text': 'Texte / CSV (.csv, .txt)',
-    'image/svg+xml': 'Image vectorielle SVG (.svg)',
-    'application/pdf': 'Document PDF (.pdf)',
-    'application/msword': 'Document Word (.doc)',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
-        'Document Word (.docx)'
+    'text/csv': _('CSV (.csv)'),
+    'plain/text': _('Text / CSV (.csv, .txt)'),
+    'image/svg+xml': _('SVG Vector Image (.svg)'),
+    'application/pdf': _('PDF Document (.pdf)'),
+    'application/msword': _('Word Document (.doc)'),
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': _(
+        'Word Document (.docx)'
     ),
-    'application/vnd.ms-excel': 'Feuille de calcul Excel (.xls)',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': (
-        'Feuille de calcul Excel (.xlsx)'
+    'application/vnd.ms-excel': _('Excel Spreadsheet (.xls)'),
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': _(
+        'Excel Spreadsheet (.xlsx)'
     ),
-    'image/png': 'Image PNG (.png)',
+    'image/png': _('PNG Image (.png)'),
 }
 
 EXTENSION_TO_MIMETYPE = {
@@ -63,9 +65,15 @@ EXTENSION_TO_MIMETYPE = {
     '.xlsx': (
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ),
-    '.csv': 'plain/text',
-    '.txt': 'plain/text',
+    '.csv': 'text/csv',
+    '.txt': 'text/csv',
     '.svg': 'image/svg+xml',
+}
+
+INPUT_MIMETYPE_ALIASES = {
+    'plain/text': 'text/csv',
+    'text/plain': 'text/csv',
+    'application/csv': 'text/csv',
 }
 
 
@@ -144,20 +152,23 @@ def download(request, url):
 
 
 def get_input_mimetype(request, input_filepath):
-    guessed_mimetype = magic.from_file(input_filepath, mime=True)
-    input_mimetype = (
-        request.GET.get('from')
-        or request.POST.get('from')
-        or guessed_mimetype
-    )
+    explicit_mimetype = request.GET.get('from') or request.POST.get('from')
+    if explicit_mimetype:
+        return explicit_mimetype
 
-    if not input_mimetype:
+    guessed_mimetype = magic.from_file(input_filepath, mime=True)
+    if guessed_mimetype == 'text/plain':
+        ext_mimetype, _ = guess_type(input_filepath)
+        if ext_mimetype:
+            guessed_mimetype = ext_mimetype
+
+    if not guessed_mimetype:
         log.error('Can not guess mimetype')
         raise ConvertitHttpException(
             body='Can not guess mimetype', status=400, content_type='text/plain'
         )
 
-    return input_mimetype
+    return guessed_mimetype
 
 
 def get_converters():
@@ -176,16 +187,20 @@ def get_converters():
 def get_converter(request, input_mimetype, output_mimetype):
     converters = get_converters()
 
-    if (input_mimetype, output_mimetype) not in converters:
-        message = 'Unsupported transform: from %s to %s'
-        log.error(message % (input_mimetype, output_mimetype))
-        raise ConvertitHttpException(
-            body=message % (input_mimetype, output_mimetype),
-            status=400,
-            content_type='text/plain',
-        )
+    if (input_mimetype, output_mimetype) in converters:
+        return converters[(input_mimetype, output_mimetype)]
 
-    return converters[(input_mimetype, output_mimetype)]
+    aliased_input = INPUT_MIMETYPE_ALIASES.get(input_mimetype)
+    if aliased_input and (aliased_input, output_mimetype) in converters:
+        return converters[(aliased_input, output_mimetype)]
+
+    message = 'Unsupported transform: from %s to %s'
+    log.error(message % (input_mimetype, output_mimetype))
+    raise ConvertitHttpException(
+        body=message % (input_mimetype, output_mimetype),
+        status=400,
+        content_type='text/plain',
+    )
 
 
 def output_basename_from_url(request, mimetype, url):
@@ -275,6 +290,40 @@ def home_post_view(request):
     return home_view(request, input_filepath, output_basename_generator)
 
 
+def get_csv_options(request):
+    options = {}
+
+    delimiter = request.GET.get('csv_delimiter')
+    if delimiter is None:
+        delimiter = request.POST.get('csv_delimiter')
+    if delimiter is not None:
+        if delimiter in ('\\t', 'tab'):
+            delimiter = '\t'
+        if len(delimiter) != 1 or ord(delimiter) >= 128:
+            raise ConvertitHttpException(
+                body='Invalid parameter: csv_delimiter must be a single ASCII character',
+                status=400,
+                content_type='text/plain',
+            )
+        options['delimiter'] = delimiter
+
+    quotechar = request.GET.get('csv_quotechar')
+    if quotechar is None:
+        quotechar = request.POST.get('csv_quotechar')
+    if quotechar is not None:
+        if quotechar.lower() == 'none':
+            quotechar = ''
+        if quotechar != '' and (len(quotechar) != 1 or ord(quotechar) >= 128):
+            raise ConvertitHttpException(
+                body='Invalid parameter: csv_quotechar must be a single ASCII character or none',
+                status=400,
+                content_type='text/plain',
+            )
+        options['quotechar'] = quotechar
+
+    return options
+
+
 def home_view(request, input_filepath, output_basename_generator):
     converted_path = settings.CONVERTIT_CONVERTED_PATH
 
@@ -293,9 +342,15 @@ def home_view(request, input_filepath, output_basename_generator):
         f"from: {input_mimetype} to {output_mimetype}, file: {output_filepath}"
     )
     convert = get_converter(request, input_mimetype, output_mimetype)
+    convert_options = (
+        get_csv_options(request) if output_mimetype == 'text/csv' else {}
+    )
 
     try:
-        convert(input_filepath, converted_path)
+        if convert_options:
+            convert(input_filepath, converted_path, **convert_options)
+        else:
+            convert(input_filepath, converted_path)
         log.error(f"converted: {input_filepath} to {converted_path}")
     except Exception as e:
         msg = "Sorry, there was an error converting the document. Reason: %s"
@@ -315,9 +370,9 @@ def get_available_conversions():
         conversions.append(
             {
                 'from': input_mime,
-                'from_label': MIMETYPE_LABELS.get(input_mime, input_mime),
+                'from_label': str(MIMETYPE_LABELS.get(input_mime, input_mime)),
                 'to': output_mime,
-                'to_label': MIMETYPE_LABELS.get(output_mime, output_mime),
+                'to_label': str(MIMETYPE_LABELS.get(output_mime, output_mime)),
             }
         )
     return conversions

@@ -48,6 +48,11 @@ class FunctionalTests(TestCase):
         with open(xlsx_path, 'rb') as f:
             return f.read()
 
+    def csv_data(self):
+        csv_path = os.path.join(data_path, 'test_spreadsheet.csv')
+        with open(csv_path, 'rb') as f:
+            return f.read()
+
     def test_no_url(self):
         "Get homepage without any `url` param"
 
@@ -259,3 +264,131 @@ class FunctionalTests(TestCase):
             self.assertTrue(
                 os.path.exists(os.path.join(converted_path, filename))
             )
+
+    def test_post_csv_to_ods_xls_xlsx_and_back_to_csv(self):
+        "Post csv to ods/xls/xlsx and convert each spreadsheet back to csv"
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        targets = [
+            ('ods', 'application/vnd.oasis.opendocument.spreadsheet'),
+            ('xls', 'application/vnd.ms-excel'),
+            (
+                'xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ),
+        ]
+        for ext, mimetype in targets:
+            # csv -> ods/xls/xlsx (without explicit `from`)
+            uploaded_csv = SimpleUploadedFile(
+                'test_spreadsheet.csv', self.csv_data()
+            )
+            resp = self.client.post(
+                '/', {'file': uploaded_csv, 'to': mimetype}
+            )
+            self.assertEqual(resp.status_code, 302)
+            converted_name = os.path.basename(resp['Location'])
+            self.assertEqual(converted_name, f'test_spreadsheet.{ext}')
+            converted_file = os.path.join(converted_path, converted_name)
+            self.assertTrue(os.path.exists(converted_file))
+
+            # ods/xls/xlsx -> csv
+            with open(converted_file, 'rb') as f:
+                uploaded_sheet = SimpleUploadedFile(
+                    f'roundtrip.{ext}', f.read()
+                )
+            resp_csv = self.client.post(
+                '/', {'file': uploaded_sheet, 'to': 'text/csv'}
+            )
+            self.assertEqual(resp_csv.status_code, 302)
+            csv_name = os.path.basename(resp_csv['Location'])
+            self.assertEqual(csv_name, 'roundtrip.csv')
+            csv_file = os.path.join(converted_path, csv_name)
+            self.assertTrue(os.path.exists(csv_file))
+            with open(csv_file, encoding='utf-8') as f:
+                content = f.read()
+            self.assertIn('Name,Value', content)
+            self.assertIn('Alpha,10', content)
+            self.assertIn('Beta,20', content)
+
+    def test_get_xlsx_to_csv_and_csv_to_xlsx(self):
+        "Convert xlsx from URL to csv and csv from URL (with legacy from) to xlsx"
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        with patch.object(urllib.request, 'urlopen') as mock_urlopen:
+            mock_req = Mock()
+            mock_req.read.return_value = self.xlsx_data()
+            mock_urlopen.return_value = mock_req
+            resp = self.client.get(
+                '/',
+                {
+                    'url': 'http://example.com/test_spreadsheet.xlsx',
+                    'to': 'text/csv',
+                },
+            )
+            self.assertEqual(resp.status_code, 302)
+            filename = os.path.basename(resp['Location'])
+            self.assertEqual(filename, 'test_spreadsheet.csv')
+            self.assertTrue(
+                os.path.exists(os.path.join(converted_path, filename))
+            )
+
+        xlsx_mime = (
+            'application/vnd.openxmlformats-officedocument.'
+            'spreadsheetml.sheet'
+        )
+        with patch.object(urllib.request, 'urlopen') as mock_urlopen:
+            mock_req = Mock()
+            mock_req.read.return_value = self.csv_data()
+            mock_urlopen.return_value = mock_req
+            resp = self.client.get(
+                '/',
+                {
+                    'url': 'http://example.com/test_spreadsheet.csv',
+                    'from': 'plain/text',
+                    'to': xlsx_mime,
+                },
+            )
+            self.assertEqual(resp.status_code, 302)
+            filename = os.path.basename(resp['Location'])
+            self.assertEqual(filename, 'test_spreadsheet.xlsx')
+            self.assertTrue(
+                os.path.exists(os.path.join(converted_path, filename))
+            )
+
+    def test_post_xlsx_to_csv_with_options(self):
+        "Post xlsx to csv with custom delimiter and quotechar"
+        converted_path = TEST_SETTINGS['CONVERTIT_CONVERTED_PATH']
+        uploaded_file = SimpleUploadedFile(
+            'test_spreadsheet.xlsx', self.xlsx_data()
+        )
+        resp = self.client.post(
+            '/',
+            {
+                'file': uploaded_file,
+                'to': 'text/csv',
+                'csv_delimiter': ';',
+                'csv_quotechar': "'",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        filename = os.path.basename(resp['Location'])
+        self.assertEqual(filename, 'test_spreadsheet.csv')
+        csv_file = os.path.join(converted_path, filename)
+        self.assertTrue(os.path.exists(csv_file))
+        with open(csv_file, encoding='utf-8') as f:
+            content = f.read()
+        self.assertIn("'Name';'Value'", content)
+        self.assertIn("'Alpha';10", content)
+
+        # Invalid csv_delimiter returns 400
+        uploaded_invalid = SimpleUploadedFile(
+            'test_spreadsheet.xlsx', self.xlsx_data()
+        )
+        resp_invalid = self.client.post(
+            '/',
+            {
+                'file': uploaded_invalid,
+                'to': 'text/csv',
+                'csv_delimiter': 'invalid',
+            },
+        )
+        self.assertEqual(resp_invalid.status_code, 400)
+        self.assertIn(b'Invalid parameter: csv_delimiter', resp_invalid.content)

@@ -5,6 +5,8 @@ CHANGELOG
 3.1.0+dev   (XXXX-XX-XX)
 ------------------------
 
+- Support full CSV conversion
+
 
 3.1.0       (2026-11-20)
 ------------------------

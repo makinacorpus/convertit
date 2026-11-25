@@ -34,12 +34,15 @@ Description: A file conversion Web API in Django
  - docx -> pdf
  - docx -> odt
  - docx -> doc
+ - ods -> csv
  - ods -> xls
  - ods -> xlsx
+ - xls -> csv
  - xls -> xlsx
  - xlsx -> pdf
  - xlsx -> ods
  - xlsx -> xls
+ - xlsx -> csv
  - csv -> ods
  - csv -> xls
  - csv -> xlsx

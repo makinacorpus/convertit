@@ -47,7 +47,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends libreoffice-writer-nogui libreoffice-calc-nogui libcairo2 libmagic1t64
+          sudo apt-get install -y -qq --no-install-recommends gettext libreoffice-writer-nogui libreoffice-calc-nogui libcairo2 libmagic1t64
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
@@ -60,6 +60,7 @@ jobs:
 
       - name: Run unit tests and generate coverage
         run: |
+          uv run --no-project python manage.py compilemessages
           uv run --no-project coverage run --source=convertit manage.py test
           uv run --no-project coverage xml
 
