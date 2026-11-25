@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-3.1.0+dev   (XXXX-XX-XX)
+3.2.0       (2026-11-25)
 ------------------------
 
 - Support full CSV conversion
