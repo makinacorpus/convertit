@@ -28,7 +28,7 @@ ARG PYTHON_VERSION=""
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked  \
     apt-get update && \
-    apt-get install -y -qq --no-install-recommends build-essential
+    apt-get install -y -qq --no-install-recommends build-essential gettext
 
 COPY --from=uv /uv /uvx /bin/
 
@@ -49,7 +49,8 @@ COPY manage.py /opt/apps/convertit/manage.py
 COPY pyproject.toml /opt/apps/convertit/pyproject.toml
 COPY README.md /opt/apps/convertit/README.md
 
-RUN uv pip install --no-cache --no-deps --python /opt/venv/bin/python .
+RUN /opt/venv/bin/python manage.py compilemessages && \
+    uv pip install --no-cache --no-deps --python /opt/venv/bin/python .
 
 
 FROM build AS dev
@@ -62,7 +63,7 @@ FROM base AS prod
 
 COPY --from=build /opt/python /opt/python
 COPY --from=build /opt/venv /opt/venv
-COPY convertit /opt/apps/convertit/convertit
+COPY --from=build /opt/apps/convertit/convertit /opt/apps/convertit/convertit
 COPY manage.py /opt/apps/convertit/manage.py
 COPY pyproject.toml /opt/apps/convertit/pyproject.toml
 COPY README.md /opt/apps/convertit/README.md

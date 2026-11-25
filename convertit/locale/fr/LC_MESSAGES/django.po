@@ -1,0 +1,153 @@
+# French translations for Convertit.
+# Copyright (C) Makina Corpus
+# This file is distributed under the same license as the convertit package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: convertit\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-25 11:05+0000\n"
+"PO-Revision-Date: 2026-11-25 11:05+0000\n"
+"Last-Translator: Makina Corpus <contact@makina-corpus.com>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: templates/ui.html:6
+msgid "Convertit — File Converter"
+msgstr "Convertit — Convertisseur de fichiers"
+
+#: templates/ui.html:140
+msgid ""
+"Select a file, choose the target format, and download the converted document."
+msgstr ""
+"Sélectionnez un fichier, choisissez le format cible et téléchargez le "
+"document converti."
+
+#: templates/ui.html:145
+msgid "1. Source file"
+msgstr "1. Fichier source"
+
+#: templates/ui.html:154
+#, python-format
+msgid "Supported formats: %(extensions)s"
+msgstr "Formats supportés : %(extensions)s"
+
+#: templates/ui.html:160
+msgid "2. Available conversion"
+msgstr "2. Conversion disponible"
+
+#: templates/ui.html:172
+msgid "Field delimiter (CSV)"
+msgstr "Séparateur de champ (CSV)"
+
+#: templates/ui.html:174
+msgid "Comma (,)"
+msgstr "Virgule (,)"
+
+#: templates/ui.html:175
+msgid "Semicolon (;)"
+msgstr "Point-virgule (;)"
+
+#: templates/ui.html:176
+msgid "Tab (\\t)"
+msgstr "Tabulation (\\t)"
+
+#: templates/ui.html:177
+msgid "Pipe (|)"
+msgstr "Barre verticale (|)"
+
+#: templates/ui.html:181
+msgid "String quote character (CSV)"
+msgstr "Délimiteur de chaîne (CSV)"
+
+#: templates/ui.html:183
+msgid "Double quote (\")"
+msgstr "Guillemet double (\")"
+
+#: templates/ui.html:184
+msgid "Single quote (')"
+msgstr "Guillemet simple (')"
+
+#: templates/ui.html:185
+msgid "None"
+msgstr "Aucun"
+
+#: templates/ui.html:191
+msgid "Convert file"
+msgstr "Convertir le fichier"
+
+#: templates/ui.html:196
+msgid "Conversion completed successfully!"
+msgstr "Conversion terminée avec succès !"
+
+#: templates/ui.html:198
+msgid "Download converted file"
+msgstr "Télécharger le fichier converti"
+
+#: templates/ui.html:205
+msgid "Unsupported file format:"
+msgstr "Format de fichier non supporté :"
+
+#: templates/ui.html:206
+msgid "Converting..."
+msgstr "Conversion en cours..."
+
+#: templates/ui.html:207
+msgid "HTTP error"
+msgstr "Erreur HTTP"
+
+#: templates/ui.html:208
+msgid "converted_document"
+msgstr "document_converti"
+
+#: templates/ui.html:209
+msgid "An error occurred during conversion."
+msgstr "Une erreur est survenue lors de la conversion."
+
+#: views.py:38
+msgid "OpenDocument Text (.odt)"
+msgstr "Document OpenDocument (.odt)"
+
+#: views.py:40
+msgid "OpenDocument Spreadsheet (.ods)"
+msgstr "Feuille de calcul OpenDocument (.ods)"
+
+#: views.py:42
+msgid "CSV (.csv)"
+msgstr "CSV (.csv)"
+
+#: views.py:43
+msgid "Text / CSV (.csv, .txt)"
+msgstr "Texte / CSV (.csv, .txt)"
+
+#: views.py:44
+msgid "SVG Vector Image (.svg)"
+msgstr "Image vectorielle SVG (.svg)"
+
+#: views.py:45
+msgid "PDF Document (.pdf)"
+msgstr "Document PDF (.pdf)"
+
+#: views.py:46
+msgid "Word Document (.doc)"
+msgstr "Document Word (.doc)"
+
+#: views.py:48
+msgid "Word Document (.docx)"
+msgstr "Document Word (.docx)"
+
+#: views.py:50
+msgid "Excel Spreadsheet (.xls)"
+msgstr "Feuille de calcul Excel (.xls)"
+
+#: views.py:52
+msgid "Excel Spreadsheet (.xlsx)"
+msgstr "Feuille de calcul Excel (.xlsx)"
+
+#: views.py:54
+msgid "PNG Image (.png)"
+msgstr "Image PNG (.png)"

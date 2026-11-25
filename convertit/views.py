@@ -20,6 +20,7 @@ from django.http import (
     HttpResponseServerError,
 )
 from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve as static_serve
 
@@ -34,23 +35,23 @@ seconds_in_hour = 3600
 log = logging.getLogger(__name__)
 
 MIMETYPE_LABELS = {
-    'application/vnd.oasis.opendocument.text': 'Document OpenDocument (.odt)',
-    'application/vnd.oasis.opendocument.spreadsheet': (
-        'Feuille de calcul OpenDocument (.ods)'
+    'application/vnd.oasis.opendocument.text': _('OpenDocument Text (.odt)'),
+    'application/vnd.oasis.opendocument.spreadsheet': _(
+        'OpenDocument Spreadsheet (.ods)'
     ),
-    'text/csv': 'CSV (.csv)',
-    'plain/text': 'Texte / CSV (.csv, .txt)',
-    'image/svg+xml': 'Image vectorielle SVG (.svg)',
-    'application/pdf': 'Document PDF (.pdf)',
-    'application/msword': 'Document Word (.doc)',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': (
-        'Document Word (.docx)'
+    'text/csv': _('CSV (.csv)'),
+    'plain/text': _('Text / CSV (.csv, .txt)'),
+    'image/svg+xml': _('SVG Vector Image (.svg)'),
+    'application/pdf': _('PDF Document (.pdf)'),
+    'application/msword': _('Word Document (.doc)'),
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': _(
+        'Word Document (.docx)'
     ),
-    'application/vnd.ms-excel': 'Feuille de calcul Excel (.xls)',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': (
-        'Feuille de calcul Excel (.xlsx)'
+    'application/vnd.ms-excel': _('Excel Spreadsheet (.xls)'),
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': _(
+        'Excel Spreadsheet (.xlsx)'
     ),
-    'image/png': 'Image PNG (.png)',
+    'image/png': _('PNG Image (.png)'),
 }
 
 EXTENSION_TO_MIMETYPE = {
@@ -369,9 +370,9 @@ def get_available_conversions():
         conversions.append(
             {
                 'from': input_mime,
-                'from_label': MIMETYPE_LABELS.get(input_mime, input_mime),
+                'from_label': str(MIMETYPE_LABELS.get(input_mime, input_mime)),
                 'to': output_mime,
-                'to_label': MIMETYPE_LABELS.get(output_mime, output_mime),
+                'to_label': str(MIMETYPE_LABELS.get(output_mime, output_mime)),
             }
         )
     return conversions

@@ -267,7 +267,9 @@ class ViewsAndCoreUnitTests(TestCase):
     def test_ui_view_get_and_method_not_allowed(self):
         resp = self.client.get('/ui/')
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Convertir le fichier', resp.content)
+        self.assertIn(b'<html lang="en">', resp.content)
+        self.assertIn(b'Convert file', resp.content)
+        self.assertIn(b'OpenDocument Text (.odt)', resp.content)
         self.assertIn(b'application/pdf', resp.content)
         self.assertIn(b'.docx', resp.content)
         self.assertIn(b'.xlsx', resp.content)
@@ -286,5 +288,16 @@ class ViewsAndCoreUnitTests(TestCase):
 
         post_resp = self.client.post('/ui/')
         self.assertEqual(post_resp.status_code, 405)
+
+    def test_ui_view_accept_language_french(self):
+        resp = self.client.get(
+            '/ui/',
+            HTTP_ACCEPT_LANGUAGE='fr-FR,fr;q=0.9,en;q=0.8',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn(b'<html lang="fr">', resp.content)
+        self.assertIn(b'Convertir le fichier', resp.content)
+        self.assertIn(b'Document OpenDocument (.odt)', resp.content)
+        self.assertIn(b'Virgule (,)', resp.content)
 
 

@@ -14,6 +14,7 @@ RUN apt-get update -qq -o Acquire::Languages=none && \
     devscripts \
     equivs \
     ca-certificates \
+    gettext \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
