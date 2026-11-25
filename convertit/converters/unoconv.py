@@ -26,12 +26,16 @@ class Lock:
         self.handle.close()
 
 
-def unoconv(output_path, output_format, source):
+def unoconv(output_path, output_format, source, input_filter=None):
     command = [
         'libreoffice', '--headless',
-        '--convert-to', output_format,
-        '--outdir', output_path, source
     ]
+    if input_filter:
+        command.append(f'--infilter={input_filter}')
+    command.extend([
+        '--convert-to', output_format,
+        '--outdir', output_path, source,
+    ])
 
     # Do not mess pyuno pythonpath !
     env = os.environ.copy()
@@ -50,20 +54,41 @@ def unoconv(output_path, output_format, source):
     return p
 
 
-def convert(source, target, output_format):
+def convert(source, target, output_format, input_filter=None):
     log.error('Converting %s to %s with %s', source, target, output_format)
-    p = unoconv(target, output_format, source)
+    p = unoconv(target, output_format, source, input_filter=input_filter)
     output = b'\n'.join([p.stdout.read(), p.stderr.read()])
     log.error(output)
     filename = os.path.basename(source)
     # replace extenson with output_frmat
     filename, _ = os.path.splitext(filename)
-    filename = filename + '.' + output_format
+    output_ext = output_format.split(':', 1)[0]
+    filename = filename + '.' + output_ext
 
     target_file = os.path.join(target, filename)
 
     if not os.path.exists(target_file):
         raise IOError(p.returncode, output.decode())
+
+
+CSV_INPUT_FILTER = 'Text - txt - csv (StarCalc)'
+
+
+def build_csv_filter_options(delimiter=',', quotechar='"'):
+    sep_code = ord(delimiter)
+    quote_code = ord(quotechar) if quotechar else 0
+    return f'{sep_code},{quote_code},76,1'
+
+
+def to_csv(source, target, delimiter=None, quotechar=None):
+    if delimiter is None and quotechar is None:
+        return convert(source, target, output_format='csv')
+    filter_options = build_csv_filter_options(
+        delimiter=',' if delimiter is None else delimiter,
+        quotechar='"' if quotechar is None else quotechar,
+    )
+    output_format = f'csv:{CSV_INPUT_FILTER}:{filter_options}'
+    return convert(source, target, output_format=output_format)
 
 
 to_doc = partial(convert, output_format='doc')
@@ -74,7 +99,18 @@ to_pdf = partial(convert, output_format='pdf')
 to_xls = partial(convert, output_format='xls')
 to_xlsx = partial(convert, output_format='xlsx')
 
+csv_to_ods = partial(
+    convert, output_format='ods', input_filter=CSV_INPUT_FILTER
+)
+csv_to_xls = partial(
+    convert, output_format='xls', input_filter=CSV_INPUT_FILTER
+)
+csv_to_xlsx = partial(
+    convert, output_format='xlsx', input_filter=CSV_INPUT_FILTER
+)
+
 PLAIN_TEXT = 'plain/text'
+CSV_MIMETYPE = 'text/csv'
 ODT_MIMETYPE = 'application/vnd.oasis.opendocument.text'
 ODS_MIMETYPE = 'application/vnd.oasis.opendocument.spreadsheet'
 DOC_MIMETYPE = 'application/msword'
@@ -94,12 +130,15 @@ def is_available():
 
 def converters():
     return {
-        (PLAIN_TEXT, ODS_MIMETYPE): to_ods,
-        (PLAIN_TEXT, XLS_MIMETYPE): to_xls,
-        (PLAIN_TEXT, XLSX_MIMETYPE): to_xlsx,
+        (CSV_MIMETYPE, ODS_MIMETYPE): csv_to_ods,
+        (CSV_MIMETYPE, XLS_MIMETYPE): csv_to_xls,
+        (CSV_MIMETYPE, XLSX_MIMETYPE): csv_to_xlsx,
+        (ODS_MIMETYPE, CSV_MIMETYPE): to_csv,
         (ODS_MIMETYPE, XLS_MIMETYPE): to_xls,
         (ODS_MIMETYPE, XLSX_MIMETYPE): to_xlsx,
+        (XLS_MIMETYPE, CSV_MIMETYPE): to_csv,
         (XLS_MIMETYPE, XLSX_MIMETYPE): to_xlsx,
+        (XLSX_MIMETYPE, CSV_MIMETYPE): to_csv,
         (XLSX_MIMETYPE, PDF_MIMETYPE): to_pdf,
         (XLSX_MIMETYPE, ODS_MIMETYPE): to_ods,
         (XLSX_MIMETYPE, XLS_MIMETYPE): to_xls,

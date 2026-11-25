@@ -167,6 +167,26 @@
                 </select>
             </div>
 
+            <div id="csv-options" style="display: none;">
+                <div class="form-group">
+                    <label for="csv-delimiter">Séparateur de champ (CSV)</label>
+                    <select id="csv-delimiter" name="csv_delimiter" disabled>
+                        <option value=",">Virgule (,)</option>
+                        <option value=";">Point-virgule (;)</option>
+                        <option value="tab">Tabulation (\t)</option>
+                        <option value="|">Barre verticale (|)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="csv-quotechar">Délimiteur de chaîne (CSV)</label>
+                    <select id="csv-quotechar" name="csv_quotechar" disabled>
+                        <option value="&quot;">Guillemet double (&quot;)</option>
+                        <option value="'">Guillemet simple (')</option>
+                        <option value="none">Aucun</option>
+                    </select>
+                </div>
+            </div>
+
             <button type="submit" id="submit-btn" class="btn btn-primary">
                 Convertir le fichier
             </button>
@@ -189,11 +209,21 @@
             const fileInput = document.getElementById('file-input');
             const fromInput = document.getElementById('from-input');
             const toSelect = document.getElementById('to-select');
+            const csvOptions = document.getElementById('csv-options');
+            const csvDelimiter = document.getElementById('csv-delimiter');
+            const csvQuotechar = document.getElementById('csv-quotechar');
             const submitBtn = document.getElementById('submit-btn');
             const form = document.getElementById('convert-form');
             const resultBox = document.getElementById('result-box');
             const downloadLink = document.getElementById('download-link');
             const errorBox = document.getElementById('error-box');
+
+            function updateCsvOptionsVisibility() {
+                const isCsvTarget = toSelect.value === 'text/csv';
+                csvOptions.style.display = isCsvTarget ? 'block' : 'none';
+                csvDelimiter.disabled = !isCsvTarget;
+                csvQuotechar.disabled = !isCsvTarget;
+            }
 
             function updateAvailableConversions() {
                 resultBox.style.display = 'none';
@@ -201,6 +231,7 @@
 
                 const file = fileInput.files && fileInput.files[0];
                 if (!file) {
+                    updateCsvOptionsVisibility();
                     return;
                 }
                 const dotIndex = file.name.lastIndexOf('.');
@@ -211,6 +242,7 @@
                     fromInput.value = '';
                     toSelect.innerHTML = '';
                     submitBtn.disabled = true;
+                    updateCsvOptionsVisibility();
                     errorBox.textContent = 'Format de fichier non supporté : ' + (ext || file.name);
                     errorBox.style.display = 'block';
                     return;
@@ -231,9 +263,12 @@
                 });
 
                 submitBtn.disabled = matching.length === 0;
+                updateCsvOptionsVisibility();
             }
 
             fileInput.addEventListener('change', updateAvailableConversions);
+            toSelect.addEventListener('change', updateCsvOptionsVisibility);
+            updateCsvOptionsVisibility();
 
             form.addEventListener('submit', async function (event) {
                 event.preventDefault();

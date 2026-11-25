@@ -19,12 +19,15 @@ Using a dead simple `GET` request, documents are pulled. Using `POST` request, i
 - docx -> pdf
 - docx -> odt
 - docx -> doc
+- ods -> csv
 - ods -> xls
 - ods -> xlsx
+- xls -> csv
 - xls -> xlsx
 - xlsx -> pdf
 - xlsx -> ods
 - xlsx -> xls
+- xlsx -> csv
 - csv -> ods
 - csv -> xls
 - csv -> xlsx
@@ -79,7 +82,9 @@ Content-Disposition: attachment; filename=tiger.png
 ### Query parameters
 
 - **to**: output mimetype (optionnal, default to `application/pdf` if not provided);
-- **from**: input mimetype (optionnal, guessed from input url or file if not provided).
+- **from**: input mimetype (optionnal, guessed from input url or file if not provided);
+- **csv_delimiter**: field separator when converting to `text/csv` (optional, single ASCII character or `tab` / `\t`, default `,`);
+- **csv_quotechar**: string delimiter when converting to `text/csv` (optional, single ASCII character or `none`, default `"`).
 
 ## INSTALL
 
